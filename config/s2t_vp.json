@@ -1,0 +1,9 @@
+{
+  "name": "Simplified Chinese to Traditional Chinese",
+  "dicts": [
+    [
+      "../dictionary/s2t-v",
+      "../dictionary/s2t-p"
+    ]
+  ]
+}

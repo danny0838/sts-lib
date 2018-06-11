@@ -1,0 +1,13 @@
+{
+  "name": "Traditional Chinese to Simplified Chinese (China standard)",
+  "dicts": [
+    [
+      "../dictionary/t2s-v",
+      "../dictionary/t2s-p"
+    ],
+    [
+      "../dictionary/cn-v",
+      "../dictionary/cn-p"
+    ]
+  ]
+}

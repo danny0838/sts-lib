@@ -1,0 +1,13 @@
+{
+  "name": "Mixed text to Traditional Chinese",
+  "dicts": [
+    [
+      "../dictionary/t2s-v",
+      "../dictionary/t2s-p"
+    ],
+    [
+      "../dictionary/s2t-v",
+      "../dictionary/s2t-p"
+    ]
+  ]
+}
