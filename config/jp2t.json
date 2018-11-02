@@ -1,0 +1,8 @@
+{
+  "name": "Simplified Chinese (Japan standard) to Traditional Chinese",
+  "dicts": [
+    [
+      "../dictionary/jp2t-chars"
+    ]
+  ]
+}
