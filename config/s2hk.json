@@ -1,0 +1,12 @@
+{
+  "name": "Simplified Chinese to Traditional Chinese (Hong Kong standard)",
+  "dicts": [
+    [
+      "../dictionary/st-chars",
+      "../dictionary/st-phrases"
+    ],
+    [
+      "../dictionary/t2hk-chars"
+    ]
+  ]
+}

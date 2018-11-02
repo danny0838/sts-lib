@@ -1,0 +1,12 @@
+{
+  "name": "Traditional Chinese to Simplified Chinese (China standard)",
+  "dicts": [
+    [
+      "../dictionary/ts-chars",
+      "../dictionary/ts-phrases"
+    ],
+    [
+      "../dictionary/s2cn-chars"
+    ]
+  ]
+}
