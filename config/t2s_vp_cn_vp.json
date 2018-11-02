@@ -1,13 +1,13 @@
 {
-  "name": "Traditional Chinese to Simplified Chinese (China standard)",
+  "name": "Traditional Chinese to Simplified Chinese (China standard) (with phrases)",
   "dicts": [
     [
-      "../dictionary/t2s-v",
-      "../dictionary/t2s-p"
+      "../dictionary/ts-chars",
+      "../dictionary/ts-phrases"
     ],
     [
-      "../dictionary/cn-v",
-      "../dictionary/cn-p"
+      "../dictionary/s2cn-chars",
+      "../dictionary/s2cn-phrases"
     ]
   ]
 }

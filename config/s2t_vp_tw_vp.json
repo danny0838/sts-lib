@@ -1,13 +1,13 @@
 {
-  "name": "Simplified Chinese to Traditional Chinese (Taiwan standard)",
+  "name": "Simplified Chinese to Traditional Chinese (Taiwan standard) (with phrases)",
   "dicts": [
     [
-      "../dictionary/s2t-v",
-      "../dictionary/s2t-p"
+      "../dictionary/st-chars",
+      "../dictionary/st-phrases"
     ],
     [
-      "../dictionary/tw-v",
-      "../dictionary/tw-p"
+      "../dictionary/t2tw-chars",
+      "../dictionary/t2tw-phrases"
     ]
   ]
 }
