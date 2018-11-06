@@ -1,5 +1,6 @@
 {
   "name": "Traditional Chinese to Simplified Chinese (China standard)",
+  "format": "tlist",
   "dicts": [
     [
       "../dictionary/ts-chars",
