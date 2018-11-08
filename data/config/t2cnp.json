@@ -1,0 +1,14 @@
+{
+  "name": "Traditional Chinese to Simplified Chinese (China standard) (with phrases)",
+  "format": "tlist",
+  "dicts": [
+    [
+      "../dictionary/ts-chars",
+      "../dictionary/ts-phrases"
+    ],
+    [
+      "../dictionary/s2cn-chars",
+      "../dictionary/s2cn-phrases"
+    ]
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Mixed text to Simplified Chinese",
+  "format": "tlist",
+  "dicts": [
+    [
+      "../dictionary/st-chars",
+      "../dictionary/st-phrases"
+    ],
+    [
+      "../dictionary/ts-chars",
+      "../dictionary/ts-phrases"
+    ]
+  ]
+}
