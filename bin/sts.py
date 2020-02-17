@@ -747,7 +747,7 @@ class StsListMaker():
         return output_file
 
 class StsConverter():
-    """Convert a text using a config.
+    """Convert a text using a listfile.
     """
     def __init__(self, listfile, options={}):
         _, ext = os.path.splitext(listfile)
