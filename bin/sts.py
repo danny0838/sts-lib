@@ -17,7 +17,7 @@ from glob import glob
 import html
 from collections import namedtuple, OrderedDict
 
-VERSION = '0.11.0'
+__version__ = '0.11.0'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
@@ -1033,7 +1033,7 @@ def main():
     if args['func']:
         locals()[args['func']](args)
     elif args['version']:
-        print('sts {}'.format(VERSION))
+        print('sts {}'.format(__version__))
     else:
         parser.parse_args(['-h'])
 
