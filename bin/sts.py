@@ -191,7 +191,7 @@ class StsDict(OrderedDict):
         iterator = self.iter()
         if sort: iterator = sorted(iterator)
         for key, values in iterator:
-            f.write("{}\t{}\n".format(key, " ".join(values)))
+            f.write(f'{key}\t{" ".join(values)}\n')
 
     def loadjson(self, file):
         """Load from a JSON file.
@@ -224,7 +224,7 @@ class StsDict(OrderedDict):
         iterator = self.iter()
         if sort: iterator = sorted(iterator)
         for key, values in iterator:
-            print("{} => {}".format(key, " ".join(values)))
+            print(f'{key} => {" ".join(values)}')
 
     def find(self, keyword, from_keys=True, from_values=True, exact=False):
         """Search for keyword from all values.
@@ -700,10 +700,10 @@ class StsListMaker():
 
                     # Check for updates and generate only if yes.
                     if check_update(merged, files):
-                        if not quiet: print('  merge: {} <= {}'.format(merged, ', '.join(files)))
+                        if not quiet: print(f'  merge: {merged} <= {", ".join(files)}')
                         Table().load(*files).dump(merged)
                     else:
-                        if not quiet: print('  skip merge (up-to-date): {}'.format(merged))
+                        if not quiet: print(f'  skip merge (up-to-date): {merged}')
                 elif os.path.isfile(path):
                     paths[i] = path
 
@@ -728,7 +728,7 @@ class StsListMaker():
 
         # Print used tables.
         for i, files in enumerate(fileslist):
-            if not quiet: print('  table {}: {}'.format(i+1, ', '.join(files)))
+            if not quiet: print(f'  table {i+1}: {", ".join(files)}')
 
         # Check for updates and generate only if yes.
         if check_update(output_file, fileslist):
@@ -742,7 +742,7 @@ class StsListMaker():
                 # Trie().load_fileslist(fileslist) is 2x slower
                 Trie().add_dict(Table().load_fileslist(fileslist)).dumpjson(output_file)
         else:
-            if not quiet: print('  skip output list (up-to-date): {}'.format(output_file))
+            if not quiet: print(f'  skip output list (up-to-date): {output_file}')
 
         return output_file
 
@@ -795,11 +795,9 @@ class StsConverter():
                     yield html.escape(part)
                 else:
                     old, news = part
-                    content = '<del hidden>{}</del>'.format(html.escape(old))
+                    content = f'<del hidden>{html.escape(old)}</del>'
                     for i, v in enumerate(news):
-                        content += '<ins{}>{}</ins>'.format(
-                            '' if i == 0 else ' hidden',
-                            html.escape(v))
+                        content += f'<ins{" hidden" if i else ""}>{html.escape(v)}</ins>'
 
                     # plural > exact > single
                     classes = []
@@ -810,9 +808,7 @@ class StsConverter():
                     if old == news[0]:
                         classes.append('exact')
 
-                    part = '<span tabindex="0" class="{}">{}</span>'.format(
-                        ' '.join(classes),
-                        content)
+                    part = f'''<span tabindex="0" class="{' '.join(classes)}">{content}</span>'''
                     yield part
 
 
@@ -821,7 +817,7 @@ class StsConverter():
         except TypeError:
             conversion = self.table.apply(text)
         except re.error as ex:
-            raise ValueError('regex syntax error for --exclude: {}'.format(ex))
+            raise ValueError(f'regex syntax error for --exclude: {ex}')
         else:
             def convert_with_regex(text, regex):
                 index = 0
@@ -929,7 +925,7 @@ def main():
         input = args['input']
 
         for key, values in Table().load(input).find(keyword):
-            print("{} => {}".format(key, " ".join(values)))
+            print(f'{key} => {" ".join(values)}')
 
     def make(args):
         """Compile conversion dictionary(s).
@@ -1033,7 +1029,7 @@ def main():
     if args['func']:
         locals()[args['func']](args)
     elif args['version']:
-        print('sts {}'.format(__version__))
+        print(f'sts {__version__}')
     else:
         parser.parse_args(['-h'])
 
