@@ -815,7 +815,37 @@ class StsConverter():
                         content)
                     yield part
 
-        conversion = self.table.apply(text)
+
+        try:
+            regex = re.compile(self.options['exclude'])
+        except TypeError:
+            conversion = self.table.apply(text)
+        except re.error as ex:
+            raise ValueError('regex syntax error for --exclude: {}'.format(ex))
+        else:
+            def convert_with_regex(text, regex):
+                index = 0
+                for m in regex.finditer(text):
+                    start, end = m.start(0), m.end(0)
+
+                    t = text[index:start]
+                    if t:
+                        yield from self.table.apply(t)
+
+                    t = text[start:end]
+                    if t:
+                        try:
+                            yield m.group('return')
+                        except IndexError:
+                            yield t
+
+                    index = end
+
+                t = text[index:]
+                if t:
+                    yield from self.table.apply(t)
+
+            conversion = convert_with_regex(text, regex)
 
         if self.options['format'] == 'htmlpage':
             yield '''<!DOCTYPE html>
@@ -921,6 +951,7 @@ def main():
         options={
             'format': args['format'],
             'mark': args['mark'],
+            'exclude': args['exclude'],
             }
 
         stsdict = StsListMaker().make(config, quiet=True)
@@ -947,6 +978,10 @@ def main():
         help="""output format (txt|html|htmlpage|json) (default: txt)""")
     parser_convert.add_argument('--mark', '-m', default=False, action='store_true',
         help="""mark converted chars for txt format""")
+    parser_convert.add_argument('--exclude',
+        help="""exclude text matching given regex from conversion, """
+            """optionally also replace with its "return" subgroup"""
+            )
 
     # subcommand: sort
     parser_sort = subparsers.add_parser('sort',
