@@ -361,7 +361,7 @@ class StsDict(OrderedDict):
         parts = (Unicode.split(parts) if isinstance(parts, str) else
                 parts if isinstance(parts, list) else
                 list(parts))
-        i = max(len(key) for key in self)
+        i = max(len(Unicode.split(key)) for key in self)
         while i >= 1:
             end = pos + i
             current = "".join(parts[pos:end])
@@ -480,7 +480,7 @@ class Table(StsDict):
     def key_maxlen(self):
         """Get the maximal length of the keys.
         """
-        return max(len(key) for key in self)
+        return max(len(Unicode.split(key)) for key in self)
 
     @lazyprop
     def key_headchars(self):
