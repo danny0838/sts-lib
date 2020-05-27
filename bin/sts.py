@@ -17,7 +17,7 @@ from glob import glob
 import html
 from collections import namedtuple, OrderedDict
 
-__version__ = '0.12.0'
+__version__ = '0.12.1'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
