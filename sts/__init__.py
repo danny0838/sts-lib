@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-#
-# STS (Simplified-Traditional Secretary)
-#
-# An open library for simplified-traditional Chinese text conversion.
-#
-# Copyright 2012-2018, Danny Lin.
-# Released under Apache License 2.0.
-#
-"""Handle conversion of Chinese variants.
+"""An open library for simplified-traditional Chinese text conversion.
 """
 import sys, os
 import re
@@ -18,6 +10,10 @@ import html
 from collections import namedtuple, OrderedDict
 
 __version__ = '0.12.1'
+__author__ = 'Danny Lin'
+__author_email__ = 'danny0838@gmail.com'
+__homepage__ = 'https://github.com/danny0838/sts-lib'
+__license__ = 'Apache 2.0'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
@@ -630,7 +626,7 @@ class StsListMaker():
                 if filebase == config and fileext.lower() == '.json':
                     return file
 
-            search_dir = os.path.normpath(os.path.join(__file__, '..', '..', 'data', 'config'))
+            search_dir = os.path.normpath(os.path.join(__file__, '..', 'data', 'config'))
             search_file = os.path.join(search_dir, config)
             if os.path.isfile(search_file):
                 return search_file
@@ -668,7 +664,7 @@ class StsListMaker():
             sys.exit('[error] specified config "' + config + '" is not a file')
 
         config_dir = os.path.abspath(os.path.dirname(config_file))
-        dictionary_dir = os.path.abspath(os.path.join(__file__, '..', '..', 'data', 'dictionary'))
+        dictionary_dir = os.path.abspath(os.path.join(__file__, '..', 'data', 'dictionary'))
 
         with open(config_file, "r", encoding="UTF-8") as f:
             config = json.load(f)

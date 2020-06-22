@@ -9,7 +9,7 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 * 可用「並聯」與「串聯」方式組合多個詞典檔作為轉換方案。
 * 可將轉換方案預先編譯為單一詞典檔供本工具或其他程式使用，包括純文字與 JSON 規格，也支援效能較佳的前綴樹格式。
 * 支援一對多轉換，轉換結果可輸出為純文字、HTML、JSON 等規格。
-* 支援 Unicode 複合字，例如「⿰虫鬼」會視為一個字，轉換時不會因為詞典有「虫=>鬼」而被轉為「⿰蟲鬼」。
+* 支援 Unicode 組合字元，例如「⿰虫鬼」會視為一個字，轉換時不會因為詞典有「虫=>鬼」而被轉為「⿰蟲鬼」。
 * 簡繁對應、異體字對應、地區慣用詞對應等不同的對應關係皆區分至不同的詞典檔。
 * 詞典及配置檔與程式本體分離，可自由修改、擴充。
 
@@ -17,8 +17,7 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 
 ### Installation 安裝
 
-* 下載本專案的資料，在命令行執行本專案下的 `sts.py` 檔案即可。
-* 也可以把主目錄加入 PATH 環境變數，之後可直接在命令行執行 `sts`。
+    pip install -U sts-lib
 
 ### Commands 命令
 
@@ -26,7 +25,7 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 
     sts convert [-c CONFIG] [-i INPUT] [-o OUTPUT] [-f FORMAT]
 
-其中 `CONFIG` 為內建或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 `data/config` 目錄，可簡寫，例如輸入 `s2t` 代表使用 `data/config/s2t.json`。
+其中 `CONFIG` 為內建或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 `sts/data/config` 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
 
 `INPUT` 為欲轉換的檔案（省略則使用標準輸入 stdin），`OUTPUT` 為欲輸出的檔案（省略則輸出至標準輸出 stdout）。
 
