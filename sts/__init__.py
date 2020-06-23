@@ -661,7 +661,7 @@ class StsListMaker():
         # Load config
         config_file = get_config_file(config)
         if not os.path.isfile(config_file):
-            sys.exit('[error] specified config "' + config + '" is not a file')
+            sys.exit(f'[error] specified config "{config}" is not a file')
 
         config_dir = os.path.abspath(os.path.dirname(config_file))
         dictionary_dir = os.path.abspath(os.path.join(__file__, '..', 'data', 'dictionary'))
