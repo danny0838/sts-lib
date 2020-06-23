@@ -29,9 +29,9 @@ setup(
     packages=find_packages(),
     package_data={
         "": [
-            "../data/config/*.json",
-            "../data/dictionary/*/*.txt",
-            "../data/scheme/*.txt",
+            "data/config/*.json",
+            "data/dictionary/*/*.txt",
+            "data/scheme/*.txt",
             ]
         },
     entry_points={
