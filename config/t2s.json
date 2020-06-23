@@ -5,8 +5,8 @@
     "format": "tlist",
     "mode": "load",
     "src": [
-      "../dictionary/ts-chars/common.txt",
-      "../dictionary/ts-phrases/common.txt"
+      "TSPhrases.txt",
+      "TSCharacters.txt"
     ]
   }]
 }

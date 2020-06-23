@@ -6,11 +6,11 @@
     "mode": "join",
     "src": [
       [
-        "../dictionary/st-chars/common.txt",
-        "../dictionary/st-phrases/common.txt"
+        "STPhrases.txt",
+        "STCharacters.txt"
       ],
       [
-        "../dictionary/t2tw-chars/common.txt"
+        "TWVariants.txt"
       ]
     ]
   }]

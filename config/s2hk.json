@@ -1,16 +1,16 @@
 {
-  "name": "Simplified Chinese to Traditional Chinese (Hong Kong standard)",
+  "name": "Simplified Chinese to Traditional Chinese (Hong Kong variant)",
   "dicts": [{
     "file": "s2hk.tlist",
     "format": "tlist",
     "mode": "join",
     "src": [
       [
-        "../dictionary/st-chars/common.txt",
-        "../dictionary/st-phrases/common.txt"
+        "STPhrases.txt",
+        "STCharacters.txt"
       ],
       [
-        "../dictionary/t2hk-chars/common.txt"
+        "HKVariants.txt"
       ]
     ]
   }]

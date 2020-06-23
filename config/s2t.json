@@ -5,8 +5,8 @@
     "format": "tlist",
     "mode": "load",
     "src": [
-      "../dictionary/st-chars/common.txt",
-      "../dictionary/st-phrases/common.txt"
+      "STPhrases.txt",
+      "STCharacters.txt"
     ]
   }]
 }
