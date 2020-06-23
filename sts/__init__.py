@@ -609,7 +609,7 @@ class Trie(StsDict):
 class StsListMaker():
     """A class for compling a dictionary.
     """
-    def make(self, config, format=None, output_dir=None, quiet=False):
+    def make(self, config, output_dir=None, quiet=False):
         """Compile a dictionary according to config.
 
         Load dictionaries specified in config and generate a new dictionary.
@@ -617,19 +617,13 @@ class StsListMaker():
         scheme of config (.json):
         {
             "name": "...",
-            "format": "...",
-            "dicts": [
-                [file1-1, file1-2, ...]
-                [file2-1, file2-2, file2-3, ...]
-                [file3-1, file3-2, file3-3, ...]
-            ]
+            "dicts": [{
+                "file": "...",  // relative to config directory
+                "type": "...", // list, jlist, tlist
+                "mode": "...", // load, swap, join
+                "src": ["...", ...] // list of .txt or .list files
+            }, ...]
         }
-
-        file#-# is a dictionary file (.txt) or a directory with dictionary
-        files. It can be an absolute path, relative to the config file, or
-        relative to dictionary directory. If a directory is specified, 
-        containing *.txt files will be merged in the order of their UTF-8
-        filename.
         """
         def get_config_file(config):
             """Calculate the path of a config file.
@@ -660,7 +654,7 @@ class StsListMaker():
 
             return config
 
-        def get_stsdict_path(stsdict, config_dir):
+        def get_stsdict_path(stsdict):
             """Calculate the path of a dictionary file.
 
             1. Use it if it's an absolute path.
@@ -693,77 +687,54 @@ class StsListMaker():
             config = json.load(f)
             f.close()
 
-        format = format or config.get('format') or 'tlist'
-        fileslist = config['dicts']
-
-        # Merge referred dictionaries (generate only updated ones)
-        if not quiet: print('merging conversion lists...')
-
-        def check_update(output, files):
+        def check_update(output, filegroups):
             if not os.path.isfile(output):
                 return True
 
-            for file in files:
-                if os.path.getmtime(file) > os.path.getmtime(output):
-                    return True
-
-            return False
-
-        for paths in fileslist:
-            for i, path in enumerate(paths):
-                path = get_stsdict_path(path, config_dir)
-
-                if os.path.isdir(path):
-                    merged = paths[i] = path + '.list'
-                    files = sorted(glob(path + '/*.txt'))
-
-                    # Check for updates and generate only if yes.
-                    if check_update(merged, files):
-                        if not quiet: print(f'  merge: {merged} <= {", ".join(files)}')
-                        Table().load(*files).dump(merged)
-                    else:
-                        if not quiet: print(f'  skip merge (up-to-date): {merged}')
-                elif os.path.isfile(path):
-                    paths[i] = path
-
-        # Compile final dictionary.
-        if not quiet: print('making list files...')
-
-        def check_update(output, fileslist):
-            if not os.path.isfile(output):
-                return True
-
-            for files in fileslist:
+            for files in filegroups:
+                if type(files) is str:
+                    files = [files]
                 for file in files:
                     if os.path.getmtime(file) > os.path.getmtime(output):
                         return True
 
             return False
 
-        output_dir = output_dir or config_dir
-        output_base, _ = os.path.splitext(os.path.basename(config_file))
-        output_ext = '.' + format
-        output_file = os.path.abspath(os.path.join(output_dir, output_base + output_ext))
+        for dict_ in config['dicts']:
+            dest = os.path.join(output_dir or config_dir, dict_['file'])
+            format = dict_['format']
+            mode = dict_['mode']
+            files = [get_stsdict_path(f) if type(f) is str
+                else [get_stsdict_path(i) for i in f]
+                for f in dict_['src']]
 
-        # Print used tables.
-        for i, files in enumerate(fileslist):
-            if not quiet: print(f'  table {i+1}: {", ".join(files)}')
+            if not check_update(dest, files):
+                if not quiet: print(f'skip making (up-to-date): {dest}')
+                continue
 
-        # Check for updates and generate only if yes.
-        if check_update(output_file, fileslist):
-            if not quiet: print('  output list: ' + output_file)
-            os.makedirs(output_dir, exist_ok=True)
+            if not quiet: print(f'making: {dest}')
+
+            if mode == 'load':
+                table = Table().load(*files)
+            elif mode == 'swap':
+                table = Table().load(*files).swap()
+            elif mode == 'join':
+                table = Table().load_fileslist(files)
+            else:
+                raise ValueError(f'Specified mode "{mode}" is not supported.')
+
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+
             if format == 'list':
-                Table().load_fileslist(fileslist).dump(output_file)
+                table.dump(dest)
             elif format == 'jlist':
-                Table().load_fileslist(fileslist).dumpjson(output_file)
-            else: # default: tlist
-                # Trie().load_fileslist(fileslist) is 2x slower
-                Trie().add_dict(Table().load_fileslist(fileslist)).dumpjson(output_file)
-        else:
-            if not quiet: print(f'  skip output list (up-to-date): {output_file}')
+                table.dumpjson(dest)
+            elif format == 'tlist':
+                Trie().add_dict(table).dumpjson(dest)
+            else:
+                raise ValueError(f'Specified format "{format}" is not supported.')
 
-        return output_file
+        return dest
 
 class StsConverter():
     """Convert a text using a listfile.
@@ -950,12 +921,11 @@ def main():
         """Compile conversion dictionary(s).
         """
         configs = args['config']
-        format = args['format']
         dir = args['dir']
         quiet = args['quiet']
 
         for config in configs:
-            StsListMaker().make(config, format=format, output_dir=dir, quiet=quiet)
+            StsListMaker().make(config, output_dir=dir, quiet=quiet)
 
     def convert(args):
         """Convert a file using the given config.
@@ -1035,9 +1005,6 @@ def main():
         help=make.__doc__, description=make.__doc__)
     parser_make.add_argument('config', nargs='+',
         help="""the config file(s) to compile""")
-    parser_make.add_argument('--format', '-f', default=None,
-        choices=['list', 'jlist', 'tlist'], metavar='FORMAT',
-        help="""output format (list|jlist|tlist) (default: tlist)""")
     parser_make.add_argument('--dir', '-d', default=None,
         help="""the directory to save the output (default: config directory)""")
     parser_make.add_argument('--quiet', '-q', default=False, action='store_true',
