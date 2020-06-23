@@ -1,10 +1,12 @@
 {
   "name": "Simplified Chinese to Traditional Chinese",
-  "format": "tlist",
-  "dicts": [
-    [
-      "../dictionary/st-chars",
-      "../dictionary/st-phrases"
+  "dicts": [{
+    "file": "s2t.tlist",
+    "format": "tlist",
+    "mode": "load",
+    "src": [
+      "../dictionary/st-chars/common.txt",
+      "../dictionary/st-phrases/common.txt"
     ]
-  ]
+  }]
 }

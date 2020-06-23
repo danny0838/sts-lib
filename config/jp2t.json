@@ -1,9 +1,12 @@
 {
   "name": "Simplified Chinese (Japan standard) to Traditional Chinese",
-  "format": "tlist",
-  "dicts": [
-    [
-      "../dictionary/jp2t-chars"
+  "dicts": [{
+    "file": "jp2t.tlist",
+    "format": "tlist",
+    "mode": "load",
+    "src": [
+      "../dictionary/jp2t-chars/common.txt",
+      "../dictionary/jp2t-chars/extra.txt"
     ]
-  ]
+  }]
 }

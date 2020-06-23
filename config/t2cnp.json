@@ -1,14 +1,20 @@
 {
   "name": "Traditional Chinese to Simplified Chinese (China standard) (with phrases)",
-  "format": "tlist",
-  "dicts": [
-    [
-      "../dictionary/ts-chars",
-      "../dictionary/ts-phrases"
-    ],
-    [
-      "../dictionary/s2cn-chars",
-      "../dictionary/s2cn-phrases"
+  "dicts": [{
+    "file": "t2cnp.tlist",
+    "format": "tlist",
+    "mode": "join",
+    "src": [
+      [
+        "../dictionary/ts-chars/common.txt",
+        "../dictionary/ts-phrases/common.txt"
+      ],
+      [
+        "../dictionary/s2cn-chars/common.txt",
+        "../dictionary/s2cn-phrases/common.txt",
+        "../dictionary/s2cn-phrases/it.txt",
+        "../dictionary/s2cn-phrases/name.txt"
+      ]
     ]
-  ]
+  }]
 }

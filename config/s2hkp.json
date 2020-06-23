@@ -1,14 +1,19 @@
 {
   "name": "Simplified Chinese to Traditional Chinese (Hong Kong standard) (with phrases)",
-  "format": "tlist",
-  "dicts": [
-    [
-      "../dictionary/st-chars",
-      "../dictionary/st-phrases"
-    ],
-    [
-      "../dictionary/t2hk-chars",
-      "../dictionary/t2hk-phrases"
+  "dicts": [{
+    "file": "s2hkp.tlist",
+    "format": "tlist",
+    "mode": "join",
+    "src": [
+      [
+        "../dictionary/st-chars/common.txt",
+        "../dictionary/st-phrases/common.txt"
+      ],
+      [
+        "../dictionary/t2hk-chars/common.txt",
+        "../dictionary/t2hk-phrases/phrases.txt",
+        "../dictionary/t2hk-phrases/revPhrases.txt"
+      ]
     ]
-  ]
+  }]
 }
