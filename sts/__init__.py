@@ -1016,7 +1016,7 @@ def main():
         choices=['list', 'jlist', 'tlist'], metavar='FORMAT',
         help="""output format (list|jlist|tlist) (default: tlist)""")
     parser_make.add_argument('--dir', '-d', default=None,
-        help="""the directory to save the output (default: as config directory)""")
+        help="""the directory to save the output (default: config directory)""")
     parser_make.add_argument('--quiet', '-q', default=False, action='store_true',
         help="""do not show process information""")
 
