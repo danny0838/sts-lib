@@ -64,6 +64,7 @@ class Unicode():
         i = pos
         total = len(text)
         length = 1
+        is_ids = False
 
         while length and i < total:
             code = ord(text[i])
@@ -71,13 +72,35 @@ class Unicode():
             # check if the current char is a prefix composer
             if code == 0x303E:
                 # ideographic variation indicator
+                is_ids = True
                 length += 1
             elif 0x2FF0 <= code <= 0x2FF1 or 0x2FF4 <= code <= 0x2FFB:
                 # IDS binary operator
+                is_ids = True
                 length += 2
             elif 0x2FF2 <= code <= 0x2FF3:
                 # IDS trinary operator
+                is_ids = True
                 length += 3
+            elif is_ids and not (0x4E00 <= code <= 0x9FFF  # CJK unified
+                    or 0x3400 <= code <= 0x4DBF or 0x20000 <= code <= 0x3FFFF  # Ext-A, ExtB+
+                    or 0xF900 <= code <= 0xFAFF or 0x2F800 <= code <= 0x2FA1F  # Compatibility
+                    or 0x2E80 <= code <= 0x2FDF  # Radical
+                    or 0x31C0 <= code <= 0x31EF  # Stroke
+                    or 0xE000 <= code <= 0xF8FF or 0xF0000 <= code <= 0x1FFFFF  # Private
+                    or code == 0xFF1F  # ？
+                    or 0xFE00 <= code <= 0xFE0F or 0xE0100 <= code <= 0xE01EF  # VS
+                    ):
+                # check for a valid IDS to avoid a breaking on e.g.:
+                #
+                #     IDS包括⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，可用於…
+                #
+                # - IDS := Ideographic | Radical | CJK_Stroke | Private Use
+                #        | U+FF1F | IDS_BinaryOperator IDS IDS
+                #        | IDS_TrinaryOperator IDS IDS IDS
+                #
+                # - We also allow IVI and VS in an IDS.
+                break
 
             # check if the next char is a postfix composer
             if i + 1 < total:
