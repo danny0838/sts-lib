@@ -1,0 +1,10 @@
+{
+  "name": "Traditional Chinese to Simplified Chinese",
+  "format": "tlist",
+  "dicts": [
+    [
+      "../dictionary/ts-chars",
+      "../dictionary/ts-phrases"
+    ]
+  ]
+}
