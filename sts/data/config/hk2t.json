@@ -1,0 +1,12 @@
+{
+  "name": "Traditional Chinese (Hong Kong variant) to Traditional Chinese",
+  "dicts": [{
+    "file": "hk2t.tlist",
+    "format": "tlist",
+    "mode": "load",
+    "src": [
+      "HKVariantsRevPhrases.txt",
+      "HKVariantsRev.list"
+    ]
+  }]
+}

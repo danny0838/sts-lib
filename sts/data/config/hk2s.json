@@ -1,0 +1,18 @@
+{
+  "name": "Traditional Chinese (Hong Kong variant) to Simplified Chinese",
+  "dicts": [{
+    "file": "hk2s.tlist",
+    "format": "tlist",
+    "mode": "join",
+    "src": [
+      [
+        "HKVariantsRevPhrases.txt",
+        "HKVariantsRev.list"
+      ],
+      [
+        "TSPhrases.txt",
+        "TSCharacters.txt"
+      ]
+    ]
+  }]
+}

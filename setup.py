@@ -30,7 +30,7 @@ setup(
     package_data={
         "": [
             "data/config/*.json",
-            "data/dictionary/*/*.txt",
+            "data/dictionary/*.txt",
             "data/scheme/*.txt",
             ]
         },

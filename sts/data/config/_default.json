@@ -1,0 +1,41 @@
+{
+  "name": "Built-in dictionaries",
+  "dicts": [{
+    "file": "TWPhrases.list",
+    "format": "list",
+    "mode": "load",
+    "src": [
+      "TWPhrasesIT.txt",
+      "TWPhrasesName.txt",
+      "TWPhrasesOther.txt"
+    ]
+  }, {
+    "file": "TWPhrasesRev.list",
+    "format": "list",
+    "mode": "swap",
+    "src": [
+      "TWPhrases.list"
+    ]
+  }, {
+    "file": "TWVariantsRev.list",
+    "format": "list",
+    "mode": "swap",
+    "src": [
+      "TWVariants.txt"
+    ]
+  }, {
+    "file": "HKVariantsRev.list",
+    "format": "list",
+    "mode": "swap",
+    "src": [
+      "HKVariants.txt"
+    ]
+  }, {
+    "file": "JPVariantsRev.list",
+    "format": "list",
+    "mode": "swap",
+    "src": [
+      "JPVariants.txt"
+    ]
+  }]
+}

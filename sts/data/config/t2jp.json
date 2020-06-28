@@ -1,9 +1,11 @@
 {
-  "name": "Traditional Chinese to Simplified Chinese (Japan standard)",
-  "format": "tlist",
-  "dicts": [
-    [
-      "../dictionary/t2jp-chars"
+  "name": "Traditional Chinese Characters (Kyūjitai) to New Japanese Kanji (Shinjitai)",
+  "dicts": [{
+    "file": "t2jp.tlist",
+    "format": "tlist",
+    "mode": "load",
+    "src": [
+      "JPVariants.txt"
     ]
-  ]
+  }]
 }
