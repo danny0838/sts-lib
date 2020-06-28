@@ -1,13 +1,17 @@
 {
-  "name": "Simplified Chinese to Traditional Chinese (Hong Kong standard)",
-  "format": "tlist",
-  "dicts": [
-    [
-      "../dictionary/st-chars",
-      "../dictionary/st-phrases"
-    ],
-    [
-      "../dictionary/t2hk-chars"
+  "name": "Simplified Chinese to Traditional Chinese (Hong Kong variant)",
+  "dicts": [{
+    "file": "s2hk.tlist",
+    "format": "tlist",
+    "mode": "join",
+    "src": [
+      [
+        "STPhrases.txt",
+        "STCharacters.txt"
+      ],
+      [
+        "HKVariants.txt"
+      ]
     ]
-  ]
+  }]
 }

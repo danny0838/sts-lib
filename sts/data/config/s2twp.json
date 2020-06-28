@@ -1,14 +1,18 @@
 {
   "name": "Simplified Chinese to Traditional Chinese (Taiwan standard) (with phrases)",
-  "format": "tlist",
-  "dicts": [
-    [
-      "../dictionary/st-chars",
-      "../dictionary/st-phrases"
-    ],
-    [
-      "../dictionary/t2tw-chars",
-      "../dictionary/t2tw-phrases"
+  "dicts": [{
+    "file": "s2twp.tlist",
+    "format": "tlist",
+    "mode": "join",
+    "src": [
+      [
+        "STPhrases.txt",
+        "STCharacters.txt"
+      ],
+      [
+        "TWPhrases.list",
+        "TWVariants.txt"
+      ]
     ]
-  ]
+  }]
 }
