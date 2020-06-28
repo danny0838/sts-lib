@@ -8,24 +8,45 @@ from sts import Table
 
 def main():
     tgh = {}
-    with open(os.path.join(__file__, '..', '..', 'sts', 'data', 'scheme', 'ts_tgh_convert.txt'), 'r', encoding='UTF-8') as f:
+    with open(os.path.join(__file__, '..', '..', 'sts', 'data', 'scheme', 'ts_tgh_list.txt'), 'r', encoding='UTF-8') as f:
         for line in f:
             try:
-                id, std, trad, vars, *_ = line.rstrip('\n').split('\t')
+                id, char, *_ = line.split()
             except ValueError:
-                continue
-            tgh.setdefault(id, []).append((id, std, trad or None, list(vars)))
+                pass
+            tgh[char] = id
 
-    table1 = Table().load(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharacters.txt'))
-    table2 = Table().load(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'STCharacters.txt'))
-    for convs in tgh.values():
-        for conv in convs:
-            id, std, trad, vars = conv
-            if trad and trad != std:
-                table1.add(trad, [std])
-                table2.add(std, [trad])
-    table1.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharacters.txt'), sort=True)
-    table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'STCharacters.txt'), sort=True)
+    # t2s
+    table = Table().load(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharacters.txt'))
+
+    table2 = Table()
+    for key, values in table.items():
+        vv = [v for v in values if v not in tgh]
+        if len(vv):
+            table2.add(key, vv)
+    table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharactersEx.txt'))
+
+    table2 = Table()
+    for key, values in table.items():
+        vv = [v for v in values if v in tgh]
+        if len(vv):
+            table2.add(key, vv)
+    table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharacters.txt'))
+
+    # s2t
+    table = Table().load(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'STCharacters.txt'))
+
+    table2 = Table()
+    for key, values in table.items():
+        if key not in tgh:
+            table2.add(key, values)
+    table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'STCharactersEx.txt'))
+
+    table2 = Table()
+    for key, values in table.items():
+        if key in tgh:
+            table2.add(key, values)
+    table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'STCharacters.txt'))
 
 
 if __name__ == '__main__':
