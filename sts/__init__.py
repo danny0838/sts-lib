@@ -211,6 +211,7 @@ class StsDict(OrderedDict):
         if sort: iterator = sorted(iterator)
         for key, values in iterator:
             f.write(f'{key}\t{" ".join(values)}\n')
+        if f is not sys.stdout: f.close()
 
     def loadjson(self, file):
         """Load from a JSON file.
@@ -233,6 +234,7 @@ class StsDict(OrderedDict):
         """
         f = open(file, "w", encoding="UTF-8", newline="") if file else sys.stdout
         json.dump(self, f, ensure_ascii=False, indent=indent, sort_keys=sort)
+        if f is not sys.stdout: f.close()
 
     def print(self, sort=False):
         """Print key-values pairs.
