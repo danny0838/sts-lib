@@ -1,0 +1,11 @@
+{
+  "name": "Unit test",
+  "dicts": [{
+    "file": "vi1.txt",
+    "format": "list",
+    "mode": "load",
+    "src": [
+      "vi1.txt"
+    ]
+  }]
+}

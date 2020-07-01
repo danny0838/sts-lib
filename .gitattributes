@@ -5,3 +5,5 @@
 *.ini text
 *.json text
 *.py text
+*.in text
+*.ans text

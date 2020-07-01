@@ -1,0 +1,12 @@
+{
+  "name": "Unit test",
+  "dicts": [{
+    "file": "merge2.list",
+    "format": "list",
+    "mode": "load",
+    "src": [
+      "merge2_chars.txt",
+      "merge2_phrases.txt"
+    ]
+  }]
+}

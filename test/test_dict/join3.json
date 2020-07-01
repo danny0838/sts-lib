@@ -1,0 +1,16 @@
+{
+  "name": "Unit test",
+  "dicts": [{
+    "file": "join3.list",
+    "format": "list",
+    "mode": "join",
+    "src": [
+      [
+        "join3_tw2t.txt"
+      ],
+      [
+        "join3_t2s.txt"
+      ]
+    ]
+  }]
+}
