@@ -108,7 +108,7 @@ class Unicode():
                 if 0xFE00 <= code <= 0xFE0F:
                     # variation selectors
                     length += 1
-                elif 0xE0100 <= code <= 0xE01E:
+                elif 0xE0100 <= code <= 0xE01EF:
                     # variation selectors supplement
                     length += 1
                 elif 0x180B <= code <= 0x180D:
