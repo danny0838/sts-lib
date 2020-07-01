@@ -881,6 +881,7 @@ ins, del { text-decoration: none; }
     default_options={
         'format': 'txt',
         'mark': False,
+        'exclude': None,
         }
 
 def main():
