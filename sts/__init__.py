@@ -485,11 +485,10 @@ class StsDict(OrderedDict):
             if match is not None:
                 if match.end - index == 1:
                     has_atomic_match = True
+                if include_self and match.conv.key not in match.conv.values:
+                    match.conv.values.append(match.conv.key)
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
-                    results.append((result, matched + 1, index + 1))
-                if include_self and match.conv.key not in match.conv.values:
-                    result = parts[:index] + [match.conv.key] + parts[match.end:]
                     results.append((result, matched + 1, index + 1))
 
                 if not include_short:
@@ -501,11 +500,10 @@ class StsDict(OrderedDict):
                     if match is not None:
                         if match.end - index == 1:
                             has_atomic_match = True
+                        if include_self and match.conv.key not in match.conv.values:
+                            match.conv.values.append(match.conv.key)
                         for value in match.conv.values:
                             result = parts[:index] + [value] + parts[match.end:]
-                            results.append((result, matched + 1, index + 1))
-                        if include_self and match.conv.key not in match.conv.values:
-                            result = parts[:index] + [match.conv.key] + parts[match.end:]
                             results.append((result, matched + 1, index + 1))
 
                 # add atomic match (length = 1) case
