@@ -5,7 +5,6 @@ import sys, os
 import re
 import argparse
 import json
-from glob import glob
 import html
 from collections import namedtuple, OrderedDict
 
