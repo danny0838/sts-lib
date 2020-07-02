@@ -321,28 +321,27 @@ class StsDict(OrderedDict):
         """Prefix self with stsdict.
 
         Convert keys of self using swapped stsdict.
-        (Enumerate all matches.)
+        (Enumerate all potential matches.)
 
         Returns:
             a new object with the same class.
 
         e.g.
-        self:
+        table:
             註冊表 => 登錄檔
         stsdict:
             注 => 注 註
         swapped stsdict:
             注 => 注
             註 => 注
-        self._join_prefix(stsdict):
-            註冊表 => 登錄檔
+        table._join_prefix(stsdict):
             注冊表 => 登錄檔
+            註冊表 => 登錄檔
         """
         dict_ = self.__class__()
         converter = stsdict.swap()
         for key, values in self.iter():
-            dict_.add(key, values)
-            for newkey in converter.apply_enum(key, no_short=False):
+            for newkey in converter.apply_enum(key, include_short=True, include_self=True):
                 dict_.add(newkey, values)
         return dict_
 
@@ -350,24 +349,24 @@ class StsDict(OrderedDict):
         """Postfix self with stsdict.
 
         Convert values of self using stsdict.
-        (Enumerate all maximal matches.)
+        (Enumerate maximal matches.)
 
         Returns:
             a new object with the same class.
 
         e.g.
-        self:
+        table:
             因为 => 因爲
         stsdict:
             爲 => 為
-        self._join_postfix(stsdict):
+        table._join_postfix(stsdict):
             因为 => 因為
             爲 => 為
         """
         dict_ = self.__class__()
         for key, values in self.iter():
             for value in values:
-                dict_.add(key, stsdict.apply_enum(value, no_short=True))
+                dict_.add(key, stsdict.apply_enum(value))
         dict_.add_dict(stsdict)
         return dict_
 
@@ -417,27 +416,32 @@ class StsDict(OrderedDict):
                 yield parts[i]
                 i += 1
 
-    def apply_enum(self, parts, no_short=False):
+    def apply_enum(self, parts, include_short=False, include_self=False):
         """Enumerate all possible conversions of text.
 
         Args:
             parts: a string or iterable parts to be converted.
-            no_short: output conversions that are maximally-matched
+            include_short: include non-maximal-match conversions
+            include_self: include source for every match
 
         Returns:
             list: a list of possible conversions.
 
         e.g.
         table:
-            干 => 干 乾
-            于 => 于 於
-            干于 => 甘芋 乾芋
+            钟 => 鍾 鐘
+            药 => 藥 葯
+            用药 => 用藥
         text:
-            '干于'
-        table.apply_enum(text, no_short=False):
-            ['甘芋', '乾芋', '干于', '干於', '乾于', '乾於']
-        table.apply_enum(text, no_short=True):
-            ['甘芋', '乾芋']
+            '看钟用药'
+        table.apply_enum(text, include_short=False, include_self=False):
+            ['看鍾用藥', '看鐘用藥']
+        table.apply_enum(text, include_short=True, include_self=False):
+            ['看鍾用藥', '看鐘用藥', '看鍾用葯', '看鐘用葯']
+        table.apply_enum(text, include_short=False, include_self=True):
+            ['看鍾用藥', '看鍾用药', '看鐘用藥', '看鐘用药', '看钟用藥', '看钟用药']
+        table.apply_enum(text, include_short=True, include_self=True):
+            ['看鍾用藥', '看鍾用药', '看鐘用藥', '看鐘用药', '看钟用藥', '看钟用药', '看鍾用葯', '看鐘用葯', '看钟用葯']
         """
         if isinstance(parts, str):
             text = parts
@@ -453,7 +457,7 @@ class StsDict(OrderedDict):
         while len(queue):
             (parts, matched, nextindex) = data = queue.pop(0)
             if nextindex < len(parts):
-                queue += self._apply_enum_sub(data, no_short=no_short)
+                queue += self._apply_enum_sub(data, include_short=include_short, include_self=include_self)
             elif matched > 0:
                 results["".join(parts)] = True
 
@@ -464,7 +468,7 @@ class StsDict(OrderedDict):
 
         return results
 
-    def _apply_enum_sub(self, data, no_short=False):
+    def _apply_enum_sub(self, data, include_short=False, include_self=False):
         """Helper function of apply_enum
 
         Args:
@@ -484,8 +488,11 @@ class StsDict(OrderedDict):
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
                     results.append((result, matched + 1, index + 1))
+                if include_self and match.conv.key not in match.conv.values:
+                    result = parts[:index] + [match.conv.key] + parts[match.end:]
+                    results.append((result, matched + 1, index + 1))
 
-                if no_short:
+                if not include_short:
                     return results
 
                 # add shorter matches
@@ -496,6 +503,9 @@ class StsDict(OrderedDict):
                             has_atomic_match = True
                         for value in match.conv.values:
                             result = parts[:index] + [value] + parts[match.end:]
+                            results.append((result, matched + 1, index + 1))
+                        if include_self and match.conv.key not in match.conv.values:
+                            result = parts[:index] + [match.conv.key] + parts[match.end:]
                             results.append((result, matched + 1, index + 1))
 
                 # add atomic match (length = 1) case
