@@ -383,6 +383,7 @@ class StsDict(OrderedDict):
                 parts if isinstance(parts, list) else
                 list(parts))
         i = max(len(Unicode.split(key)) for key in self)
+        i = min(i, len(parts) - pos)
         while i >= 1:
             end = pos + i
             current = "".join(parts[pos:end])
@@ -523,6 +524,7 @@ class Table(StsDict):
                 list(parts))
         if parts[pos][0] in self.key_headchars:
             i = self.key_maxlen
+            i = min(i, len(parts) - pos)
             while i >= 1:
                 end = pos + i
                 current = "".join(parts[pos:end])
