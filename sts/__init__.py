@@ -479,7 +479,7 @@ class StsDict(OrderedDict):
             if match is not None:
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
-                    results.append((result, matched + 1, match.end))
+                    results.append((result, matched + 1, index + 1))
 
                 if no_short:
                     return results
