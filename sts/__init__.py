@@ -475,9 +475,12 @@ class StsDict(OrderedDict):
         """
         (parts, matched, index) = data
         results = []
+        has_atomic_match = False
         if index < len(parts):
             match = self.match(parts, index)
             if match is not None:
+                if match.end - index == 1:
+                    has_atomic_match = True
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
                     results.append((result, matched + 1, index + 1))
@@ -489,9 +492,25 @@ class StsDict(OrderedDict):
                 for i in range(match.end - match.start - 1, 0, -1):
                     match = self.match(parts[:index + i], index)
                     if match is not None:
+                        if match.end - index == 1:
+                            has_atomic_match = True
                         for value in match.conv.values:
                             result = parts[:index] + [value] + parts[match.end:]
                             results.append((result, matched + 1, index + 1))
+
+                # add atomic match (length = 1) case
+                #
+                # e.g.
+                # table: 采信 => 採信, 信息 => 訊息
+                # text: ["采", "信", "息"]
+                #
+                # We get a match ["采", "信", "息"] but no atomic match available.
+                #                 ^^^^^^^^^^
+                #
+                # Add ["采", "信", "息"] so that "采訊息" is not missed.
+                #             ^
+                if not has_atomic_match:
+                    results.append((parts, matched, index + 1))
 
         if len(results) == 0:
             results.append((parts, matched, index + 1))
