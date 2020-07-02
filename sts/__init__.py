@@ -755,7 +755,46 @@ class StsConverter():
         """Convert a text.
 
         Returns:
-            a generator of converted text content.
+            a generator of converted data.
+        """
+        try:
+            regex = re.compile(self.options['exclude'])
+        except TypeError:
+            conversion = self.table.apply(text)
+        except re.error as ex:
+            raise ValueError(f'regex syntax error for --exclude: {ex}')
+        else:
+            def convert_with_regex(text, regex):
+                index = 0
+                for m in regex.finditer(text):
+                    start, end = m.start(0), m.end(0)
+
+                    t = text[index:start]
+                    if t:
+                        yield from self.table.apply(t)
+
+                    t = text[start:end]
+                    if t:
+                        try:
+                            yield m.group('return')
+                        except IndexError:
+                            yield t
+
+                    index = end
+
+                t = text[index:]
+                if t:
+                    yield from self.table.apply(t)
+
+            conversion = convert_with_regex(text, regex)
+
+        yield from conversion
+
+    def convert_text(self, text):
+        """Convert a text.
+
+        Returns:
+            converted text content.
         """
         def parts_to_text(parts):
             for part in parts:
@@ -803,40 +842,10 @@ class StsConverter():
                     part = f'''<span tabindex="0" class="{' '.join(classes)}">{content}</span>'''
                     yield part
 
-
-        try:
-            regex = re.compile(self.options['exclude'])
-        except TypeError:
-            conversion = self.table.apply(text)
-        except re.error as ex:
-            raise ValueError(f'regex syntax error for --exclude: {ex}')
-        else:
-            def convert_with_regex(text, regex):
-                index = 0
-                for m in regex.finditer(text):
-                    start, end = m.start(0), m.end(0)
-
-                    t = text[index:start]
-                    if t:
-                        yield from self.table.apply(t)
-
-                    t = text[start:end]
-                    if t:
-                        try:
-                            yield m.group('return')
-                        except IndexError:
-                            yield t
-
-                    index = end
-
-                t = text[index:]
-                if t:
-                    yield from self.table.apply(t)
-
-            conversion = convert_with_regex(text, regex)
+        conversion = self.convert(text)
 
         if self.options['format'] == 'htmlpage':
-            yield '''<!DOCTYPE html>
+            return '''<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -850,17 +859,15 @@ ins, del { text-decoration: none; }
 </style>
 </head>
 <body>
-<pre contenteditable="true">'''
-            yield from parts_to_html(conversion)
-            yield '''</pre>
+<pre contenteditable="true">''' + ''.join(parts_to_html(conversion)) + '''</pre>
 </body>
 </html>'''
         elif self.options['format'] == 'html':
-            yield from parts_to_html(conversion)
+            return ''.join(parts_to_html(conversion))
         elif self.options['format'] == 'json':
-            yield json.dumps(list(conversion), ensure_ascii=False)
+            return json.dumps(list(conversion), ensure_ascii=False)
         else:  # default: format = 'txt'
-            yield from parts_to_text(conversion)
+            return ''.join(parts_to_text(conversion))
 
     def convert_file(self, input=None, output=None):
         """Convert input and write to output.
@@ -873,11 +880,10 @@ ins, del { text-decoration: none; }
         text = f.read()
         f.close()
 
-        conversion = self.convert(text)
+        conversion = self.convert_text(text)
 
         f = open(output, "w", encoding="UTF-8", newline="") if output else sys.stdout
-        for part in conversion:
-            f.write(part)
+        f.write(conversion)
         f.close()
 
     default_options={
