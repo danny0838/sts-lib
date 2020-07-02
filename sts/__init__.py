@@ -484,6 +484,14 @@ class StsDict(OrderedDict):
                 if no_short:
                     return results
 
+                # add shorter matches
+                for i in range(match.end - match.start - 1, 0, -1):
+                    match = self.match(parts[:index + i], index)
+                    if match is not None:
+                        for value in match.conv.values:
+                            result = parts[:index] + [value] + parts[match.end:]
+                            results.append((result, matched + 1, index + 1))
+
         if len(results) == 0:
             results.append((parts, matched, index + 1))
 
