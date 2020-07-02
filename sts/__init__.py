@@ -362,6 +362,7 @@ class StsDict(OrderedDict):
             爲 => 為
         self._join_postfix(stsdict):
             因为 => 因為
+            爲 => 為
         """
         dict_ = self.__class__()
         for key, values in self.iter():
