@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """An open library for simplified-traditional Chinese text conversion.
 """
-import sys, os
+import sys
+import os
 import re
 import argparse
 import json
