@@ -20,21 +20,46 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 
     pip install -U sts-lib
 
-### Commands 命令
+### Command Line
 
-#### 轉換文本
+* `sts --help` 或 `sts COMMAND --help` 檢視可用指令的詳細說明文檔。
 
-    sts convert [-c CONFIG] [-i INPUT] [-o OUTPUT] [-f FORMAT]
+* `sts convert [-c CONFIG] [-i INPUT] [-o OUTPUT] [-f FORMAT] [--mark] [--exclude PATTERN]` 執行簡繁轉換：
+  * `CONFIG` 為內建配置檔名稱或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
+  * `INPUT` 為欲轉換的檔案（省略時讀取標準輸入 stdin）。
+  * `OUTPUT` 為欲輸出的檔案（省略時輸出至標準輸出 stdout）。
+  * `FORMAT` 指定輸出格式，可用格式如下：
+    * `txt`：純文字，適合一般使用。可加上 `--mark` 參數標示轉換過的文字
+    * `html`：加上 HTML 標記的文本，可嵌入至網頁應用程式做互動式校對。
+    * `htmlpage`：加入 HTML 樣式的網頁，可直接開啟做互動式校對。
+    * `json`：以 JSON 格式表示轉換輸出，可用其他程式進一步解析處理。
+  * `PATTERN` 指定用於忽略簡繁轉換的正規表示式。有指定 `return` 子群組時會取代為子群組的值。
+    * 例如 `sts convert -c s2twp --exclude "「.*?」"` 會把 `「程序」正义` 轉換為 `「程序」正義`。
+    * 例如 `sts convert -c s2twp --exclude "-{(?P<return>.*?)}-"` 會把 `-{程序}-正义` 轉換為 `程序正義`。
 
-其中 `CONFIG` 為內建或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 `sts/data/config` 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
+### Python
 
-`INPUT` 為欲轉換的檔案（省略則使用標準輸入 stdin），`OUTPUT` 為欲輸出的檔案（省略則輸出至標準輸出 stdout）。
+```python
+from sts import StsListMaker, StsConverter
 
-`FORMAT` 可指定輸出格式，包括 `txt` 為純文字（一般使用；可加上 `--mark` 參數標示轉換過的文字），`html` 為加上 HTML 標記的文本（可嵌入至網頁應用程式做互動式校對），`htmlpage` 為加入 HTML 樣式的網頁（可直接開啟做互動式校對），`json` 為轉換好的資料流（可導流至其他程式分析和利用）。
+# generate default dictionary files (required for the first time)
+StsListMaker().make('_default', quiet=True)
 
-#### 檢視說明文檔
+# generate a dictionary file from a config and get its path
+dictfile = StsListMaker().make('s2t', quiet=True)
 
-可用 `sts --help` 或 `sts COMMAND --help` 檢視可用指令的詳細說明文檔。
+# initialize the converter from the dictionary file
+converter = StsConverter(dictfile, options={})
+
+# perform conversion for a text
+converter.convert_text('汉字')  # 漢字
+
+# perform conversion for a file (None for stdin/stdout)
+converter.convert_file(input=None, output=None)
+
+# process converted data stream
+[p for p in converter.convert("汉字")]  # [StsDictConv(key='汉', values=['漢']), '字']
+```
 
 ## License 許可協議
 
