@@ -8,6 +8,7 @@ import argparse
 import json
 import html
 from collections import namedtuple, OrderedDict
+import math
 
 __version__ = '0.15.0'
 __author__ = 'Danny Lin'
@@ -370,7 +371,7 @@ class StsDict(OrderedDict):
         dict_.add_dict(stsdict)
         return dict_
 
-    def match(self, parts, pos):
+    def match(self, parts, pos, maxlen=math.inf):
         """Match a unicode composite at pos.
 
         Args:
@@ -383,7 +384,7 @@ class StsDict(OrderedDict):
                 parts if isinstance(parts, list) else
                 list(parts))
         i = max(len(Unicode.split(key)) for key in self)
-        i = min(i, len(parts) - pos)
+        i = min(i, min(len(parts), maxlen) - pos)
         while i >= 1:
             end = pos + i
             current = "".join(parts[pos:end])
@@ -496,7 +497,7 @@ class StsDict(OrderedDict):
 
                 # add shorter matches
                 for i in range(match.end - match.start - 1, 0, -1):
-                    match = self.match(parts[:index + i], index)
+                    match = self.match(parts, index, maxlen=index + i)
                     if match is not None:
                         if match.end - index == 1:
                             has_atomic_match = True
@@ -546,7 +547,7 @@ class Table(StsDict):
         """
         return set(key[0] for key in self)
 
-    def match(self, parts, pos):
+    def match(self, parts, pos, maxlen=math.inf):
         """Match a unicode composite at pos.
 
         Args:
@@ -560,7 +561,7 @@ class Table(StsDict):
                 list(parts))
         if parts[pos][0] in self.key_headchars:
             i = self.key_maxlen
-            i = min(i, len(parts) - pos)
+            i = min(i, min(len(parts), maxlen) - pos)
             while i >= 1:
                 end = pos + i
                 current = "".join(parts[pos:end])
@@ -615,7 +616,7 @@ class Trie(StsDict):
             list_ += [x for x in values if x not in list_]
         return self
 
-    def match(self, parts, pos):
+    def match(self, parts, pos, maxlen=math.inf):
         """Match a unicode composite at pos.
 
         Args:
@@ -629,7 +630,7 @@ class Trie(StsDict):
                 list(parts))
         trie = self
         i = pos
-        total = len(parts)
+        total = min(len(parts), maxlen)
         match = None
         match_end = None
         while i < total:
