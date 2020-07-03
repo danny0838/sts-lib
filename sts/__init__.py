@@ -152,8 +152,28 @@ class Unicode():
 class StsDict(OrderedDict):
     """Base class of an STS dictionary.
 
-    This class is for child classes to implement on and not intended to be used
-    directly.
+    This class is for child classes to implement on and not intended to be
+    used directly.
+
+    Supported serializations are:
+    - plain-dict: which is a text file that looks like:
+
+          key1 <tab> value1-1 [<space> value1-2 <space> ...]
+          key2 <tab> value2-1 [<space> value2-2 <space> ...]
+          ...
+
+    - JSON: which is dumped from the internal data structure.
+
+    NOTE: The internal data structure may vary across subclasses. As a result,
+    loadjson(), dumpjson(), and most native dict methods like __init__(),
+    __iter__(), items(), keys(), and values() work on their own format.
+
+    To safely create a subclass from a dict-compatible data format, do
+    something like:
+
+        SubClass().add_dict(StsDict(...))
+
+    Or use load() or load_filegroups() to load from a plain-dict file.
     """
     def iter(self):
         """Get a generator of key-values pairs.
@@ -164,8 +184,7 @@ class StsDict(OrderedDict):
         """Add a key-values pair to this dictionary.
 
         Args:
-            values: a string or a list of values.
-                ([value1, value2, value3, ...])
+            values: a string or a list of strings.
             skip_check: True to skip checking duplicated values.
         """
         values = [values] if isinstance(values, str) else values
@@ -177,7 +196,7 @@ class StsDict(OrderedDict):
         return self
 
     def add_dict(self, stsdict, skip_check=False):
-        """Add all key-values pairs from another dictionary.
+        """Add all key-values pairs from another StsDict.
 
         Args:
             skip_check: True to skip checking duplicated values.
@@ -187,7 +206,7 @@ class StsDict(OrderedDict):
         return self
 
     def load(self, *files):
-        """Add key-values pairs from file(s) to the dictionary.
+        """Add all key-values pairs from plain-dict file(s).
         """
         for file in files:
             with open(file, "r", encoding="UTF-8") as f:
@@ -200,7 +219,7 @@ class StsDict(OrderedDict):
         return self
 
     def dump(self, file=None, sort=False):
-        """Dump key-values pairs to a text file.
+        """Dump key-values pairs to a plain-dict file.
 
         Args:
             file: path of file to save. Use stdout if None.
@@ -216,6 +235,8 @@ class StsDict(OrderedDict):
     def loadjson(self, file):
         """Load from a JSON file.
 
+        NOTE: The input data format may vary across subclasses.
+
         Returns:
             a new object with the same class.
         """
@@ -226,6 +247,8 @@ class StsDict(OrderedDict):
 
     def dumpjson(self, file=None, indent=None, sort=False):
         """Dump key-values pairs to a JSON file.
+
+        NOTE: The output data format may vary across subclasses.
 
         Args:
             file: path of file to save. Use stdout if None.
@@ -248,7 +271,7 @@ class StsDict(OrderedDict):
             print(f'{key} => {" ".join(values)}')
 
     def find(self, keyword, from_keys=True, from_values=True, exact=False):
-        """Search for keyword from all values.
+        """Search for keyword from the dictionary.
 
         Args:
             from_keys: True to search from keys.
@@ -284,21 +307,21 @@ class StsDict(OrderedDict):
                 stsdict.add(value, key)
         return stsdict
 
-    def load_fileslist(self, fileslist):
-        """Load key-values pairs from a list of filelists.
-
-        Returns:
-            a new object with the same class.
+    def load_filegroups(self, filegroups):
+        """Load key-values pairs from a list of plain-dict files.
 
         Args:
-            fileslist: a list of dictionary lists.
+            filegroups: a list of plain-dict files.
             [
                 [file1-1, file1-2, ...]
                 [file2-1, file2-2, file2-3, ...]
                 [file3-1, file3-2, file3-3, ...]
             ]
+
+        Returns:
+            a new object with the same class.
         """
-        stsdicts = [self.__class__().load(*files) for files in fileslist]
+        stsdicts = [self.__class__().load(*files) for files in filegroups]
         newstsdict = self
         while len(stsdicts):
             newstsdict = newstsdict.join(stsdicts.pop(0))
@@ -521,13 +544,17 @@ class StsDict(OrderedDict):
             queue.append((parts, matched, index + 1))
 
 class Table(StsDict):
-    """An STS dictionary with hash format.
+    """A cache-boosted STS dictionary.
 
-    This class implements a cache and a head-char checking mechanism to improve
-    performance on text conversion than base StsDict. The cache will not update
-    after generated, and therefore the dictionary should not be modified after
-    performing a text matching or conversion (match, apply, apply_enum, join,
-    etc.) to avoid an unexpected behavior.
+    This class implements a cache and a head-char checking mechanism to
+    improve performance on text conversion than base StsDict.
+
+    The internal data format is same as base StsDict.
+
+    NOTE: The cache will not update after generated, and therefore the
+    dictionary should not be modified after performing a text matching or
+    conversion (match, apply, apply_enum, etc.) to avoid an unexpected
+    behavior.
     """
     @lazyprop
     def key_maxlen(self):
@@ -570,6 +597,8 @@ class Trie(StsDict):
 
     Compared with hash, trie is faster for applying conversion,
     but takes more space and is slower to construct.
+
+    NOTE: The internal data format is different from base StsDict.
     """
     def iter(self):
         """Get a generator of key-values pairs.
@@ -593,8 +622,7 @@ class Trie(StsDict):
         """Add a key-values pair to this dictionary.
 
         Args:
-            values: a string or a list of values.
-                ([value1, value2, value3, ...])
+            values: a string or a list of strings.
             skip_check: True to skip checking duplicated values.
         """
         values = [values] if isinstance(values, str) else values
@@ -653,10 +681,10 @@ class StsListMaker():
         {
             "name": "...",
             "dicts": [{
-                "file": "...",  // relative to config directory
-                "type": "...", // list, jlist, tlist
-                "mode": "...", // load, swap, join
-                "src": ["...", ...] // list of .txt or .list files
+                "file": "...",  // relative to default config directory
+                "type": "...",  // list, jlist, tlist
+                "mode": "...",  // load, swap, join
+                "src": ["...", ...]  // list of .txt or .list files
             }, ...]
         }
         """
@@ -665,7 +693,7 @@ class StsListMaker():
 
             1. Use it if it's an absolute path.
             2. Assume relative to CWD. (.json omissible)
-            3. Assume relative to config file. (.json omissible)
+            3. Assume relative to default config directory. (.json omissible)
             4. If not found, assume relative to CWD.
             """
             if os.path.isabs(config):
@@ -693,9 +721,9 @@ class StsListMaker():
             """Calculate the path of a dictionary file.
 
             1. Use it if it's an absolute path.
-            2. Assume relative to config file directory. (.json omissible)
-            3. Assume relative to dictionary directory. (.json omissible)
-            4. If not found, assume relative to config file directory.
+            2. Assume relative to the config file.
+            3. Assume relative to default dictionary directory.
+            4. If not found, assume relative to the config file.
             """
             if os.path.isabs(stsdict):
                 return stsdict
@@ -754,7 +782,7 @@ class StsListMaker():
             elif mode == 'swap':
                 table = Table().load(*files).swap()
             elif mode == 'join':
-                table = Table().load_fileslist(files)
+                table = Table().load_filegroups(files)
             else:
                 raise ValueError(f'Specified mode "{mode}" is not supported.')
 
@@ -863,11 +891,11 @@ class StsConverter():
                     for i, v in enumerate(news):
                         content += f'<ins{" hidden" if i else ""}>{html.escape(v)}</ins>'
 
-                    # plural > exact > single
+                    # classes
                     classes = []
                     if len(news) == 1:
                         classes.append('single')
-                    if len(news) > 1:
+                    else:
                         classes.append('plural')
                     if old == news[0]:
                         classes.append('exact')
