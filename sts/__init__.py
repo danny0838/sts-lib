@@ -506,7 +506,7 @@ class StsDict(OrderedDict):
                             result = parts[:index] + [value] + parts[match.end:]
                             results.append((result, matched + 1, index + 1))
 
-                # add atomic match (length = 1) case
+                # add atomic stepping (length = 1) case
                 #
                 # e.g.
                 # table: 采信 => 採信, 信息 => 訊息
