@@ -692,7 +692,7 @@ class StsListMaker():
             """Calculate the path of a config file.
 
             1. Use it if it's an absolute path.
-            2. Assume relative to CWD. (.json omissible)
+            2. Assume relative to CWD.
             3. Assume relative to default config directory. (.json omissible)
             4. If not found, assume relative to CWD.
             """
@@ -701,10 +701,6 @@ class StsListMaker():
 
             if os.path.isfile(config):
                 return config
-            for file in os.listdir():
-                filebase, fileext = os.path.splitext(file)
-                if filebase == config and fileext.lower() == '.json':
-                    return file
 
             search_dir = os.path.normpath(os.path.join(__file__, '..', 'data', 'config'))
             search_file = os.path.join(search_dir, config)
