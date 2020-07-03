@@ -11,7 +11,7 @@ import html
 from collections import namedtuple, OrderedDict
 import math
 
-__version__ = '0.15.0'
+__version__ = '0.16.0'
 __author__ = 'Danny Lin'
 __author_email__ = 'danny0838@gmail.com'
 __homepage__ = 'https://github.com/danny0838/sts-lib'
