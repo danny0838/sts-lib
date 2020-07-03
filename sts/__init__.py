@@ -673,7 +673,7 @@ class Trie(StsDict):
 class StsListMaker():
     """A class for compling a dictionary.
     """
-    def make(self, config, output_dir=None, quiet=False):
+    def make(self, config_name, output_dir=None, quiet=False):
         """Compile a dictionary according to config.
 
         Load dictionaries specified in config and generate a new dictionary.
@@ -703,7 +703,7 @@ class StsListMaker():
             if os.path.isfile(config):
                 return config
 
-            search_file = os.path.join(os.path.dirname(__file__), 'data', 'config', config)
+            search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config)
             if os.path.isfile(search_file):
                 return search_file
             if not config.lower().endswith('.json'):
@@ -723,24 +723,15 @@ class StsListMaker():
             if os.path.isabs(stsdict):
                 return stsdict
 
-            search_file = os.path.abspath(os.path.join(config_dir, stsdict))
+            search_file = os.path.join(config_dir, stsdict)
             if os.path.isfile(search_file):
                 return search_file
 
-            search_file2 = os.path.abspath(os.path.join(dictionary_dir, stsdict))
+            search_file2 = os.path.join(self.DEFAULT_DICTIONARY_DIR, stsdict)
             if os.path.isfile(search_file2):
                 return search_file2
 
             return search_file
-
-        # Load config
-        config_file = get_config_file(config)
-        config_dir = os.path.abspath(os.path.dirname(config_file))
-        dictionary_dir = os.path.abspath(os.path.join(__file__, '..', 'data', 'dictionary'))
-
-        with open(config_file, "r", encoding="UTF-8") as f:
-            config = json.load(f)
-            f.close()
 
         def check_update(output, filegroups):
             if not os.path.isfile(output):
@@ -755,6 +746,15 @@ class StsListMaker():
 
             return False
 
+        # locate and load the config file
+        config_file = get_config_file(config_name)
+        config_dir = os.path.abspath(os.path.dirname(config_file))
+
+        with open(config_file, "r", encoding="UTF-8") as f:
+            config = json.load(f)
+            f.close()
+
+        # make the requested dicts
         for dict_ in config['dicts']:
             dest = os.path.join(output_dir or config_dir, dict_['file'])
             format = dict_['format']
@@ -790,6 +790,9 @@ class StsListMaker():
                 raise ValueError(f'Specified format "{format}" is not supported.')
 
         return dest
+
+    DEFAULT_CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'data', 'config')
+    DEFAULT_DICTIONARY_DIR = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
 
 class StsConverter():
     """Convert a text using a listfile.
