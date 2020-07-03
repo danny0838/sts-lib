@@ -458,7 +458,7 @@ class StsDict(OrderedDict):
         while len(queue):
             (parts, matched, nextindex) = data = queue.pop(0)
             if nextindex < len(parts):
-                queue += self._apply_enum_sub(data, include_short=include_short, include_self=include_self)
+                self._apply_enum_sub(queue, data, include_short=include_short, include_self=include_self)
             elif matched > 0:
                 results["".join(parts)] = True
 
@@ -469,20 +469,35 @@ class StsDict(OrderedDict):
 
         return results
 
-    def _apply_enum_sub(self, data, include_short=False, include_self=False):
+    def _apply_enum_sub(self, queue, data, include_short=False, include_self=False):
         """Helper function of apply_enum
 
         Args:
             data: (parts, matched, index)
-
-        Returns:
-            [(value, matched, nextindex), ...]
         """
         (parts, matched, index) = data
-        results = []
+        match = self.match(parts, index)
+
+        # add atomic stepping if no match
+        if match is None:
+            queue.append((parts, matched, index + 1))
+            return
+
         has_atomic_match = False
-        if index < len(parts):
-            match = self.match(parts, index)
+        if match.end - index == 1:
+            has_atomic_match = True
+        if include_self and match.conv.key not in match.conv.values:
+            match.conv.values.append(match.conv.key)
+        for value in match.conv.values:
+            result = parts[:index] + [value] + parts[match.end:]
+            queue.append((result, matched + 1, index + 1))
+
+        if not include_short:
+            return
+
+        # add shorter matches
+        for i in range(match.end - match.start - 1, 0, -1):
+            match = self.match(parts, index, maxlen=index + i)
             if match is not None:
                 if match.end - index == 1:
                     has_atomic_match = True
@@ -490,41 +505,21 @@ class StsDict(OrderedDict):
                     match.conv.values.append(match.conv.key)
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
-                    results.append((result, matched + 1, index + 1))
+                    queue.append((result, matched + 1, index + 1))
 
-                if not include_short:
-                    return results
-
-                # add shorter matches
-                for i in range(match.end - match.start - 1, 0, -1):
-                    match = self.match(parts, index, maxlen=index + i)
-                    if match is not None:
-                        if match.end - index == 1:
-                            has_atomic_match = True
-                        if include_self and match.conv.key not in match.conv.values:
-                            match.conv.values.append(match.conv.key)
-                        for value in match.conv.values:
-                            result = parts[:index] + [value] + parts[match.end:]
-                            results.append((result, matched + 1, index + 1))
-
-                # add atomic stepping (length = 1) case
-                #
-                # e.g.
-                # table: 采信 => 採信, 信息 => 訊息
-                # text: ["采", "信", "息"]
-                #
-                # We get a match ["采", "信", "息"] but no atomic match available.
-                #                 ^^^^^^^^^^
-                #
-                # Add ["采", "信", "息"] so that "采訊息" is not missed.
-                #             ^
-                if not has_atomic_match:
-                    results.append((parts, matched, index + 1))
-
-        if len(results) == 0:
-            results.append((parts, matched, index + 1))
-
-        return results
+        # add atomic stepping (length = 1) case
+        #
+        # e.g.
+        # table: 采信 => 採信, 信息 => 訊息
+        # text: ["采", "信", "息"]
+        #
+        # We get a match ["采", "信", "息"] but no atomic match available.
+        #                 ^^^^^^^^^^
+        #
+        # Add ["采", "信", "息"] so that "采訊息" is not missed.
+        #             ^
+        if not has_atomic_match:
+            queue.append((parts, matched, index + 1))
 
 class Table(StsDict):
     """An STS dictionary with hash format.
