@@ -865,17 +865,10 @@ class StsConverter():
                     old, news = part
 
                     if self.options['mark']:
-                        content = old + "->" + "|".join(news)
-
-                        # plural > exact > single
-                        if len(news) > 1:
-                            part = "{{" + content + "}}"
-                        elif old == news[0]:
-                            part = "{{" + content + "}}"
-                        elif len(news) == 1:
-                            part = "{{" + content + "}}"
+                        if len(news) == 1 and old == news[0]:
+                            part = "{{" + old + "}}"
                         else:
-                            part = news[0]
+                            part = "{{" + old + "->" + "|".join(news) + "}}"
                     else:
                         part = news[0]
 
