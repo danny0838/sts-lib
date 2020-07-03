@@ -158,8 +158,7 @@ class StsDict(OrderedDict):
     def iter(self):
         """Get a generator of key-values pairs.
         """
-        for key, values in self.items():
-            yield key, values
+        yield from self.items()
 
     def add(self, key, values, skip_check=False):
         """Add a key-values pair to this dictionary.
