@@ -575,7 +575,7 @@ class Trie(StsDict):
         """Get a generator of key-values pairs.
         """
         def recurse(trie):
-            for key in trie.keys():
+            for key in trie:
                 if key == "":
                     yield ''.join(keystack), trie[key]
                 else:
