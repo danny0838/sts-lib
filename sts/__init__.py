@@ -892,7 +892,7 @@ class StsConverter():
                         content += f'<ins{" hidden" if i else ""}>{html.escape(v)}</ins>'
 
                     # classes
-                    classes = []
+                    classes = ['sts-conv']
                     if len(news) == 1:
                         classes.append('single')
                     else:
