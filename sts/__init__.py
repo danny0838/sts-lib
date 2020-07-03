@@ -727,7 +727,7 @@ class StsListMaker():
                 return True
 
             for files in filegroups:
-                if type(files) is str:
+                if isinstance(files, str):
                     files = [files]
                 for file in files:
                     if os.path.getmtime(file) > os.path.getmtime(output):
@@ -739,7 +739,7 @@ class StsListMaker():
             dest = os.path.join(output_dir or config_dir, dict_['file'])
             format = dict_['format']
             mode = dict_['mode']
-            files = [get_stsdict_path(f) if type(f) is str
+            files = [get_stsdict_path(f) if isinstance(f, str)
                 else [get_stsdict_path(i) for i in f]
                 for f in dict_['src']]
 
