@@ -1,5 +1,8 @@
 {
   "name": "Traditional Chinese to Traditional Chinese (Taiwan standard, with phrases)",
+  "requires": [
+    "_default"
+  ],
   "dicts": [{
     "file": "t2twp.tlist",
     "format": "tlist",

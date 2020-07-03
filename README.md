@@ -42,9 +42,6 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 ```python
 from sts import StsListMaker, StsConverter
 
-# generate default dictionary files (required for the first time)
-StsListMaker().make('_default', quiet=True)
-
 # generate a dictionary file from a config and get its path
 dictfile = StsListMaker().make('s2t', quiet=True)
 

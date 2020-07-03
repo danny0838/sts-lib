@@ -4,7 +4,6 @@ from pathlib import Path
 from sts import StsListMaker, StsConverter, StsDict, Table, Trie
 
 root_dir = os.path.dirname(__file__)
-StsListMaker().make('_default', quiet=True)
 
 
 class TestSts(unittest.TestCase):

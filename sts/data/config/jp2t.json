@@ -1,5 +1,8 @@
 {
   "name": "New Japanese Kanji (Shinjitai) to Traditional Chinese Characters (Kyūjitai)",
+  "requires": [
+    "_default"
+  ],
   "dicts": [{
     "file": "jp2t.tlist",
     "format": "tlist",

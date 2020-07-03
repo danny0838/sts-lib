@@ -673,7 +673,7 @@ class Trie(StsDict):
 class StsListMaker():
     """A class for compling a dictionary.
     """
-    def make(self, config_name, output_dir=None, quiet=False):
+    def make(self, config_name, base_dir=None, output_dir=None, skip_requires=False, quiet=False):
         """Compile a dictionary according to config.
 
         Load dictionaries specified in config and generate a new dictionary.
@@ -681,6 +681,9 @@ class StsListMaker():
         scheme of config (.json):
         {
             "name": "...",
+            "requires": [
+                "..."  // a required config (relative to this config file)
+            ],
             "dicts": [{
                 "file": "...",  // relative to default config directory
                 "type": "...",  // list, jlist, tlist
@@ -689,19 +692,20 @@ class StsListMaker():
             }, ...]
         }
         """
-        def get_config_file(config):
+        def get_config_file(config, base_dir=None):
             """Calculate the path of a config file.
 
             1. Use it if it's an absolute path.
-            2. Assume relative to CWD.
+            2. Assume relative to base_dir or CWD.
             3. Assume relative to default config directory. (.json omissible)
             4. If not found, assume relative to CWD.
             """
             if os.path.isabs(config):
                 return config
 
-            if os.path.isfile(config):
-                return config
+            relative_config = os.path.join(base_dir, config) if base_dir is not None else config
+            if os.path.isfile(relative_config):
+                return relative_config
 
             search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config)
             if os.path.isfile(search_file):
@@ -710,7 +714,7 @@ class StsListMaker():
                 for file in glob.iglob(glob.escape(search_file) + '.[jJ][sS][oO][nN]'):
                     return file
 
-            return config
+            return relative_config
 
         def get_stsdict_file(stsdict):
             """Calculate the path of a dictionary file.
@@ -747,12 +751,17 @@ class StsListMaker():
             return False
 
         # locate and load the config file
-        config_file = get_config_file(config_name)
+        config_file = get_config_file(config_name, base_dir)
         config_dir = os.path.abspath(os.path.dirname(config_file))
 
         with open(config_file, "r", encoding="UTF-8") as f:
             config = json.load(f)
             f.close()
+
+        # handle required configs
+        if not skip_requires:
+            for cf in config.get('requires', []):
+                self.make(cf, base_dir=config_dir, output_dir=output_dir, skip_requires=skip_requires, quiet=quiet)
 
         # make the requested dicts
         for dict_ in config['dicts']:
@@ -978,7 +987,7 @@ def main():
     def make(args):
         """Compile conversion dictionary(s).
         """
-        configs = ['_default'] + args['config']
+        configs = args['config']
         dir = args['dir']
         quiet = args['quiet']
 
@@ -997,7 +1006,6 @@ def main():
             'exclude': args['exclude'],
             }
 
-        StsListMaker().make('_default', quiet=True)
         stsdict = StsListMaker().make(config, quiet=True)
         converter = StsConverter(stsdict, options)
         converter.convert_file(input, output)
