@@ -712,7 +712,7 @@ class StsListMaker():
 
             return config
 
-        def get_stsdict_path(stsdict):
+        def get_stsdict_file(stsdict):
             """Calculate the path of a dictionary file.
 
             1. Use it if it's an absolute path.
@@ -723,15 +723,15 @@ class StsListMaker():
             if os.path.isabs(stsdict):
                 return stsdict
 
-            search_path = os.path.abspath(os.path.join(config_dir, stsdict))
-            if os.path.exists(search_path):
-                return search_path
+            search_file = os.path.abspath(os.path.join(config_dir, stsdict))
+            if os.path.isfile(search_file):
+                return search_file
 
-            search_path2 = os.path.abspath(os.path.join(dictionary_dir, stsdict))
-            if os.path.exists(search_path2):
-                return search_path2
+            search_file2 = os.path.abspath(os.path.join(dictionary_dir, stsdict))
+            if os.path.isfile(search_file2):
+                return search_file2
 
-            return search_path
+            return search_file
 
         # Load config
         config_file = get_config_file(config)
@@ -759,8 +759,8 @@ class StsListMaker():
             dest = os.path.join(output_dir or config_dir, dict_['file'])
             format = dict_['format']
             mode = dict_['mode']
-            files = [get_stsdict_path(f) if isinstance(f, str)
-                else [get_stsdict_path(i) for i in f]
+            files = [get_stsdict_file(f) if isinstance(f, str)
+                else [get_stsdict_file(i) for i in f]
                 for f in dict_['src']]
 
             if not check_update(dest, files):
