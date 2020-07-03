@@ -1,5 +1,8 @@
 {
   "name": "Traditional Chinese (Hong Kong variant) to Traditional Chinese",
+  "requires": [
+    "_default"
+  ],
   "dicts": [{
     "file": "hk2t.tlist",
     "format": "tlist",
