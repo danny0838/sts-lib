@@ -4,6 +4,7 @@
 import sys
 import os
 import re
+import glob
 import argparse
 import json
 import html
@@ -702,14 +703,12 @@ class StsListMaker():
             if os.path.isfile(config):
                 return config
 
-            search_dir = os.path.normpath(os.path.join(__file__, '..', 'data', 'config'))
-            search_file = os.path.join(search_dir, config)
+            search_file = os.path.join(os.path.dirname(__file__), 'data', 'config', config)
             if os.path.isfile(search_file):
                 return search_file
-            for file in os.listdir(search_dir):
-                filebase, fileext = os.path.splitext(file)
-                if filebase == config and fileext.lower() == '.json':
-                    return os.path.join(search_dir, file)
+            if not config.lower().endswith('.json'):
+                for file in glob.iglob(glob.escape(search_file) + '.[jJ][sS][oO][nN]'):
+                    return file
 
             return config
 
