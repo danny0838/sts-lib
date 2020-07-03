@@ -1,6 +1,6 @@
 import unittest
 import os
-from pathlib import Path
+import re
 from sts import StsListMaker, StsConverter, StsDict, Table, Trie
 
 root_dir = os.path.dirname(__file__)
@@ -171,6 +171,24 @@ class TestExclude(TestSts):
         self.check_case('test_exclude', 'exclude3', 's2twp', {
             'exclude': r'「.*?」',
             })
+
+
+@unittest.skip
+class TestConfigs(unittest.TestCase):
+    def test_configs(self):
+        def clear_lists():
+            pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
+            for fh in os.scandir(config_dir):
+                if pattern.search(fh.path):
+                    os.remove(fh)
+
+        config_dir = StsListMaker.DEFAULT_CONFIG_DIR
+        maker = StsListMaker()
+        pattern = re.compile(r'\.json$', re.I)
+        for file in os.listdir(config_dir):
+            if pattern.search(file):
+                clear_lists()
+                maker.make(file, quiet=True)
 
 
 if __name__ == '__main__':
