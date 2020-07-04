@@ -65,13 +65,13 @@ class TestClassStsDict(TestSts):
     def test_match(self):
         for stsdict in self.prepare_dicts({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']}):
             self.assertEqual(stsdict.match('吃干姜了', 0), None)
-            self.assertEqual(stsdict.match('吃干姜了', 1), (('干姜', ['乾薑']), 1, 3))
-            self.assertEqual(stsdict.match('吃干姜了', 2), (('姜', ['姜', '薑']), 2, 3))
+            self.assertEqual(stsdict.match('吃干姜了', 1), ((['干', '姜'], ['乾薑']), 1, 3))
+            self.assertEqual(stsdict.match('吃干姜了', 2), ((['姜'], ['姜', '薑']), 2, 3))
             self.assertEqual(stsdict.match('吃干姜了', 3), None)
 
     def test_apply(self):
         for stsdict in self.prepare_dicts({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']}):
-            self.assertEqual(list(stsdict.apply('吃干姜了')), ['吃', ('干姜', ['乾薑']), '了'])
+            self.assertEqual(list(stsdict.apply('吃干姜了')), ['吃', (['干', '姜'], ['乾薑']), '了'])
 
     def test_apply_enum(self):
         for stsdict in self.prepare_dicts({'钟': ['鐘', '鍾'], '药': ['藥', '葯'], '用药': ['用藥']}):
@@ -181,7 +181,7 @@ class TestFormat(TestSts):
 沙⿰虫风也简转繁"""
         self.assertEqual(
             list(self.convert_text(text, 's2t', method='convert')), 
-            [('干了', ['幹了', '乾了']), ' ', ('干涉', ['干涉']), '\n', '⿰虫风', '需', '要', ('简', ['簡']), ('转', ['轉']), '繁', '\n', '⿱艹⿰虫风', '不', '需', '要', ('简', ['簡']), ('转', ['轉']), '繁', '\n', '沙', '⿰虫风', '也', ('简', ['簡']), ('转', ['轉']), '繁'])
+            [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), '\n', '⿰虫风', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n', '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n', '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁'])
 
     def test_txt_mark(self):
         self.check_case('test_format', 'format_txt_mark', options={'format': 'txt', 'mark': True})

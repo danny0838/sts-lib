@@ -55,7 +55,7 @@ converter.convert_text('汉字')  # 漢字
 converter.convert_file(input=None, output=None)
 
 # process converted data stream
-[p for p in converter.convert("汉字")]  # [StsDictConv(key='汉', values=['漢']), '字']
+[p for p in converter.convert("汉字")]  # [StsDictConv(key=['汉'], values=['漢']), '字']
 ```
 
 ## License 許可協議

@@ -410,9 +410,10 @@ class StsDict(OrderedDict):
         i = min(i, min(len(parts), maxlen) - pos)
         while i >= 1:
             end = pos + i
-            current = "".join(parts[pos:end])
+            current_parts = parts[pos:end]
+            current = "".join(current_parts)
             if current in self:
-                conv = StsDictConv(current, self[current])
+                conv = StsDictConv(current_parts, self[current])
                 return StsDictMatch(conv, pos, end)
             i -= 1
         return None
@@ -509,8 +510,10 @@ class StsDict(OrderedDict):
         has_atomic_match = False
         if match.end - index == 1:
             has_atomic_match = True
-        if include_self and match.conv.key not in match.conv.values:
-            match.conv.values.append(match.conv.key)
+        if include_self:
+            match_key = ''.join(match.conv.key)
+            if match_key not in match.conv.values:
+                match.conv.values.append(match_key)
         for value in match.conv.values:
             result = parts[:index] + [value] + parts[match.end:]
             queue.append((result, matched + 1, index + 1))
@@ -524,8 +527,10 @@ class StsDict(OrderedDict):
             if match is not None:
                 if match.end - index == 1:
                     has_atomic_match = True
-                if include_self and match.conv.key not in match.conv.values:
-                    match.conv.values.append(match.conv.key)
+                if include_self:
+                    match_key = ''.join(match.conv.key)
+                    if match_key not in match.conv.values:
+                        match.conv.values.append(match_key)
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
                     queue.append((result, matched + 1, index + 1))
@@ -586,9 +591,10 @@ class Table(StsDict):
             i = min(i, min(len(parts), maxlen) - pos)
             while i >= 1:
                 end = pos + i
-                current = "".join(parts[pos:end])
+                current_parts = parts[pos:end]
+                current = "".join(current_parts)
                 if current in self:
-                    conv = StsDictConv(current, self[current])
+                    conv = StsDictConv(current_parts, self[current])
                     return StsDictMatch(conv, pos, end)
                 i -= 1
         return None
@@ -666,7 +672,7 @@ class Trie(StsDict):
                 match_end = i + 1
             i = i + 1
         if match:
-            conv = StsDictConv("".join(parts[pos:match_end]), match)
+            conv = StsDictConv(parts[pos:match_end], match)
             return StsDictMatch(conv, pos, match_end)
         return None
 
@@ -866,7 +872,8 @@ class StsConverter():
                 if isinstance(part, str):
                     yield part
                 else:
-                    old, news = part
+                    olds, news = part
+                    old = ''.join(olds)
 
                     if self.options['mark']:
                         if len(news) == 1 and old == news[0]:
@@ -883,7 +890,8 @@ class StsConverter():
                 if isinstance(part, str):
                     yield html.escape(part)
                 else:
-                    old, news = part
+                    olds, news = part
+                    old = ''.join(olds)
                     content = f'<del hidden>{html.escape(old)}</del>'
                     for i, v in enumerate(news):
                         content += f'<ins{" hidden" if i else ""}>{html.escape(v)}</ins>'
