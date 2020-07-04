@@ -1070,8 +1070,8 @@ def main():
     # subcommand: make
     parser_make = subparsers.add_parser('make',
         help=make.__doc__, description=make.__doc__)
-    parser_make.add_argument('config', nargs='*',
-        help="""the config file(s) to compile (default: built-in compile)""")
+    parser_make.add_argument('config', nargs='+',
+        help="""the config file(s) to compile""")
     parser_make.add_argument('--dir', '-d', default=None,
         help="""the directory to save the output (default: config directory)""")
     parser_make.add_argument('--quiet', '-q', default=False, action='store_true',
