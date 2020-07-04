@@ -939,20 +939,20 @@ ins, del { text-decoration: none; }
         else:  # default: format = 'txt'
             return ''.join(parts_to_text(conversion))
 
-    def convert_file(self, input=None, output=None):
+    def convert_file(self, input=None, output=None, input_encoding='UTF-8', output_encoding='UTF-8'):
         """Convert input and write to output.
 
         Args:
             input: a file path or None for stdin.
             output: a file path or None for stdout.
         """
-        f = open(input, "r", encoding="UTF-8", newline="") if input else sys.stdin
+        f = open(input, "r", encoding=input_encoding, newline="") if input else sys.stdin
         text = f.read()
         f.close()
 
         conversion = self.convert_text(text)
 
-        f = open(output, "w", encoding="UTF-8", newline="") if output else sys.stdout
+        f = open(output, "w", encoding=output_encoding, newline="") if output else sys.stdout
         f.write(conversion)
         if f is not sys.stdout: f.close()
 
@@ -1020,6 +1020,8 @@ def main():
             'format': args['format'],
             'exclude': args['exclude'],
             }
+        input_encoding = args['in_enc']
+        output_encoding = args['out_enc']
 
         stsdict = StsListMaker().make(config, quiet=True)
         converter = StsConverter(stsdict, options)
@@ -1030,7 +1032,7 @@ def main():
 
         for i, input in enumerate(inputs):
             output = None if force_stdout else input if i >= len(outputs) else outputs[i]
-            converter.convert_file(input, output)
+            converter.convert_file(input, output, input_encoding, output_encoding)
 
     # define the parsers
     parser = argparse.ArgumentParser(description=__doc__)
@@ -1052,6 +1054,10 @@ def main():
         help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
     parser_convert.add_argument('--exclude',
         help="""exclude text matching given regex from conversion, and replace it with the "return" subgroup value if exists""")
+    parser_convert.add_argument('--in-enc', default='UTF-8', metavar='ENCODING',
+        help="""encoding for input (default: %(default)s)""")
+    parser_convert.add_argument('--out-enc', default='UTF-8', metavar='ENCODING',
+        help="""encoding for output (default: %(default)s)""")
     parser_convert.add_argument('--output', '-o', default=[], action='append',
         help="""path to output (for the corresponding input) (default: to input)""")
     parser_convert.add_argument('--stdout', default=False, action='store_true',

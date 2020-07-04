@@ -24,19 +24,21 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 
 * `sts --help` 或 `sts COMMAND --help` 檢視可用指令的詳細說明文檔。
 
-* `sts convert [-c CONFIG] [-f FORMAT] [--exclude PATTERN] [-o OUTPUT] [--stdout] [file [file ...]]` 執行簡繁轉換：
+* `sts convert [OPTIONs] [file [file ...]]` 執行簡繁轉換：
   * `file` 為一或多個欲轉換的檔案。（省略則讀取標準輸入 STDIN）
-  * `CONFIG` 為內建配置檔名稱或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
-  * `FORMAT` 指定輸出格式，可用格式如下：
+  * `-c CONFIG` 指定配置檔，可為內建配置檔名稱或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
+  * `-f FORMAT` 指定輸出格式，可用格式如下：
     * `txt`：純文字，適合一般使用。
     * `txtm`：純文字加轉換標示。
     * `html`：加上 HTML 標記的文本，可嵌入至網頁應用程式做互動式校對。
     * `htmlpage`：加入 HTML 樣式的網頁，可直接開啟做互動式校對。
     * `json`：以 JSON 格式表示轉換輸出，可用其他程式進一步解析處理。
-  * `PATTERN` 指定用於忽略簡繁轉換的正規表示式。有指定 `return` 子群組時會取代為子群組的值。
+  * `--exclude PATTERN` 指定用於忽略簡繁轉換的正規表示式。有指定 `return` 子群組時會取代為子群組的值。
     * 例如 `sts convert -c s2twp --exclude "「.*?」"` 會把 `「程序」正义` 轉換為 `「程序」正義`。
     * 例如 `sts convert -c s2twp --exclude "-{(?P<return>.*?)}-"` 會把 `-{程序}-正义` 轉換為 `程序正義`。
-  * `OUTPUT` 指定對應輸入檔案轉換結果的輸出路徑。（無對應者輸出至原處）
+  * `--in-enc ENCODING` 指定輸入編碼。可用編碼參見[這裡](https://docs.python.org/3/library/codecs.html#standard-encodings)。
+  * `--out-enc ENCODING` 指定輸出編碼。可用編碼參見[這裡](https://docs.python.org/3/library/codecs.html#standard-encodings)。
+  * `-o OUTPUT` 指定對應輸入檔案轉換結果的輸出路徑。（無對應者輸出至原處）
   * `--stdout` 將所有轉換結果輸出至標準輸出 STDOUT。
 
 ### Python
