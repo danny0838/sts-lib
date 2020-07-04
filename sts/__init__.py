@@ -954,7 +954,7 @@ ins, del { text-decoration: none; }
 
         f = open(output, "w", encoding="UTF-8", newline="") if output else sys.stdout
         f.write(conversion)
-        f.close()
+        if f is not sys.stdout: f.close()
 
     default_options={
         'format': 'txt',
@@ -965,18 +965,22 @@ def main():
     def sort(args):
         """Sort a conversion list.
         """
-        input = args['input']
-        output = args['output'] or args['input']
+        inputs = args['file']
+        outputs = args['output']
 
-        Table().load(input).dump(output, sort=True)
+        for i, input in enumerate(inputs):
+            output = input if i >= len(outputs) else outputs[i]
+            Table().load(input).dump(output, sort=True)
 
     def swap(args):
         """Swap the key and value of a conversion list.
         """
-        input = args['input']
-        output = args['output'] or args['input']
+        inputs = args['file']
+        outputs = args['output']
 
-        Table().load(input).swap().dump(output, sort=True)
+        for i, input in enumerate(inputs):
+            output = input if i >= len(outputs) else outputs[i]
+            Table().load(input).swap().dump(output, sort=True)
 
     def merge(args):
         """Merge conversion lists.
@@ -1008,9 +1012,10 @@ def main():
     def convert(args):
         """Convert a file using the given config.
         """
+        inputs = args['file']
+        outputs = args['output']
+        force_stdout = args['stdout']
         config = args['config']
-        input = args['input']
-        output = args['output']
         options={
             'format': args['format'],
             'exclude': args['exclude'],
@@ -1018,7 +1023,14 @@ def main():
 
         stsdict = StsListMaker().make(config, quiet=True)
         converter = StsConverter(stsdict, options)
-        converter.convert_file(input, output)
+
+        # read STDIN if no input file is specified
+        if not len(inputs):
+            inputs.append(None)
+
+        for i, input in enumerate(inputs):
+            output = None if force_stdout else input if i >= len(outputs) else outputs[i]
+            converter.convert_file(input, output)
 
     # define the parsers
     parser = argparse.ArgumentParser(description=__doc__)
@@ -1029,35 +1041,37 @@ def main():
     # subcommand: convert
     parser_convert = subparsers.add_parser('convert',
         help=convert.__doc__, description=convert.__doc__)
+    parser_convert.add_argument('file', nargs='*',
+        help="""file(s) to convert (default: STDIN)""")
     parser_convert.add_argument('--config', '-c', default='s2t',
         help="""the config to use, either a built-in config name or a path to a custom JSON file
 (built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2twp|tw2tp|t2hk|hk2t|t2jp|jp2t)
 (default: %(default)s)""")
-    parser_convert.add_argument('--input', '-i', default=None,
-        help="""file to convert (default: stdin)""")
-    parser_convert.add_argument('--output', '-o', default=None,
-        help="""file to save the output (default: stdout)""")
     parser_convert.add_argument('--format', '-f', default="txt",
         choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
         help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
     parser_convert.add_argument('--exclude',
         help="""exclude text matching given regex from conversion, and replace it with the "return" subgroup value if exists""")
+    parser_convert.add_argument('--output', '-o', default=[], action='append',
+        help="""path to output (for the corresponding input) (default: to input)""")
+    parser_convert.add_argument('--stdout', default=False, action='store_true',
+        help="""write all converted text to STDOUT instead""")
 
     # subcommand: sort
     parser_sort = subparsers.add_parser('sort',
         help=sort.__doc__, description=sort.__doc__)
-    parser_sort.add_argument('input',
-        help="""file to sort""")
-    parser_sort.add_argument('output', nargs='?',
-        help="""file to save as (default: input)""")
+    parser_sort.add_argument('file', nargs='+',
+        help="""file(s) to sort""")
+    parser_sort.add_argument('--output', '-o', default=[], action='append',
+        help="""path to output (for the corresponding input) (default: to input)""")
 
     # subcommand: swap
     parser_swap = subparsers.add_parser('swap',
         help=swap.__doc__, description=swap.__doc__)
-    parser_swap.add_argument('input',
-        help="""file to swap""")
-    parser_swap.add_argument('output', nargs='?',
-        help="""file to save as (default: input)""")
+    parser_swap.add_argument('file', nargs='+',
+        help="""file(s) to swap""")
+    parser_swap.add_argument('--output', '-o', default=[], action='append',
+        help="""path to output (for the corresponding input) (default: to input)""")
 
     # subcommand: merge
     parser_merge = subparsers.add_parser('merge',

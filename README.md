@@ -24,10 +24,9 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 
 * `sts --help` 或 `sts COMMAND --help` 檢視可用指令的詳細說明文檔。
 
-* `sts convert [-c CONFIG] [-i INPUT] [-o OUTPUT] [-f FORMAT] [--exclude PATTERN]` 執行簡繁轉換：
+* `sts convert [-c CONFIG] [-f FORMAT] [--exclude PATTERN] [-o OUTPUT] [--stdout] [file [file ...]]` 執行簡繁轉換：
+  * `file` 為一或多個欲轉換的檔案。（省略則讀取標準輸入 STDIN）
   * `CONFIG` 為內建配置檔名稱或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
-  * `INPUT` 為欲轉換的檔案（省略時讀取標準輸入 stdin）。
-  * `OUTPUT` 為欲輸出的檔案（省略時輸出至標準輸出 stdout）。
   * `FORMAT` 指定輸出格式，可用格式如下：
     * `txt`：純文字，適合一般使用。
     * `txtm`：純文字加轉換標示。
@@ -37,6 +36,8 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
   * `PATTERN` 指定用於忽略簡繁轉換的正規表示式。有指定 `return` 子群組時會取代為子群組的值。
     * 例如 `sts convert -c s2twp --exclude "「.*?」"` 會把 `「程序」正义` 轉換為 `「程序」正義`。
     * 例如 `sts convert -c s2twp --exclude "-{(?P<return>.*?)}-"` 會把 `-{程序}-正义` 轉換為 `程序正義`。
+  * `OUTPUT` 指定對應輸入檔案轉換結果的輸出路徑。（無對應者輸出至原處）
+  * `--stdout` 將所有轉換結果輸出至標準輸出 STDOUT。
 
 ### Python
 
