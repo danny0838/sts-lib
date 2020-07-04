@@ -1040,8 +1040,8 @@ def main():
             converter.convert_file(input, output, input_encoding, output_encoding)
 
     # define the parsers
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--version', default=False, action='store_true',
+    parser = argparse.ArgumentParser(prog='sts', description=__doc__)
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}',
         help="""show version information and exit""")
     subparsers = parser.add_subparsers(dest='func', metavar='COMMAND')
 
@@ -1114,8 +1114,6 @@ def main():
     args = vars(parser.parse_args())
     if args['func']:
         locals()[args['func']](args)
-    elif args['version']:
-        print(f'sts {__version__}')
     else:
         parser.parse_args(['-h'])
 
