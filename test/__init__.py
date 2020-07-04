@@ -7,10 +7,10 @@ root_dir = os.path.dirname(__file__)
 
 
 class TestSts(unittest.TestCase):
-    def convert_text(self, text, config, options={}):
+    def convert_text(self, text, config, options={}, method='convert_text'):
         stsdict = StsListMaker().make(config, quiet=True)
         converter = StsConverter(stsdict, options)
-        return converter.convert_text(text)
+        return getattr(converter, method)(text)
 
     def check_case(self, subdir, name, config=None, options={}):
         dir = os.path.join(root_dir, subdir)
@@ -171,6 +171,26 @@ class TestExclude(TestSts):
         self.check_case('test_exclude', 'exclude3', 's2twp', {
             'exclude': r'「.*?」',
             })
+
+
+class TestFormat(TestSts):
+    def test_generator(self):
+        text = """干了 干涉
+⿰虫风需要简转繁
+⿱艹⿰虫风不需要简转繁
+沙⿰虫风也简转繁"""
+        self.assertEqual(
+            list(self.convert_text(text, 's2t', method='convert')), 
+            [('干了', ['幹了', '乾了']), ' ', ('干涉', ['干涉']), '\n', '⿰虫风', '需', '要', ('简', ['簡']), ('转', ['轉']), '繁', '\n', '⿱艹⿰虫风', '不', '需', '要', ('简', ['簡']), ('转', ['轉']), '繁', '\n', '沙', '⿰虫风', '也', ('简', ['簡']), ('转', ['轉']), '繁'])
+
+    def test_txt_mark(self):
+        self.check_case('test_format', 'format_txt_mark', options={'format': 'txt', 'mark': True})
+
+    def test_html(self):
+        self.check_case('test_format', 'format_html', options={'format': 'html'})
+
+    def test_json(self):
+        self.check_case('test_format', 'format_json', options={'format': 'json'})
 
 
 @unittest.skip

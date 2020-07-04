@@ -1,0 +1,11 @@
+{
+  "name": "Unit test",
+  "dicts": [{
+    "file": "format_txt_mark.txt",
+    "format": "list",
+    "mode": "load",
+    "src": [
+      "format_txt_mark.txt"
+    ]
+  }]
+}
