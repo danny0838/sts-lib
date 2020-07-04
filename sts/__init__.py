@@ -872,18 +872,20 @@ class StsConverter():
                 if isinstance(part, str):
                     yield part
                 else:
+                    yield part[1][0]
+
+        def parts_to_marked_text(parts):
+            for part in parts:
+                if isinstance(part, str):
+                    yield part
+                else:
                     olds, news = part
                     old = ''.join(olds)
 
-                    if self.options['mark']:
-                        if len(news) == 1 and old == news[0]:
-                            part = "{{" + old + "}}"
-                        else:
-                            part = "{{" + old + "->" + "|".join(news) + "}}"
+                    if len(news) == 1 and old == news[0]:
+                        yield "{{" + old + "}}"
                     else:
-                        part = news[0]
-
-                    yield part
+                        yield "{{" + old + "->" + "|".join(news) + "}}"
 
         def parts_to_html(parts):
             for part in parts:
@@ -932,6 +934,8 @@ ins, del { text-decoration: none; }
             return ''.join(parts_to_html(conversion))
         elif self.options['format'] == 'json':
             return json.dumps(list(conversion), ensure_ascii=False)
+        elif self.options['format'] == 'txtm':
+            return ''.join(parts_to_marked_text(conversion))
         else:  # default: format = 'txt'
             return ''.join(parts_to_text(conversion))
 
@@ -954,7 +958,6 @@ ins, del { text-decoration: none; }
 
     default_options={
         'format': 'txt',
-        'mark': False,
         'exclude': None,
         }
 
@@ -1010,7 +1013,6 @@ def main():
         output = args['output']
         options={
             'format': args['format'],
-            'mark': args['mark'],
             'exclude': args['exclude'],
             }
 
@@ -1036,10 +1038,8 @@ def main():
     parser_convert.add_argument('--output', '-o', default=None,
         help="""file to save the output (default: stdout)""")
     parser_convert.add_argument('--format', '-f', default="txt",
-        choices=['txt', 'html', 'htmlpage', 'json'], metavar='FORMAT',
-        help="""output format (txt|html|htmlpage|json) (default: txt)""")
-    parser_convert.add_argument('--mark', '-m', default=False, action='store_true',
-        help="""mark converted chars for txt format""")
+        choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
+        help="""output format (txt|txtm|html|htmlpage|json) (default: txt)""")
     parser_convert.add_argument('--exclude',
         help="""exclude text matching given regex from conversion, """
             """optionally also replace with its "return" subgroup"""

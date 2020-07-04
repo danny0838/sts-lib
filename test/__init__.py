@@ -183,8 +183,8 @@ class TestFormat(TestSts):
             list(self.convert_text(text, 's2t', method='convert')), 
             [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), '\n', '⿰虫风', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n', '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n', '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁'])
 
-    def test_txt_mark(self):
-        self.check_case('test_format', 'format_txt_mark', options={'format': 'txt', 'mark': True})
+    def test_txtm(self):
+        self.check_case('test_format', 'format_txtm', options={'format': 'txtm'})
 
     def test_html(self):
         self.check_case('test_format', 'format_html', options={'format': 'html'})

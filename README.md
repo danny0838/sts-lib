@@ -24,12 +24,13 @@ STS (Simplified-Traditional Secretary) is an open library for simplified-traditi
 
 * `sts --help` 或 `sts COMMAND --help` 檢視可用指令的詳細說明文檔。
 
-* `sts convert [-c CONFIG] [-i INPUT] [-o OUTPUT] [-f FORMAT] [--mark] [--exclude PATTERN]` 執行簡繁轉換：
+* `sts convert [-c CONFIG] [-i INPUT] [-o OUTPUT] [-f FORMAT] [--exclude PATTERN]` 執行簡繁轉換：
   * `CONFIG` 為內建配置檔名稱或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
   * `INPUT` 為欲轉換的檔案（省略時讀取標準輸入 stdin）。
   * `OUTPUT` 為欲輸出的檔案（省略時輸出至標準輸出 stdout）。
   * `FORMAT` 指定輸出格式，可用格式如下：
-    * `txt`：純文字，適合一般使用。可加上 `--mark` 參數標示轉換過的文字
+    * `txt`：純文字，適合一般使用。
+    * `txtm`：純文字加轉換標示。
     * `html`：加上 HTML 標記的文本，可嵌入至網頁應用程式做互動式校對。
     * `htmlpage`：加入 HTML 樣式的網頁，可直接開啟做互動式校對。
     * `json`：以 JSON 格式表示轉換輸出，可用其他程式進一步解析處理。
