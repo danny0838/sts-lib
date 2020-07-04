@@ -921,11 +921,14 @@ class StsConverter():
 <meta charset="UTF-8">
 <style>
 pre { white-space: pre-wrap; }
-span { font-weight: normal; border: thin dotted #AAA; }
-span.plural { background: #FFFF99; }
-span.exact { background: #DDDDFF; }
-span.single { background: #CCFFCC; }
-ins, del { text-decoration: none; }
+.sts-conv { font-weight: normal; border: thin dotted #AAA; }
+.sts-conv.plural { background: #FFFF99; }
+.sts-conv.exact { background: #DDDDFF; }
+.sts-conv.single { background: #CCFFCC; }
+.sts-conv ins, .sts-conv del { text-decoration: none; }
+.sts-conv del { display: none; }
+.sts-conv ins { display: none; }
+.sts-conv ins:first-of-type { display: inline; }
 </style>
 </head>
 <body>
