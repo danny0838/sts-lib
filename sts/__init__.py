@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""An open library for simplified-traditional Chinese text conversion.
+"""An open library for flexible simplified-traditional Chinese text conversion.
 """
 import sys
 import os

@@ -1,18 +1,19 @@
 # STS 簡繁祕書
 
-STS (Simplified-Traditional Secretary) is an open library for simplified-traditional Chinese text conversion.
+STS (Simplified-Traditional Secretary) is an open library for flexible simplified-traditional Chinese text conversion.
 
-簡繁祕書是開源、輕巧的漢字簡繁及地區詞轉換工具。
+簡繁祕書是開源、輕巧、有彈性的中文簡繁轉換工具，也支援異體字轉換及地區慣用詞轉換。
 
 ## Features 特色
 
 * 使用與 [OpenCC](https://github.com/BYVoid/OpenCC) 格式相容的詞典檔。
-* 可用「並聯」與「串聯」方式組合多個詞典檔作為轉換方案。
-* 可將轉換方案預先編譯為單一詞典檔供本工具或其他程式使用，包括純文字與 JSON 規格，也支援效能較佳的前綴樹格式。
-* 支援一對多轉換，轉換結果可輸出為純文字、HTML、JSON 等規格。
-* 支援 Unicode 組合字，例如「⿰虫鬼」視為一個字，轉換時不會因為詞典有「虫=>蟲」而被轉為「⿰蟲鬼」。
+* 可「並聯」或「串聯」組合多個詞典檔作為轉換方案，並預先儲存成單一詞典檔以加速載入。詞典檔更新時也會自動重新生成組合詞典。
 * 簡繁對應、異體字對應、地區慣用詞對應等不同的對應關係皆區分至不同的詞典檔。
 * 詞典及配置檔與程式本體分離，可自由修改、擴充。
+* 支援一對多轉換，轉換結果可輸出為純文字、HTML、JSON 等格式。
+* 支援 Unicode 組合字，例如「⿰虫鬼」視為一個字，不會因為詞典有「虫=>蟲」而被轉為「⿰蟲鬼」。
+* 支援用正規表示式略過特定文字的轉換。
+* 支援編碼轉換，可自訂輸入及輸出檔案的字元編碼。
 
 ## Usage 使用
 
