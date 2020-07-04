@@ -1050,11 +1050,11 @@ def main():
         help=convert.__doc__, description=convert.__doc__)
     parser_convert.add_argument('file', nargs='*',
         help="""file(s) to convert (default: STDIN)""")
-    parser_convert.add_argument('--config', '-c', default='s2t',
+    parser_convert.add_argument('-c', '--config', default='s2t',
         help="""the config to use, either a built-in config name or a path to a custom JSON file
 (built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2twp|tw2tp|t2hk|hk2t|t2jp|jp2t)
 (default: %(default)s)""")
-    parser_convert.add_argument('--format', '-f', default="txt",
+    parser_convert.add_argument('-f', '--format', default="txt",
         choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
         help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
     parser_convert.add_argument('--exclude',
@@ -1063,7 +1063,7 @@ def main():
         help="""encoding for input (default: %(default)s)""")
     parser_convert.add_argument('--out-enc', default='UTF-8', metavar='ENCODING',
         help="""encoding for output (default: %(default)s)""")
-    parser_convert.add_argument('--output', '-o', default=[], action='append',
+    parser_convert.add_argument('-o', '--output', default=[], action='append',
         help="""path to output (for the corresponding input) (default: to input)""")
     parser_convert.add_argument('--stdout', default=False, action='store_true',
         help="""write all converted text to STDOUT instead""")
@@ -1073,7 +1073,7 @@ def main():
         help=sort.__doc__, description=sort.__doc__)
     parser_sort.add_argument('file', nargs='+',
         help="""file(s) to sort""")
-    parser_sort.add_argument('--output', '-o', default=[], action='append',
+    parser_sort.add_argument('-o', '--output', default=[], action='append',
         help="""path to output (for the corresponding input) (default: to input)""")
 
     # subcommand: swap
@@ -1081,7 +1081,7 @@ def main():
         help=swap.__doc__, description=swap.__doc__)
     parser_swap.add_argument('file', nargs='+',
         help="""file(s) to swap""")
-    parser_swap.add_argument('--output', '-o', default=[], action='append',
+    parser_swap.add_argument('-o', '--output', default=[], action='append',
         help="""path to output (for the corresponding input) (default: to input)""")
 
     # subcommand: merge
@@ -1105,9 +1105,9 @@ def main():
         help=make.__doc__, description=make.__doc__)
     parser_make.add_argument('config', nargs='+',
         help="""the config(s) to generate""")
-    parser_make.add_argument('--dir', '-d', default=None,
+    parser_make.add_argument('-d', '--dir', default=None,
         help="""the directory to save the output (default: relative to config)""")
-    parser_make.add_argument('--quiet', '-q', default=False, action='store_true',
+    parser_make.add_argument('-q', '--quiet', default=False, action='store_true',
         help="""do not show process information""")
 
     # parse the command
