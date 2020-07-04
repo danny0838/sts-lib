@@ -1,0 +1,16 @@
+{
+  "name": "Traditional Chinese (Taiwan standard) to Traditional Chinese (with phrases)",
+  "requires": [
+    "_default"
+  ],
+  "dicts": [{
+    "file": "tw2tp.tlist",
+    "format": "tlist",
+    "mode": "load",
+    "src": [
+      "TWPhrasesRev.list",
+      "TWVariantsRevPhrases.txt",
+      "TWVariantsRev.list"
+    ]
+  }]
+}
