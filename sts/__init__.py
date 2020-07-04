@@ -906,6 +906,8 @@ class StsConverter():
                         classes.append('plural')
                     if old == news[0]:
                         classes.append('exact')
+                    if len(olds) == 1:
+                        classes.append('atomic')
 
                     part = f'''<span class="{' '.join(classes)}">{content}</span>'''
                     yield part
