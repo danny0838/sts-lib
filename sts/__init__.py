@@ -811,66 +811,8 @@ class StsListMaker():
             }, ...]
         }
         """
-        def get_config_file(config, base_dir=None):
-            """Calculate the path of a config file.
-
-            1. Use it if it's an absolute path.
-            2. Assume relative to base_dir or CWD.
-            3. Assume relative to default config directory. (.json omissible)
-            4. If not found, assume relative to CWD.
-            """
-            if os.path.isabs(config):
-                return config
-
-            relative_config = os.path.join(base_dir, config) if base_dir is not None else config
-            if os.path.isfile(relative_config):
-                return relative_config
-
-            search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config)
-            if os.path.isfile(search_file):
-                return search_file
-            if not config.lower().endswith('.json'):
-                for file in glob.iglob(glob.escape(search_file) + '.[jJ][sS][oO][nN]'):
-                    return file
-
-            return relative_config
-
-        def get_stsdict_file(stsdict):
-            """Calculate the path of a dictionary file.
-
-            1. Use it if it's an absolute path.
-            2. Assume relative to the config file.
-            3. Assume relative to default dictionary directory.
-            4. If not found, assume relative to the config file.
-            """
-            if os.path.isabs(stsdict):
-                return stsdict
-
-            search_file = os.path.join(config_dir, stsdict)
-            if os.path.isfile(search_file):
-                return search_file
-
-            search_file2 = os.path.join(self.DEFAULT_DICTIONARY_DIR, stsdict)
-            if os.path.isfile(search_file2):
-                return search_file2
-
-            return search_file
-
-        def check_update(output, filegroups):
-            if not os.path.isfile(output):
-                return True
-
-            for files in filegroups:
-                if isinstance(files, str):
-                    files = [files]
-                for file in files:
-                    if os.path.getmtime(file) > os.path.getmtime(output):
-                        return True
-
-            return False
-
         # locate and load the config file
-        config_file = get_config_file(config_name, base_dir)
+        config_file = self.get_config_file(config_name, base_dir=base_dir)
         config_dir = os.path.abspath(os.path.dirname(config_file))
 
         with open(config_file, "r", encoding="UTF-8") as f:
@@ -887,11 +829,11 @@ class StsListMaker():
             dest = os.path.join(output_dir or config_dir, dict_['file'])
             format = dict_['format']
             mode = dict_['mode']
-            files = [get_stsdict_file(f) if isinstance(f, str)
-                else [get_stsdict_file(i) for i in f]
+            files = [self.get_stsdict_file(f, base_dir=config_dir) if isinstance(f, str)
+                else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
                 for f in dict_['src']]
 
-            if not check_update(dest, files):
+            if not self.check_update(dest, files):
                 if not quiet: print(f'skip making (up-to-date): {dest}')
                 continue
 
@@ -918,6 +860,66 @@ class StsListMaker():
                 raise ValueError(f'Specified format "{format}" is not supported.')
 
         return dest
+
+    def get_config_file(self, config, base_dir=None):
+        """Calculate the path of a config file.
+
+        1. Use it if it's an absolute path.
+        2. Assume relative to base_dir or CWD.
+        3. Assume relative to default config directory. (.json omissible)
+        4. If not found, assume relative to CWD.
+        """
+        if os.path.isabs(config):
+            return config
+
+        relative_config = os.path.join(base_dir, config) if base_dir is not None else config
+        if os.path.isfile(relative_config):
+            return relative_config
+
+        search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config)
+        if os.path.isfile(search_file):
+            return search_file
+        if not config.lower().endswith('.json'):
+            for file in glob.iglob(glob.escape(search_file) + '.[jJ][sS][oO][nN]'):
+                return file
+
+        return relative_config
+
+    def get_stsdict_file(self, stsdict, base_dir=None):
+        """Calculate the path of a dictionary file.
+
+        1. Use it if it's an absolute path.
+        2. Assume relative to base_dir or CWD.
+        3. Assume relative to default dictionary directory.
+        4. If not found, assume relative to the config file.
+        """
+        if os.path.isabs(stsdict):
+            return stsdict
+
+        search_file = os.path.join(base_dir, stsdict) if base_dir is not None else stsdict
+        if os.path.isfile(search_file):
+            return search_file
+
+        search_file2 = os.path.join(self.DEFAULT_DICTIONARY_DIR, stsdict)
+        if os.path.isfile(search_file2):
+            return search_file2
+
+        return search_file
+
+    def check_update(self, output, filegroups):
+        """Check if the output file needs update.
+        """
+        if not os.path.isfile(output):
+            return True
+
+        for files in filegroups:
+            if isinstance(files, str):
+                files = [files]
+            for file in files:
+                if os.path.getmtime(file) > os.path.getmtime(output):
+                    return True
+
+        return False
 
     DEFAULT_CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'data', 'config')
     DEFAULT_DICTIONARY_DIR = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
