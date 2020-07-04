@@ -996,7 +996,7 @@ def main():
             print(f'{key} => {" ".join(values)}')
 
     def make(args):
-        """Compile conversion dictionary(s).
+        """Generate conversion dictionary(s).
         """
         configs = args['config']
         dir = args['dir']
@@ -1032,18 +1032,16 @@ def main():
     parser_convert.add_argument('--config', '-c', default='s2t',
         help="""the config to use, either a built-in config name or a path to a custom JSON file
 (built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2twp|tw2tp|t2hk|hk2t|t2jp|jp2t)
-(default: s2t)""")
+(default: %(default)s)""")
     parser_convert.add_argument('--input', '-i', default=None,
         help="""file to convert (default: stdin)""")
     parser_convert.add_argument('--output', '-o', default=None,
         help="""file to save the output (default: stdout)""")
     parser_convert.add_argument('--format', '-f', default="txt",
         choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
-        help="""output format (txt|txtm|html|htmlpage|json) (default: txt)""")
+        help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
     parser_convert.add_argument('--exclude',
-        help="""exclude text matching given regex from conversion, """
-            """optionally also replace with its "return" subgroup"""
-            )
+        help="""exclude text matching given regex from conversion, and replace it with the "return" subgroup value if exists""")
 
     # subcommand: sort
     parser_sort = subparsers.add_parser('sort',
@@ -1081,9 +1079,9 @@ def main():
     parser_make = subparsers.add_parser('make',
         help=make.__doc__, description=make.__doc__)
     parser_make.add_argument('config', nargs='+',
-        help="""the config file(s) to compile""")
+        help="""the config(s) to generate""")
     parser_make.add_argument('--dir', '-d', default=None,
-        help="""the directory to save the output (default: config directory)""")
+        help="""the directory to save the output (default: relative to config)""")
     parser_make.add_argument('--quiet', '-q', default=False, action='store_true',
         help="""do not show process information""")
 
