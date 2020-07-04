@@ -453,19 +453,19 @@ class StsDict(OrderedDict):
 
         e.g.
         table:
-            钟 => 鍾 鐘
+            钟 => 鐘 鍾
             药 => 藥 葯
             用药 => 用藥
         text:
             '看钟用药'
         table.apply_enum(text, include_short=False, include_self=False):
-            ['看鍾用藥', '看鐘用藥']
+            ['看鐘用藥', '看鍾用藥']
         table.apply_enum(text, include_short=True, include_self=False):
-            ['看鍾用藥', '看鐘用藥', '看鍾用葯', '看鐘用葯']
+            ['看鐘用藥', '看鐘用葯', '看鍾用藥', '看鍾用葯']
         table.apply_enum(text, include_short=False, include_self=True):
-            ['看鍾用藥', '看鍾用药', '看鐘用藥', '看鐘用药', '看钟用藥', '看钟用药']
+            ['看鐘用藥', '看鐘用药', '看鍾用藥', '看鍾用药', '看钟用藥', '看钟用药']
         table.apply_enum(text, include_short=True, include_self=True):
-            ['看鍾用藥', '看鍾用药', '看鐘用藥', '看鐘用药', '看钟用藥', '看钟用药', '看鍾用葯', '看鐘用葯', '看钟用葯']
+            ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯']
         """
         if isinstance(parts, str):
             text = parts
@@ -477,11 +477,14 @@ class StsDict(OrderedDict):
             parts = list(parts)
 
         queue = [(parts, 0, 0)]
+        subqueue = []
         results = OrderedDict()
         while len(queue):
-            (parts, matched, nextindex) = data = queue.pop(0)
+            (parts, matched, nextindex) = data = queue.pop()
             if nextindex < len(parts):
-                self._apply_enum_sub(queue, data, include_short=include_short, include_self=include_self)
+                self._apply_enum_sub(subqueue, data, include_short=include_short, include_self=include_self)
+                while len(subqueue):
+                    queue.append(subqueue.pop())
             elif matched > 0:
                 results["".join(parts)] = True
 
@@ -494,9 +497,6 @@ class StsDict(OrderedDict):
 
     def _apply_enum_sub(self, queue, data, include_short=False, include_self=False):
         """Helper function of apply_enum
-
-        Args:
-            data: (parts, matched, index)
         """
         (parts, matched, index) = data
         match = self.match(parts, index)

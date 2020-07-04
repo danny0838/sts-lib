@@ -80,13 +80,13 @@ class TestClassStsDict(TestSts):
                 ['看鐘用藥', '看鍾用藥'])
             self.assertEqual(
                 stsdict.apply_enum('看钟用药', include_short=True, include_self=False),
-                ['看鐘用藥', '看鍾用藥', '看鐘用葯', '看鍾用葯'])
+                ['看鐘用藥', '看鐘用葯', '看鍾用藥', '看鍾用葯'])
             self.assertEqual(
                 stsdict.apply_enum('看钟用药', include_short=False, include_self=True),
                 ['看鐘用藥', '看鐘用药', '看鍾用藥', '看鍾用药', '看钟用藥', '看钟用药'])
             self.assertEqual(
                 stsdict.apply_enum('看钟用药', include_short=True, include_self=True),
-                ['看鐘用藥', '看鐘用药', '看鍾用藥', '看鍾用药', '看钟用藥', '看钟用药', '看鐘用葯', '看鍾用葯', '看钟用葯'])
+                ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯'])
 
     def test_apply_enum2(self):
         for stsdict in self.prepare_dicts({'采信': ['採信'], '信息': ['訊息']}):
