@@ -1038,7 +1038,7 @@ def main():
     # subcommand: sort
     parser_sort = subparsers.add_parser('sort',
         help=sort.__doc__, description=sort.__doc__)
-    parser_sort.add_argument('input', nargs='?',
+    parser_sort.add_argument('input',
         help="""file to sort""")
     parser_sort.add_argument('output', nargs='?',
         help="""file to save as (default: input)""")
@@ -1046,7 +1046,7 @@ def main():
     # subcommand: swap
     parser_swap = subparsers.add_parser('swap',
         help=swap.__doc__, description=swap.__doc__)
-    parser_swap.add_argument('input', nargs='?',
+    parser_swap.add_argument('input',
         help="""file to swap""")
     parser_swap.add_argument('output', nargs='?',
         help="""file to save as (default: input)""")
