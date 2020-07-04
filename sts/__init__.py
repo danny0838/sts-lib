@@ -894,9 +894,9 @@ class StsConverter():
                 else:
                     olds, news = part
                     old = ''.join(olds)
-                    content = f'<del hidden>{html.escape(old)}</del>'
+                    content = f'<del>{html.escape(old)}</del>'
                     for i, v in enumerate(news):
-                        content += f'<ins{" hidden" if i else ""}>{html.escape(v)}</ins>'
+                        content += f'<ins>{html.escape(v)}</ins>'
 
                     # classes
                     classes = ['sts-conv']
@@ -907,7 +907,7 @@ class StsConverter():
                     if old == news[0]:
                         classes.append('exact')
 
-                    part = f'''<span tabindex="0" class="{' '.join(classes)}">{content}</span>'''
+                    part = f'''<span class="{' '.join(classes)}">{content}</span>'''
                     yield part
 
         conversion = self.convert(text)
