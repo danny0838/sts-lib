@@ -1020,7 +1020,9 @@ def main():
     parser_convert = subparsers.add_parser('convert',
         help=convert.__doc__, description=convert.__doc__)
     parser_convert.add_argument('--config', '-c', default='s2t',
-        help="""the conversion config to use (default: s2t)""")
+        help="""the config to use, either a built-in config name or a path to a custom JSON file
+(built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2twp|tw2tp|t2hk|hk2t|t2jp|jp2t)
+(default: s2t)""")
     parser_convert.add_argument('--input', '-i', default=None,
         help="""file to convert (default: stdin)""")
     parser_convert.add_argument('--output', '-o', default=None,
