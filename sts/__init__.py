@@ -139,7 +139,7 @@ class Unicode():
 
     @staticmethod
     def split(text):
-        """Split text into a list of Unicode composites.
+        """Split a text into a list of Unicode composites.
         """
         i = 0
         total = len(text)
@@ -391,6 +391,18 @@ class StsDict(OrderedDict):
         dict_.add_dict(stsdict)
         return dict_
 
+    def _split(self, parts):
+        """Split parts into a list of Unicode composites.
+
+        With automatic type handling.
+        """
+        if isinstance(parts, str):
+            return Unicode.split(parts)
+        elif isinstance(parts, list):
+            return parts
+        else:
+            return list(parts)
+
     def match(self, parts, pos, maxlen=math.inf):
         """Match a unicode composite at pos.
 
@@ -400,9 +412,7 @@ class StsDict(OrderedDict):
         Returns:
             an StsDictMatch or None if no match.
         """
-        parts = (Unicode.split(parts) if isinstance(parts, str) else
-                parts if isinstance(parts, list) else
-                list(parts))
+        parts = self._split(parts)
         i = max(len(Unicode.split(key)) for key in self)
         i = min(i, min(len(parts), maxlen) - pos)
         while i >= 1:
@@ -424,9 +434,7 @@ class StsDict(OrderedDict):
         Returns:
              a generator of parts, which is a string or an StsDictConv.
         """
-        parts = (Unicode.split(parts) if isinstance(parts, str) else
-                parts if isinstance(parts, list) else
-                list(parts))
+        parts = self._split(parts)
         i = 0
         total = len(parts)
         while i < total:
@@ -465,14 +473,8 @@ class StsDict(OrderedDict):
         table.apply_enum(text, include_short=True, include_self=True):
             ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯']
         """
-        if isinstance(parts, str):
-            text = parts
-            parts = Unicode.split(parts)
-        elif isinstance(parts, list):
-            text = None
-        else:
-            text = None
-            parts = list(parts)
+        text = parts
+        parts = self._split(parts)
 
         queue = [(parts, 0, 0)]
         subqueue = []
@@ -489,7 +491,7 @@ class StsDict(OrderedDict):
         results = list(results)
 
         if len(results) == 0:
-            results.append(text if text is not None else "".join(parts))
+            results.append(text if isinstance(text, str) else "".join(text))
 
         return results
 
@@ -580,9 +582,7 @@ class Table(StsDict):
         Returns:
             an StsDictMatch or None if no match.
         """
-        parts = (Unicode.split(parts) if isinstance(parts, str) else
-                parts if isinstance(parts, list) else
-                list(parts))
+        parts = self._split(parts)
         if parts[pos][0] in self.key_headchars:
             i = self.key_maxlen
             i = min(i, min(len(parts), maxlen) - pos)
@@ -648,9 +648,7 @@ class Trie(StsDict):
         Returns:
             an StsDictMatch or None if no match.
         """
-        parts = (Unicode.split(parts) if isinstance(parts, str) else
-                parts if isinstance(parts, list) else
-                list(parts))
+        parts = self._split(parts)
         trie = self
         i = pos
         total = min(len(parts), maxlen)
