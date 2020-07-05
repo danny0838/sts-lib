@@ -289,6 +289,16 @@ class TestClassStsDict(unittest.TestCase):
             stsdict = stsdict._join_postfix(stsdict2)
             self.assertEqual(stsdict, {'因为': ['因為'], '爲': ['為']})
 
+    def test_join(self):
+        for stsdict in self.prepare_dicts({'则': ['則'], '达': ['達'], '规': ['規']}):
+            stsdict2 = Table({'正則表達式': ['正規表示式'], '表達式': ['表示式']})
+            stsdict = stsdict.join(stsdict2)
+            self.assertEqual(stsdict, {
+                '则': ['則'], '达': ['達'], '规': ['規'],
+                '表達式': ['表示式'], '表达式': ['表示式'],
+                '正則表達式': ['正規表示式'], '正则表达式': ['正規表示式'], '正则表達式': ['正規表示式'], '正則表达式': ['正規表示式']
+                })
+
 
 class TestSts(unittest.TestCase):
     def convert_text(self, text, config, options={}, method='convert_text'):

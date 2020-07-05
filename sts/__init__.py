@@ -374,6 +374,9 @@ class StsDict():
         Applying the returned dictionary to a text simulates the effect
         of applying using self and then using stsdict.
 
+        This will invoke stsdict.apply_enum and it's recommended that stsdict
+        be Table or Trie class for better performance.
+
         Returns:
             a new object with the same class.
         """
