@@ -150,7 +150,7 @@ class Unicode():
             i += length
         return result
 
-class StsDict(dict):
+class StsDict():
     """Base class of an STS dictionary.
 
     This class is for child classes to implement on and not intended to be
@@ -164,22 +164,64 @@ class StsDict(dict):
           ...
 
     - JSON: which is dumped from the internal data structure.
-
-    NOTE: The internal data structure may vary across subclasses. As a result,
-    loadjson(), dumpjson(), and most native dict methods like __init__(),
-    __iter__(), items(), keys(), and values() work on their own format.
-
-    To safely create a subclass from a dict-compatible data format, do
-    something like:
-
-        SubClass().add_dict(StsDict(...))
-
-    Or use load() or load_filegroups() to load from a plain-dict file.
     """
-    def iter(self):
+    def __init__(self, *args, **kwargs):
+        self._dict = {}
+        for key, values in dict(*args, **kwargs).items():
+            self.add(key, values, skip_check=True)
+
+    def __repr__(self):
+        """Implementation of repr(self).
+        """
+        return f"{self.__class__.__name__}({repr(list(self.items()))})"
+
+    def __getitem__(self, key):
+        """Implementation of self[key].
+        """
+        return self._dict[key]
+
+    def __contains__(self, item):
+        """Implementation of "item in self".
+        """
+        return item in self._dict
+
+    def __len__(self):
+        """Implementation of len(self).
+        """
+        return len(self._dict)
+
+    def __iter__(self):
+        """Implementation of iter(self).
+        """
+        yield from self._dict
+
+    def __eq__(self, other):
+        """Implementation of "==" operator.
+        """
+        if not isinstance(other, (dict, StsDict)):
+            return False
+        for key, value in self.items():
+            try:
+                if not value == other[key]:
+                    return False
+            except KeyError:
+                return False
+        return True
+
+    def keys(self):
+        """Get a generator of keys.
+        """
+        yield from self._dict.keys()
+
+    def values(self):
+        """Get a generator of values.
+        """
+        yield from self._dict.values()
+
+    def items(self):
         """Get a generator of key-values pairs.
         """
-        yield from self.items()
+        yield from self._dict.items()
 
     def add(self, key, values, skip_check=False):
         """Add a key-values pair to this dictionary.
@@ -189,17 +231,17 @@ class StsDict(dict):
             skip_check: True to skip checking duplicated values.
         """
         values = [values] if isinstance(values, str) else values
-        list_ = self.setdefault(key, [])
+        list_ = self._dict.setdefault(key, [])
         list_ += values if skip_check else [x for x in values if x not in list_]
         return self
 
     def update(self, stsdict, skip_check=False):
-        """Add all key-values pairs from another StsDict.
+        """Add all key-values pairs from another StsDict or dict.
 
         Args:
             skip_check: True to skip checking duplicated values.
         """
-        for key, values in stsdict.iter():
+        for key, values in stsdict.items():
             self.add(key, values, skip_check=skip_check)
         return self
 
@@ -224,7 +266,7 @@ class StsDict(dict):
             sort: True to sort the output.
         """
         f = open(file, "w", encoding="UTF-8", newline="") if file else sys.stdout
-        iterator = self.iter()
+        iterator = self.items()
         if sort: iterator = sorted(iterator)
         for key, values in iterator:
             f.write(f'{key}\t{" ".join(values)}\n')
@@ -239,7 +281,8 @@ class StsDict(dict):
             a new object with the same class.
         """
         with open(file, 'r', encoding='UTF-8') as f:
-            stsdict = self.__class__(json.load(f))
+            stsdict = self.__class__()
+            stsdict._dict = json.load(f)
             f.close()
         return stsdict
 
@@ -254,7 +297,7 @@ class StsDict(dict):
             sort: True to sort the output.
         """
         f = open(file, "w", encoding="UTF-8", newline="") if file else sys.stdout
-        json.dump(self, f, ensure_ascii=False, indent=indent, sort_keys=sort)
+        json.dump(self._dict, f, ensure_ascii=False, indent=indent, sort_keys=sort)
         if f is not sys.stdout: f.close()
 
     def print(self, sort=False):
@@ -263,7 +306,7 @@ class StsDict(dict):
         Args:
             sort: True to sort the output.
         """
-        iterator = self.iter()
+        iterator = self.items()
         if sort: iterator = sorted(iterator)
         for key, values in iterator:
             print(f'{key} => {" ".join(values)}')
@@ -279,7 +322,7 @@ class StsDict(dict):
         Returns:
             a generator of matched key-values pairs.
         """
-        for key, values in self.iter():
+        for key, values in self.items():
             if exact:
                 if from_keys and keyword == key:
                     yield key, values
@@ -300,7 +343,7 @@ class StsDict(dict):
             a new object with the same class.
         """
         stsdict = self.__class__()
-        for key, values in self.iter():
+        for key, values in self.items():
             for value in values:
                 stsdict.add(value, key)
         return stsdict
@@ -361,7 +404,7 @@ class StsDict(dict):
         """
         dict_ = self.__class__()
         converter = stsdict.swap()
-        for key, values in self.iter():
+        for key, values in self.items():
             for newkey in converter.apply_enum(key, include_short=True, include_self=True):
                 dict_.add(newkey, values)
         return dict_
@@ -385,7 +428,7 @@ class StsDict(dict):
             爲 => 為
         """
         dict_ = self.__class__()
-        for key, values in self.iter():
+        for key, values in self.items():
             for value in values:
                 dict_.add(key, stsdict.apply_enum(value))
         dict_.update(stsdict)
@@ -413,14 +456,14 @@ class StsDict(dict):
             an StsDictMatch or None if no match.
         """
         parts = self._split(parts)
-        i = max(len(Unicode.split(key)) for key in self)
+        i = max(len(Unicode.split(key)) for key in self._dict)
         i = min(i, min(len(parts), maxlen) - pos)
         while i >= 1:
             end = pos + i
             current_parts = parts[pos:end]
             current = "".join(current_parts)
-            if current in self:
-                conv = StsDictConv(current_parts, self[current])
+            if current in self._dict:
+                conv = StsDictConv(current_parts, self._dict[current])
                 return StsDictMatch(conv, pos, end)
             i -= 1
         return None
@@ -565,13 +608,13 @@ class Table(StsDict):
     def key_maxlen(self):
         """Get the maximal length of the keys.
         """
-        return max(len(Unicode.split(key)) for key in self)
+        return max(len(Unicode.split(key)) for key in self._dict)
 
     @lazyprop
     def key_headchars(self):
         """Get a set of the first char of the keys.
         """
-        return set(key[0] for key in self)
+        return set(key[0] for key in self._dict)
 
     def match(self, parts, pos, maxlen=math.inf):
         """Match a unicode composite at pos.
@@ -590,8 +633,8 @@ class Table(StsDict):
                 end = pos + i
                 current_parts = parts[pos:end]
                 current = "".join(current_parts)
-                if current in self:
-                    conv = StsDictConv(current_parts, self[current])
+                if current in self._dict:
+                    conv = StsDictConv(current_parts, self._dict[current])
                     return StsDictMatch(conv, pos, end)
                 i -= 1
         return None
@@ -604,7 +647,71 @@ class Trie(StsDict):
 
     NOTE: The internal data format is different from base StsDict.
     """
-    def iter(self):
+    def __getitem__(self, key):
+        """Implementation of self[key].
+        """
+        trie = self._dict
+        try:
+            for k in self._split(key):
+                trie = trie[k]
+            return trie[""]
+        except KeyError:
+            raise KeyError(key)
+
+    def __contains__(self, item):
+        """Implementation of "item in self".
+        """
+        try:
+            self[item]
+        except KeyError:
+            return False
+        else:
+            return True
+
+    def __len__(self):
+        """Implementation of len(self).
+        """
+        return sum(1 for _ in self)
+
+    def __iter__(self):
+        """Implementation of iter(self).
+        """
+        yield from self.keys()
+
+    def keys(self):
+        """Get a generator of keys.
+        """
+        def recurse(trie):
+            for key in trie:
+                if key == "":
+                    yield ''.join(keystack)
+                else:
+                    keystack.append(key)
+                    triestack.append(trie[key])
+                    yield from recurse(triestack[-1])
+            keystack.pop()
+            triestack.pop()
+
+        keystack = [""]
+        triestack = [self._dict]
+        yield from recurse(triestack[-1])
+
+    def values(self):
+        """Get a generator of values.
+        """
+        def recurse(trie):
+            for key in trie:
+                if key == "":
+                    yield trie[key]
+                else:
+                    triestack.append(trie[key])
+                    yield from recurse(triestack[-1])
+            triestack.pop()
+
+        triestack = [self._dict]
+        yield from recurse(triestack[-1])
+
+    def items(self):
         """Get a generator of key-values pairs.
         """
         def recurse(trie):
@@ -619,7 +726,7 @@ class Trie(StsDict):
             triestack.pop()
 
         keystack = [""]
-        triestack = [self]
+        triestack = [self._dict]
         yield from recurse(triestack[-1])
 
     def add(self, key, values, skip_check=False):
@@ -631,7 +738,7 @@ class Trie(StsDict):
         """
         values = [values] if isinstance(values, str) else values
 
-        current = self
+        current = self._dict
         for i, composite in enumerate(Unicode.split(key)):
             current = current.setdefault(composite, {})
 
@@ -649,7 +756,7 @@ class Trie(StsDict):
             an StsDictMatch or None if no match.
         """
         parts = self._split(parts)
-        trie = self
+        trie = self._dict
         i = pos
         total = min(len(parts), maxlen)
         match = None
@@ -792,7 +899,7 @@ class StsListMaker():
             elif format == 'jlist':
                 table.dumpjson(dest)
             elif format == 'tlist':
-                Trie().update(table).dumpjson(dest)
+                Trie(table).dumpjson(dest)
             else:
                 raise ValueError(f'Specified format "{format}" is not supported.')
 
