@@ -32,8 +32,8 @@ class TestClassUnicode(unittest.TestCase):
 
 
 class TestClassStsDict(unittest.TestCase):
-    def prepare_dicts(self, dict_data):
-        d1 = StsDict(dict_data)
+    def prepare_dicts(self, *args, **kwargs):
+        d1 = StsDict(*args, **kwargs)
         d2 = Table().add_dict(d1)
         d3 = Trie().add_dict(d1)
         return d1, d2, d3
@@ -43,7 +43,7 @@ class TestClassStsDict(unittest.TestCase):
             self.assertEqual(list(stsdict.iter()), [('干', ['幹', '乾']), ('干姜', ['乾薑']), ('姜', ['姜', '薑'])])
 
     def test_add(self):
-        for stsdict in self.prepare_dicts({}):
+        for stsdict in self.prepare_dicts():
             stsdict.add('干', ['幹', '乾'])
             self.assertEqual(list(stsdict.iter()), [('干', ['幹', '乾'])])
             stsdict.add('干', '干')
