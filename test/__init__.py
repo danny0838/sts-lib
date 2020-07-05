@@ -6,28 +6,7 @@ from sts import StsListMaker, StsConverter, StsDict, Table, Trie
 root_dir = os.path.dirname(__file__)
 
 
-class TestSts(unittest.TestCase):
-    def convert_text(self, text, config, options={}, method='convert_text'):
-        stsdict = StsListMaker().make(config, quiet=True)
-        converter = StsConverter(stsdict, options)
-        return getattr(converter, method)(text)
-
-    def check_case(self, subdir, name, config=None, options={}):
-        dir = os.path.join(root_dir, subdir)
-
-        with open(os.path.join(dir, name + '.in'), 'r', encoding='UTF-8') as f:
-            input = f.read()
-            f.close()
-
-        with open(os.path.join(dir, name + '.ans'), 'r', encoding='UTF-8') as f:
-            answer = f.read()
-            f.close()
-
-        result = self.convert_text(input, config or os.path.join(dir, name + '.json'), options)
-        self.assertEqual(result, answer)
-
-
-class TestClassStsDict(TestSts):
+class TestClassStsDict(unittest.TestCase):
     def prepare_dicts(self, dict_data):
         d1 = StsDict(dict_data)
         d2 = Table().add_dict(d1)
@@ -114,6 +93,27 @@ class TestClassStsDict(TestSts):
             stsdict2 = self.prepare_dicts({'爲': ['為']})[0]
             stsdict = stsdict._join_postfix(stsdict2)
             self.assertEqual(list(stsdict.iter()), [('因为', ['因為']), ('爲', ['為'])])
+
+
+class TestSts(unittest.TestCase):
+    def convert_text(self, text, config, options={}, method='convert_text'):
+        stsdict = StsListMaker().make(config, quiet=True)
+        converter = StsConverter(stsdict, options)
+        return getattr(converter, method)(text)
+
+    def check_case(self, subdir, name, config=None, options={}):
+        dir = os.path.join(root_dir, subdir)
+
+        with open(os.path.join(dir, name + '.in'), 'r', encoding='UTF-8') as f:
+            input = f.read()
+            f.close()
+
+        with open(os.path.join(dir, name + '.ans'), 'r', encoding='UTF-8') as f:
+            answer = f.read()
+            f.close()
+
+        result = self.convert_text(input, config or os.path.join(dir, name + '.json'), options)
+        self.assertEqual(result, answer)
 
 
 class TestDict(TestSts):
