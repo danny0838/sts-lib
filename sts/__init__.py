@@ -193,7 +193,7 @@ class StsDict(OrderedDict):
         list_ += values if skip_check else [x for x in values if x not in list_]
         return self
 
-    def add_dict(self, stsdict, skip_check=False):
+    def update(self, stsdict, skip_check=False):
         """Add all key-values pairs from another StsDict.
 
         Args:
@@ -336,7 +336,7 @@ class StsDict(OrderedDict):
         """
         dict1 = self._join_postfix(stsdict)
         dict2 = stsdict._join_prefix(self)
-        return dict1.add_dict(dict2)
+        return dict1.update(dict2)
 
     def _join_prefix(self, stsdict):
         """Prefix self with stsdict.
@@ -388,7 +388,7 @@ class StsDict(OrderedDict):
         for key, values in self.iter():
             for value in values:
                 dict_.add(key, stsdict.apply_enum(value))
-        dict_.add_dict(stsdict)
+        dict_.update(stsdict)
         return dict_
 
     def _split(self, parts):
@@ -792,7 +792,7 @@ class StsListMaker():
             elif format == 'jlist':
                 table.dumpjson(dest)
             elif format == 'tlist':
-                Trie().add_dict(table).dumpjson(dest)
+                Trie().update(table).dumpjson(dest)
             else:
                 raise ValueError(f'Specified format "{format}" is not supported.')
 
