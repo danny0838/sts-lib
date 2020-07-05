@@ -1,6 +1,8 @@
 import unittest
 import os
 import re
+import json
+import time
 from sts import StsListMaker, StsConverter, Unicode, StsDict, Table, Trie
 
 root_dir = os.path.dirname(__file__)
@@ -38,6 +40,16 @@ class TestClassStsDict(unittest.TestCase):
         d3 = Trie().update(d1)
         return d1, d2, d3
 
+    def test_init(self):
+        stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(dict(stsdict.iter()), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+        stsdict = Table({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(dict(stsdict.iter()), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+        stsdict = Trie({'干': {'': ['干', '榦'], '姜': {'': ['乾薑']}}, '姜': {'': ['姜', '薑']}})
+        self.assertEqual(dict(stsdict.iter()), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
     def test_iter(self):
         for stsdict in self.prepare_dicts({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']}):
             self.assertEqual(dict(stsdict.iter()), {'干': ['幹', '乾'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
@@ -65,6 +77,110 @@ class TestClassStsDict(unittest.TestCase):
             stsdict2 = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑']})
             stsdict.update(stsdict2)
             self.assertEqual(dict(stsdict.iter()), {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']})
+
+    def test_load(self):
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
+        tempfile2 = os.path.join(root_dir, f"test2-{time.time()}.tmp")
+        try:
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write("""干\t幹 乾""")
+                f.close()
+            with open(tempfile2, 'w', encoding='UTF-8') as f:
+                f.write("""干\t干 榦\n姜\t姜 薑""")
+                f.close()
+            for stsdict in self.prepare_dicts():
+                stsdict.load(tempfile, tempfile2)
+                self.assertEqual(dict(stsdict.iter()), {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']})
+
+            # check for cases of 0 or 2+ tabs
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write("""干\t幹 乾\t# 一些註解\n姜\n干\t干\n\n干\t榦""")
+                f.close()
+            for stsdict in self.prepare_dicts():
+                stsdict.load(tempfile)
+                self.assertEqual(dict(stsdict.iter()), {'干': ['幹', '乾', '干', '榦']})
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+            try:
+                os.remove(tempfile2)
+            except FileNotFoundError:
+                pass
+
+    def test_dump(self):
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
+        try:
+            for stsdict in self.prepare_dicts({'干': ['干', '榦'], '姜': ['姜', '薑']}):
+                stsdict.dump(tempfile)
+                with open(tempfile, 'r', encoding='UTF-8') as f:
+                    text = f.read()
+                self.assertEqual(text, '干\t干 榦\n姜\t姜 薑\n')
+
+                stsdict.dump(tempfile, sort=True)
+                with open(tempfile, 'r', encoding='UTF-8') as f:
+                    text = f.read()
+                self.assertEqual(text, '姜\t姜 薑\n干\t干 榦\n')
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+
+    def test_loadjson(self):
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
+        try:
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
+            stsdict = StsDict().loadjson(tempfile)
+            self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
+            stsdict = Table().loadjson(tempfile)
+            self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write('{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}')
+            stsdict = Trie().loadjson(tempfile)
+            self.assertEqual(stsdict, {'干': {'': ['干', '榦'], '姜': {'': ['乾薑']}}, '姜': {'': ['姜', '薑']}})
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+
+    def test_dumpjson(self):
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
+        try:
+            stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+            stsdict.dumpjson(tempfile)
+            with open(tempfile, 'r', encoding='UTF-8') as f:
+                self.assertEqual(json.load(f), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+            stsdict = Table({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+            stsdict.dumpjson(tempfile)
+            with open(tempfile, 'r', encoding='UTF-8') as f:
+                self.assertEqual(json.load(f), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+            stsdict = Trie().update(StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}))
+            stsdict.dumpjson(tempfile)
+            with open(tempfile, 'r', encoding='UTF-8') as f:
+                self.assertEqual(json.load(f), {"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}})
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
 
     def test_match(self):
         for stsdict in self.prepare_dicts({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']}):
