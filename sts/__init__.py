@@ -190,10 +190,7 @@ class StsDict(OrderedDict):
         """
         values = [values] if isinstance(values, str) else values
         list_ = self.setdefault(key, [])
-        if skip_check:
-            list_ += values
-        else:
-            list_ += [x for x in values if x not in list_]
+        list_ += values if skip_check else [x for x in values if x not in list_]
         return self
 
     def add_dict(self, stsdict, skip_check=False):
@@ -639,10 +636,7 @@ class Trie(StsDict):
             current = current.setdefault(composite, OrderedDict())
 
         list_ = current.setdefault('', [])
-        if skip_check:
-            list_ += values
-        else:
-            list_ += [x for x in values if x not in list_]
+        list_ += values if skip_check else [x for x in values if x not in list_]
         return self
 
     def match(self, parts, pos, maxlen=math.inf):
