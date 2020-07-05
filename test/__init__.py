@@ -1,9 +1,34 @@
 import unittest
 import os
 import re
-from sts import StsListMaker, StsConverter, StsDict, Table, Trie
+from sts import StsListMaker, StsConverter, Unicode, StsDict, Table, Trie
 
 root_dir = os.path.dirname(__file__)
+
+
+class TestClassUnicode(unittest.TestCase):
+    def test_split(self):
+        self.assertEqual(Unicode.split('沙⿰虫风简转繁'), ['沙', '⿰虫风', '简', '转', '繁'])
+        self.assertEqual(Unicode.split('沙⿱艹⿰虫风简转繁'), ['沙', '⿱艹⿰虫风', '简', '转', '繁'])
+        self.assertEqual(Unicode.split('「⿰⿱⿲⿳」不影響'), ['「', '⿰⿱⿲⿳', '」', '不', '影', '響'])
+        self.assertEqual(Unicode.split('⿰⿱⿲⿳ 不影響'), ['⿰⿱⿲⿳', ' ', '不', '影', '響'])
+        self.assertEqual(Unicode.split('⿸⿹⿺⿻\n不影響'), ['⿸⿹⿺⿻', '\n', '不', '影', '響'])
+        self.assertEqual(Unicode.split('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'), ['⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'])
+        self.assertEqual(Unicode.split('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'), ['刀', '〾劍', ' ', '〾劍', '訢', ' ', '劍', '〾訢', ' ', '〾劍', '〾訢'])
+        self.assertEqual(Unicode.split('刀劍󠄁 劍󠄃訢'), ['刀' ,'劍󠄁', ' ', '劍󠄃', '訢'])
+        self.assertEqual(Unicode.split('刀劍󠄁󠄂 劍󠄁󠄂訢'), ['刀', '劍󠄁󠄂', ' ', '劍󠄁󠄂', '訢'])
+        self.assertEqual(Unicode.split('⿱𠀀𠀀芀⿱〾艹劍󠄁無情'),  ['⿱𠀀𠀀', '芀', '⿱〾艹劍󠄁', '無', '情'])
+
+        self.assertEqual(Unicode.split('A片 Å片 A̧片 Å̧片'), ['A', '片', ' ', 'Å', '片', ' ', 'A̧', '片', ' ', 'Å̧', '片'])
+        self.assertEqual(Unicode.split('áéíóúý'), ['á', 'é', 'í', 'ó', 'ú', 'ý'])
+        self.assertEqual(Unicode.split('áéíóúý'), ['á', 'é', 'í', 'ó', 'ú', 'ý'])
+        self.assertNotEqual(Unicode.split('áéíóúý'), Unicode.split('áéíóúý'))
+        self.assertEqual(Unicode.split('Lorem ipsum dolor sit amet.'), [
+            'L', 'o', 'r', 'e', 'm', ' ',
+            'i', 'p', 's', 'u', 'm', ' ',
+            'd', 'o', 'l', 'o', 'r', ' ',
+            's', 'i', 't', ' ',
+            'a', 'm', 'e', 't', '.'])
 
 
 class TestClassStsDict(unittest.TestCase):
