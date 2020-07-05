@@ -150,7 +150,7 @@ class Unicode():
             i += length
         return result
 
-class StsDict(OrderedDict):
+class StsDict(dict):
     """Base class of an STS dictionary.
 
     This class is for child classes to implement on and not intended to be
@@ -633,7 +633,7 @@ class Trie(StsDict):
 
         current = self
         for i, composite in enumerate(Unicode.split(key)):
-            current = current.setdefault(composite, OrderedDict())
+            current = current.setdefault(composite, {})
 
         list_ = current.setdefault('', [])
         list_ += values if skip_check else [x for x in values if x not in list_]
