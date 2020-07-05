@@ -62,7 +62,7 @@ class TestClassStsDict(unittest.TestCase):
 
     def test_add_dict(self):
         for stsdict in self.prepare_dicts({'干': ['幹', '乾']}):
-            stsdict2 = self.prepare_dicts({'干': ['干', '榦'], '姜': ['姜', '薑']})[0]
+            stsdict2 = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑']})
             stsdict.add_dict(stsdict2)
             self.assertEqual(list(stsdict.iter()), [('干', ['幹', '乾', '干', '榦']), ('姜', ['姜', '薑'])])
 
@@ -109,13 +109,13 @@ class TestClassStsDict(unittest.TestCase):
 
     def test_prefix(self):
         for stsdict in self.prepare_dicts({'註冊表': ['登錄檔']}):
-            stsdict2 = self.prepare_dicts({'注': ['注', '註']})[0]
+            stsdict2 = Table({'注': ['注', '註']})
             stsdict = stsdict._join_prefix(stsdict2)
             self.assertEqual(list(stsdict.iter()), [('注冊表', ['登錄檔']), ('註冊表', ['登錄檔'])])
 
     def test_postfix(self):
         for stsdict in self.prepare_dicts({'因为': ['因爲']}):
-            stsdict2 = self.prepare_dicts({'爲': ['為']})[0]
+            stsdict2 = Table({'爲': ['為']})
             stsdict = stsdict._join_postfix(stsdict2)
             self.assertEqual(list(stsdict.iter()), [('因为', ['因為']), ('爲', ['為'])])
 
