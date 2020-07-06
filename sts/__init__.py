@@ -251,9 +251,11 @@ class StsDict():
         for file in files:
             with open(file, "r", encoding="UTF-8") as f:
                 for line in f:
-                    parts = line.strip().split("\t")
-                    if len(parts) > 1:
-                        key, values = parts[0], parts[1]
+                    try:
+                        key, values, *_ = line.strip().split("\t")
+                    except ValueError:
+                        pass
+                    else:
                         self.add(key, values.split(" "))
                 f.close()
         return self
@@ -465,8 +467,11 @@ class StsDict():
             end = pos + i
             current_parts = parts[pos:end]
             current = "".join(current_parts)
-            if current in self._dict:
+            try:
                 conv = StsDictConv(current_parts, self._dict[current])
+            except KeyError:
+                pass
+            else:
                 return StsDictMatch(conv, pos, end)
             i -= 1
         return None
@@ -636,8 +641,11 @@ class Table(StsDict):
                 end = pos + i
                 current_parts = parts[pos:end]
                 current = "".join(current_parts)
-                if current in self._dict:
+                try:
                     conv = StsDictConv(current_parts, self._dict[current])
+                except KeyError:
+                    pass
+                else:
                     return StsDictMatch(conv, pos, end)
                 i -= 1
         return None
@@ -765,12 +773,15 @@ class Trie(StsDict):
         match = None
         match_end = None
         while i < total:
-            key = parts[i]
-            if key not in trie:
+            try:
+                trie = trie[parts[i]]
+            except KeyError:
                 break
-            trie = trie[key]
-            if "" in trie:
+            try:
                 match = trie[""]
+            except KeyError:
+                pass
+            else:
                 match_end = i + 1
             i = i + 1
         if match:
