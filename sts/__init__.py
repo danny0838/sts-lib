@@ -4,7 +4,6 @@
 import sys
 import os
 import re
-import glob
 import argparse
 import json
 import html
@@ -881,8 +880,9 @@ class StsListMaker():
             if os.path.isfile(search_file):
                 return search_file
             if not config.lower().endswith('.json'):
-                for file in glob.iglob(glob.escape(search_file) + '.[jJ][sS][oO][nN]'):
-                    return file
+                search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config + '.json')
+                if os.path.isfile(search_file):
+                    return search_file
 
         return relative_config
 
