@@ -866,8 +866,8 @@ class StsListMaker():
 
         1. Use it if it's an absolute path.
         2. Assume relative to base_dir or CWD.
-        3. Assume relative to default config directory. (.json omissible)
-        4. If not found, assume relative to CWD.
+        3. Assume relative to default config directory. (basename only; .json omissible)
+        4. If not found, return 2.
         """
         if os.path.isabs(config):
             return config
@@ -876,12 +876,13 @@ class StsListMaker():
         if os.path.isfile(relative_config):
             return relative_config
 
-        search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config)
-        if os.path.isfile(search_file):
-            return search_file
-        if not config.lower().endswith('.json'):
-            for file in glob.iglob(glob.escape(search_file) + '.[jJ][sS][oO][nN]'):
-                return file
+        if os.path.basename(config) == config:
+            search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config)
+            if os.path.isfile(search_file):
+                return search_file
+            if not config.lower().endswith('.json'):
+                for file in glob.iglob(glob.escape(search_file) + '.[jJ][sS][oO][nN]'):
+                    return file
 
         return relative_config
 
@@ -890,21 +891,22 @@ class StsListMaker():
 
         1. Use it if it's an absolute path.
         2. Assume relative to base_dir or CWD.
-        3. Assume relative to default dictionary directory.
-        4. If not found, assume relative to the config file.
+        3. Assume relative to default dictionary directory. (basename only)
+        4. If not found, return 2.
         """
         if os.path.isabs(stsdict):
             return stsdict
 
-        search_file = os.path.join(base_dir, stsdict) if base_dir is not None else stsdict
-        if os.path.isfile(search_file):
-            return search_file
+        relative_stsdict = os.path.join(base_dir, stsdict) if base_dir is not None else stsdict
+        if os.path.isfile(relative_stsdict):
+            return relative_stsdict
 
-        search_file2 = os.path.join(self.DEFAULT_DICTIONARY_DIR, stsdict)
-        if os.path.isfile(search_file2):
-            return search_file2
+        if os.path.basename(stsdict) == stsdict:
+            search_file = os.path.join(self.DEFAULT_DICTIONARY_DIR, stsdict)
+            if os.path.isfile(search_file):
+                return search_file
 
-        return search_file
+        return relative_stsdict
 
     def check_update(self, output, filegroups):
         """Check if the output file needs update.
