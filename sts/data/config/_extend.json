@@ -1,0 +1,23 @@
+{
+  "name": "Extended dictionaries",
+  "dicts": [
+    {
+      "file": "../dictionary/STCharacters.list",
+      "mode": "load",
+      "sort": true,
+      "src": [
+        "../dictionary/STCharacters.txt",
+        "../dictionary/STCharactersEx.txt"
+      ]
+    },
+    {
+      "file": "../dictionary/TSCharacters.list",
+      "mode": "load",
+      "sort": true,
+      "src": [
+        "../dictionary/TSCharacters.txt",
+        "../dictionary/TSCharactersEx.txt"
+      ]
+    }
+  ]
+}

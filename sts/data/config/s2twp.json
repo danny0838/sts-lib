@@ -13,7 +13,8 @@
           "mode": "load",
           "src": [
             "../dictionary/STPhrases.txt",
-            "../dictionary/STCharacters.txt"
+            "../dictionary/STCharacters.txt",
+            "../dictionary/STCharactersEx.txt"
           ]
         },
         {

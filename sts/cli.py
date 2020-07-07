@@ -116,7 +116,7 @@ def parse_args(argv=None):
                                 help="""file(s) to convert (default: STDIN)""")
     parser_convert.add_argument('-c', '--config', default='s2t',
                                 help="""the config to use, either a built-in config name or a path to a custom JSON file
-(built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t)
+(built-in configs: s2t|t2s|t2sx|s2tw|tw2s|tw2sx|s2twp|tw2sp|tw2spx|s2hk|hk2s|hk2sx|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t)
 (default: %(default)s)""")
     parser_convert.add_argument('-f', '--format', default='txt',
                                 choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',

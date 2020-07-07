@@ -1,0 +1,30 @@
+{
+  "name": "Traditional Chinese (Taiwan standard) to Simplified Chinese (with extended simplification)",
+  "requires": [
+    "_default"
+  ],
+  "dicts": [
+    {
+      "file": "../dictionary/tw2sx.tlist",
+      "auto_space": true,
+      "mode": "join",
+      "src": [
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/TWVariantsRevPhrases.txt",
+            "../dictionary/TWVariantsRev.list"
+          ]
+        },
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/TSPhrases.txt",
+            "../dictionary/TSCharacters.txt",
+            "../dictionary/TSCharactersEx.txt"
+          ]
+        }
+      ]
+    }
+  ]
+}

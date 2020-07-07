@@ -1,0 +1,15 @@
+{
+  "name": "Traditional Chinese to Simplified Chinese (with extended simplification)",
+  "dicts": [
+    {
+      "file": "../dictionary/t2sx.tlist",
+      "auto_space": true,
+      "mode": "load",
+      "src": [
+        "../dictionary/TSPhrases.txt",
+        "../dictionary/TSCharacters.txt",
+        "../dictionary/TSCharactersEx.txt"
+      ]
+    }
+  ]
+}
