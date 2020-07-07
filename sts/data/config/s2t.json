@@ -5,7 +5,8 @@
     "mode": "load",
     "src": [
       "STPhrases.txt",
-      "STCharacters.txt"
+      "STCharacters.txt",
+      "STCharactersEx.txt"
     ]
   }]
 }

@@ -6,7 +6,8 @@
     "src": [
       [
         "STPhrases.txt",
-        "STCharacters.txt"
+        "STCharacters.txt",
+        "STCharactersEx.txt"
       ],
       [
         "HKVariants.txt"
