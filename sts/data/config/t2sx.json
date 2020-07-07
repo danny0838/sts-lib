@@ -1,0 +1,12 @@
+{
+  "name": "Traditional Chinese to Simplified Chinese (with extended simplification)",
+  "dicts": [{
+    "file": "t2sx.tlist",
+    "mode": "load",
+    "src": [
+      "TSPhrases.txt",
+      "TSCharacters.txt",
+      "TSCharactersEx.txt"
+    ]
+  }]
+}
