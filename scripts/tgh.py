@@ -21,19 +21,10 @@ def main():
 
     table2 = Table()
     for key, values in table.items():
-        vv = [v for v in values if v not in tgh]
-        if len(vv):
-            table2.add(key, vv)
+        if key in tgh:
+            values = [key] + values
+        table2.add(key, values)
     table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharactersEx.txt'))
-
-    # s2t
-    table = Table().load(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'STCharactersEx.txt'))
-
-    table2 = Table()
-    for key, values in table.items():
-        if key not in tgh:
-            table2.add(key, values)
-    table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'STCharactersEx.txt'))
 
 
 if __name__ == '__main__':
