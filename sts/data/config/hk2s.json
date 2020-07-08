@@ -5,7 +5,6 @@
   ],
   "dicts": [{
     "file": "hk2s.tlist",
-    "format": "tlist",
     "mode": "join",
     "src": [
       [

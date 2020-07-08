@@ -2,7 +2,6 @@
   "name": "Simplified Chinese to Traditional Chinese (Taiwan standard)",
   "dicts": [{
     "file": "s2tw.tlist",
-    "format": "tlist",
     "mode": "join",
     "src": [
       [

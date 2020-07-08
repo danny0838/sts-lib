@@ -5,7 +5,6 @@
   ],
   "dicts": [{
     "file": "hk2t.tlist",
-    "format": "tlist",
     "mode": "load",
     "src": [
       "HKVariantsRevPhrases.txt",

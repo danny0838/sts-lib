@@ -5,7 +5,6 @@
   ],
   "dicts": [{
     "file": "jp2t.tlist",
-    "format": "tlist",
     "mode": "load",
     "src": [
       "JPShinjitaiPhrases.txt",
