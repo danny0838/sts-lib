@@ -365,8 +365,8 @@ class StsDict():
         """
         stsdicts = [self.__class__().load(*files) for files in filegroups]
         newstsdict = self
-        while len(stsdicts):
-            newstsdict = newstsdict.join(stsdicts.pop(0))
+        for stsdict in stsdicts:
+            newstsdict = newstsdict.join(stsdict)
         return newstsdict
 
     def join(self, stsdict):
