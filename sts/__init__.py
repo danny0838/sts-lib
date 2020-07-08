@@ -251,7 +251,7 @@ class StsDict():
             with open(file, "r", encoding="UTF-8") as f:
                 for line in f:
                     try:
-                        key, values, *_ = line.strip().split("\t")
+                        key, values, *_ = line.rstrip('\n').split("\t")
                     except ValueError:
                         pass
                     else:
