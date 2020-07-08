@@ -526,15 +526,15 @@ class StsDict():
         text = parts
         parts = self._split(parts)
 
-        queue = [(parts, 0, 0)]
-        subqueue = []
+        stack = [(parts, 0, 0)]
+        substack = []
         results = OrderedDict()
-        while len(queue):
-            (parts, matched, nextindex) = data = queue.pop()
+        while len(stack):
+            (parts, matched, nextindex) = data = stack.pop()
             if nextindex < len(parts):
-                self._apply_enum_sub(subqueue, data, include_short=include_short, include_self=include_self)
-                while len(subqueue):
-                    queue.append(subqueue.pop())
+                self._apply_enum_sub(substack, data, include_short=include_short, include_self=include_self)
+                while len(substack):
+                    stack.append(substack.pop())
             elif matched > 0:
                 results["".join(parts)] = True
 
@@ -545,7 +545,7 @@ class StsDict():
 
         return results
 
-    def _apply_enum_sub(self, queue, data, include_short=False, include_self=False):
+    def _apply_enum_sub(self, stack, data, include_short=False, include_self=False):
         """Helper function of apply_enum
         """
         (parts, matched, index) = data
@@ -553,7 +553,7 @@ class StsDict():
 
         # add atomic stepping if no match
         if match is None:
-            queue.append((parts, matched, index + 1))
+            stack.append((parts, matched, index + 1))
             return
 
         has_atomic_match = False
@@ -565,7 +565,7 @@ class StsDict():
                 match.conv.values.append(match_key)
         for value in match.conv.values:
             result = parts[:index] + [value] + parts[match.end:]
-            queue.append((result, matched + 1, index + 1))
+            stack.append((result, matched + 1, index + 1))
 
         if not include_short:
             return
@@ -582,7 +582,7 @@ class StsDict():
                         match.conv.values.append(match_key)
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
-                    queue.append((result, matched + 1, index + 1))
+                    stack.append((result, matched + 1, index + 1))
 
         # add atomic stepping (length = 1) case
         #
@@ -596,7 +596,7 @@ class StsDict():
         # Add ["采", "信", "息"] so that "采訊息" is not missed.
         #             ^
         if not has_atomic_match:
-            queue.append((parts, matched, index + 1))
+            stack.append((parts, matched, index + 1))
 
 class Table(StsDict):
     """A cache-boosted STS dictionary.
