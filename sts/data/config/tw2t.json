@@ -5,7 +5,6 @@
   ],
   "dicts": [{
     "file": "tw2t.tlist",
-    "format": "tlist",
     "mode": "load",
     "src": [
       "TWVariantsRevPhrases.txt",

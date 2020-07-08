@@ -826,7 +826,7 @@ class StsListMaker():
         # make the requested dicts
         for dict_ in config['dicts']:
             dest = os.path.join(output_dir or config_dir, dict_['file'])
-            format = dict_['format']
+            format = os.path.splitext(dest)[1][1:].lower()
             mode = dict_['mode']
             files = [self.get_stsdict_file(f, base_dir=config_dir) if isinstance(f, str)
                 else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
@@ -849,14 +849,12 @@ class StsListMaker():
 
             os.makedirs(os.path.dirname(dest), exist_ok=True)
 
-            if format == 'list':
-                table.dump(dest)
+            if format == 'tlist':
+                Trie(table).dumpjson(dest)
             elif format == 'jlist':
                 table.dumpjson(dest)
-            elif format == 'tlist':
-                Trie(table).dumpjson(dest)
-            else:
-                raise ValueError(f'Specified format "{format}" is not supported.')
+            else:  # default: list
+                table.dump(dest)
 
         return dest
 
