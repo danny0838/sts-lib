@@ -828,6 +828,7 @@ class StsListMaker():
             dest = os.path.join(output_dir or config_dir, dict_['file'])
             format = os.path.splitext(dest)[1][1:].lower()
             mode = dict_['mode']
+            sort = dict_.get('sort', False)
             files = [self.get_stsdict_file(f, base_dir=config_dir) if isinstance(f, str)
                 else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
                 for f in dict_['src']]
@@ -850,11 +851,11 @@ class StsListMaker():
             os.makedirs(os.path.dirname(dest), exist_ok=True)
 
             if format == 'tlist':
-                Trie(table).dumpjson(dest)
+                Trie(table).dumpjson(dest, sort=sort)
             elif format == 'jlist':
-                table.dumpjson(dest)
+                table.dumpjson(dest, sort=sort)
             else:  # default: list
-                table.dump(dest)
+                table.dump(dest, sort=sort)
 
         return dest
 
