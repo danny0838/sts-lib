@@ -559,13 +559,14 @@ class StsDict():
         has_atomic_match = False
         if match.end - index == 1:
             has_atomic_match = True
-        if include_self:
-            match_key = ''.join(match.conv.key)
-            if match_key not in match.conv.values:
-                match.conv.values.append(match_key)
         for value in match.conv.values:
             result = parts[:index] + [value] + parts[match.end:]
             stack.append((result, matched + 1, index + 1))
+        if include_self:
+            value = ''.join(match.conv.key)
+            if value not in match.conv.values:
+                result = parts[:index] + [value] + parts[match.end:]
+                stack.append((result, matched + 1, index + 1))
 
         if not include_short:
             return
@@ -576,13 +577,14 @@ class StsDict():
             if match is not None:
                 if match.end - index == 1:
                     has_atomic_match = True
-                if include_self:
-                    match_key = ''.join(match.conv.key)
-                    if match_key not in match.conv.values:
-                        match.conv.values.append(match_key)
                 for value in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
                     stack.append((result, matched + 1, index + 1))
+                if include_self:
+                    value = ''.join(match.conv.key)
+                    if value not in match.conv.values:
+                        result = parts[:index] + [value] + parts[match.end:]
+                        stack.append((result, matched + 1, index + 1))
 
         # add atomic stepping (length = 1) case
         #
