@@ -675,6 +675,19 @@ class TestConfigs(unittest.TestCase):
                 clear_lists()
                 maker.make(file, quiet=True)
 
+    def test_cases(self):
+        stsdict = StsListMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('几率很大'), '機率很大')
+
+        stsdict = StsListMaker().make('tw2sp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '几率不低')
+
+        stsdict = StsListMaker().make('tw2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '概率不低')
+
 
 if __name__ == '__main__':
     unittest.main()
