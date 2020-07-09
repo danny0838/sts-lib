@@ -539,7 +539,7 @@ class TestClassStsConverter(unittest.TestCase):
 
 
 class TestBasicCases(unittest.TestCase):
-    def test_ids1(self):
+    def test_ids(self):
         stsdict = Trie({
             '会': ['會'],
             '简': ['簡'],
@@ -552,7 +552,6 @@ class TestBasicCases(unittest.TestCase):
         self.assertEqual(converter.convert_text('⿰虫风简转繁不会出错'), '⿰虫风簡轉繁不會出錯')
         self.assertEqual(converter.convert_text('⿱艹⿰虫风简转繁不会出错'), '⿱艹⿰虫风簡轉繁不會出錯')
 
-    def test_ids2(self):
         stsdict = Trie({
             '⿰虫风': ['𧍯'],
             '会': ['會'],
@@ -565,6 +564,19 @@ class TestBasicCases(unittest.TestCase):
         converter = StsConverter(stsdict)
         self.assertEqual(converter.convert_text('⿰虫风需要简转繁'), '𧍯需要簡轉繁')
         self.assertEqual(converter.convert_text('⿱艹⿰虫风不需要简转繁'), '⿱艹⿰虫风不需要簡轉繁')
+
+        stsdict = Trie({
+            '⿱艹⿰虫风': ['⿱艹𧍯'],
+            '会': ['會'],
+            '简': ['簡'],
+            '虫': ['蟲'],
+            '转': ['轉'],
+            '错': ['錯'],
+            '风': ['風'],
+            })
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('⿰虫风不需要简转繁'), '⿰虫风不需要簡轉繁')
+        self.assertEqual(converter.convert_text('⿱艹⿰虫风需要简转繁'), '⿱艹𧍯需要簡轉繁')
 
     def test_ids_broken(self):
         stsdict = StsListMaker().make('tw2s', quiet=True)
@@ -598,6 +610,16 @@ class TestBasicCases(unittest.TestCase):
         self.assertEqual(converter.convert_text('刀劍󠄁󠄂 劍󠄁󠄂訢'), '刀劍󠄁󠄂 劍󠄁󠄂欣')
 
     def test_cdm(self):
+        stsdict = Trie({
+            '黑桃A': ['葵扇A'],
+            '黑桃Å': ['扇子Å'],
+            })
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('出黑桃A'), '出葵扇A')
+        self.assertEqual(converter.convert_text('出黑桃Å'), '出扇子Å')
+        self.assertEqual(converter.convert_text('出黑桃A̧'), '出黑桃A̧')
+        self.assertEqual(converter.convert_text('出黑桃Å̧'), '出黑桃Å̧')
+
         stsdict = Trie({
             'A片': ['成人片'],
             'Å片': ['特製成人片'],
