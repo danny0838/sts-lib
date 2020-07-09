@@ -549,44 +549,33 @@ class StsDict():
         """Helper function of apply_enum
         """
         (parts, matched, index) = data
-        match = self.match(parts, index)
-
-        # add atomic stepping if no match
-        if match is None:
-            stack.append((parts, matched, index + 1))
-            return
-
         has_atomic_match = False
-        if match.end - index == 1:
-            has_atomic_match = True
-        for value in match.conv.values:
-            result = parts[:index] + [value] + parts[match.end:]
-            stack.append((result, matched + 1, index + 1))
-        if include_self:
-            value = ''.join(match.conv.key)
-            if value not in match.conv.values:
+        i = math.inf
+        while i > index:
+            match = self.match(parts, index, maxlen=i)
+
+            if match is None:
+                break
+
+            if match.end - index == 1:
+                has_atomic_match = True
+
+            for value in match.conv.values:
                 result = parts[:index] + [value] + parts[match.end:]
                 stack.append((result, matched + 1, index + 1))
 
-        if not include_short:
-            return
-
-        # add shorter matches
-        for i in range(match.end - match.start - 1, 0, -1):
-            match = self.match(parts, index, maxlen=index + i)
-            if match is not None:
-                if match.end - index == 1:
-                    has_atomic_match = True
-                for value in match.conv.values:
+            if include_self:
+                value = ''.join(match.conv.key)
+                if value not in match.conv.values:
                     result = parts[:index] + [value] + parts[match.end:]
                     stack.append((result, matched + 1, index + 1))
-                if include_self:
-                    value = ''.join(match.conv.key)
-                    if value not in match.conv.values:
-                        result = parts[:index] + [value] + parts[match.end:]
-                        stack.append((result, matched + 1, index + 1))
 
-        # add atomic stepping (length = 1) case
+            if not include_short:
+                return
+
+            i = match.end - 1
+
+        # add atomic stepping (length = 1) case if none
         #
         # e.g.
         # table: 采信 => 採信, 信息 => 訊息
