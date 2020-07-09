@@ -924,16 +924,25 @@ class StsListMaker():
     DEFAULT_DICTIONARY_DIR = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
 
 class StsConverter():
-    """Convert a text using a listfile.
+    """Convert a text using an stsdict.
     """
-    def __init__(self, listfile, options={}):
-        _, ext = os.path.splitext(listfile)
-        if ext.lower() == '.jlist':
-            self.table = Table().loadjson(listfile)
-        elif ext.lower() == '.tlist':
-            self.table = Trie().loadjson(listfile)
-        else: # default: list
-            self.table = Table().load(listfile)
+    def __init__(self, stsdict, options={}):
+        """Initialize a converter.
+
+        Args:
+            stsdict: an StsDict or a str, bytes or os.PathLike object for a
+                dictionary file
+        """
+        if isinstance(stsdict, StsDict):
+            self.table = stsdict
+        else:
+            _, ext = os.path.splitext(stsdict)
+            if ext.lower() == '.jlist':
+                self.table = Table().loadjson(stsdict)
+            elif ext.lower() == '.tlist':
+                self.table = Trie().loadjson(stsdict)
+            else: # default: list
+                self.table = Table().load(stsdict)
         self.options = {**self.default_options, **options}
 
     def convert(self, text):
