@@ -301,6 +301,45 @@ class TestClassStsDict(unittest.TestCase):
                 })
 
 
+class TestClassStsListMaker(unittest.TestCase):
+    def convert_text(self, text, config, options={}, method='convert_text'):
+        stsdict = StsListMaker().make(config, quiet=True)
+        converter = StsConverter(stsdict, options)
+        return getattr(converter, method)(text)
+
+    def check_case(self, subdir, name, config=None, options={}):
+        dir = os.path.join(root_dir, subdir)
+
+        with open(os.path.join(dir, name + '.in'), 'r', encoding='UTF-8') as f:
+            input = f.read()
+            f.close()
+
+        with open(os.path.join(dir, name + '.ans'), 'r', encoding='UTF-8') as f:
+            answer = f.read()
+            f.close()
+
+        result = self.convert_text(input, config or os.path.join(dir, name + '.json'), options)
+        self.assertEqual(result, answer)
+
+    def test_merge1(self):
+        self.check_case('test_make', 'merge1')
+
+    def test_merge2(self):
+        self.check_case('test_make', 'merge2')
+
+    def test_join1(self):
+        self.check_case('test_make', 'join1')
+
+    def test_join2(self):
+        self.check_case('test_make', 'join2')
+
+    def test_join3(self):
+        self.check_case('test_make', 'join3')
+
+    def test_join4(self):
+        self.check_case('test_make', 'join4')
+
+
 class TestClassStsConverter(unittest.TestCase):
     def test_init(self):
         # file as str (.list)
@@ -497,47 +536,6 @@ class TestClassStsConverter(unittest.TestCase):
         stsdict = StsListMaker().make('s2twp', quiet=True)
         converter = StsConverter(stsdict, options={'exclude': r'「.*?」'})
         self.assertEqual(converter.convert_text(r"""「奔馳」不是奔馳"""), r"""「奔馳」不是賓士""")
-
-
-class TestSts(unittest.TestCase):
-    def convert_text(self, text, config, options={}, method='convert_text'):
-        stsdict = StsListMaker().make(config, quiet=True)
-        converter = StsConverter(stsdict, options)
-        return getattr(converter, method)(text)
-
-    def check_case(self, subdir, name, config=None, options={}):
-        dir = os.path.join(root_dir, subdir)
-
-        with open(os.path.join(dir, name + '.in'), 'r', encoding='UTF-8') as f:
-            input = f.read()
-            f.close()
-
-        with open(os.path.join(dir, name + '.ans'), 'r', encoding='UTF-8') as f:
-            answer = f.read()
-            f.close()
-
-        result = self.convert_text(input, config or os.path.join(dir, name + '.json'), options)
-        self.assertEqual(result, answer)
-
-
-class TestDict(TestSts):
-    def test_merge1(self):
-        self.check_case('test_dict', 'merge1')
-
-    def test_merge2(self):
-        self.check_case('test_dict', 'merge2')
-
-    def test_join1(self):
-        self.check_case('test_dict', 'join1')
-
-    def test_join2(self):
-        self.check_case('test_dict', 'join2')
-
-    def test_join3(self):
-        self.check_case('test_dict', 'join3')
-
-    def test_join4(self):
-        self.check_case('test_dict', 'join4')
 
 
 class TestBasicCases(unittest.TestCase):
