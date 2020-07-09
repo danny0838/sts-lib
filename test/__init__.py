@@ -3,6 +3,7 @@ import os
 import re
 import json
 import time
+from pathlib import Path
 from sts import StsListMaker, StsConverter, Unicode, StsDict, Table, Trie
 
 root_dir = os.path.dirname(__file__)
@@ -298,6 +299,78 @@ class TestClassStsDict(unittest.TestCase):
                 '表達式': ['表示式'], '表达式': ['表示式'],
                 '正則表達式': ['正規表示式'], '正则表达式': ['正規表示式'], '正则表達式': ['正規表示式'], '正則表达式': ['正規表示式']
                 })
+
+
+class TestClassStsConverter(unittest.TestCase):
+    def test_init(self):
+        # file as str (.list)
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.list")
+        try:
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write("""干\t幹 乾 干\n干姜\t乾薑""")
+                f.close()
+            converter = StsConverter(tempfile)
+            self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+
+        # file as str (.jlist)
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.jlist")
+        try:
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write("""{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}""")
+                f.close()
+            converter = StsConverter(tempfile)
+            self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+
+        # file as str (.tlist)
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.tlist")
+        try:
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write("""{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}""")
+                f.close()
+            converter = StsConverter(tempfile)
+            self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+
+        # file as os.PathLike object
+        tempfile = Path(os.path.join(root_dir, f"test-{time.time()}.list"))
+        try:
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write("""干\t幹 乾 干\n干姜\t乾薑""")
+                f.close()
+            converter = StsConverter(tempfile)
+            self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+
+        # StsDict
+        stsdict = Trie({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
 
 class TestSts(unittest.TestCase):
