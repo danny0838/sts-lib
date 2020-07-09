@@ -540,24 +540,75 @@ class TestDict(TestSts):
         self.check_case('test_dict', 'join4')
 
 
-class TestIds(TestSts):
+class TestBasicCases(unittest.TestCase):
     def test_ids1(self):
-        self.check_case('test_ids', 'ids1')
+        stsdict = Trie({
+            '会': ['會'],
+            '简': ['簡'],
+            '虫': ['蟲'],
+            '转': ['轉'],
+            '错': ['錯'],
+            '风': ['風'],
+            })
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('⿰虫风简转繁不会出错'), '⿰虫风簡轉繁不會出錯')
+        self.assertEqual(converter.convert_text('⿱艹⿰虫风简转繁不会出错'), '⿱艹⿰虫风簡轉繁不會出錯')
 
     def test_ids2(self):
-        self.check_case('test_ids', 'ids2')
+        stsdict = Trie({
+            '⿰虫风': ['𧍯'],
+            '会': ['會'],
+            '简': ['簡'],
+            '虫': ['蟲'],
+            '转': ['轉'],
+            '错': ['錯'],
+            '风': ['風'],
+            })
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('⿰虫风需要简转繁'), '𧍯需要簡轉繁')
+        self.assertEqual(converter.convert_text('⿱艹⿰虫风不需要简转繁'), '⿱艹⿰虫风不需要簡轉繁')
 
-    def test_ids_broken1(self):
-        self.check_case('test_ids', 'ids_broken1', 'tw2s')
+    def test_ids_broken(self):
+        stsdict = StsListMaker().make('tw2s', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('IDC有這些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接著繁轉簡'), 'IDC有这些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接着繁转简')
+        self.assertEqual(converter.convert_text('「⿰⿱⿲⿳」不影響後面'), '「⿰⿱⿲⿳」不影响后面')
+        self.assertEqual(converter.convert_text('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠\n這行無影響'), '⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠\n这行无影响')
 
-    def test_vi1(self):
-        self.check_case('test_ids', 'vi1')
+    def test_vi(self):
+        stsdict = Trie({
+            '劍': ['剑'],
+            '〾劍': ['剑'],
+            '訢': ['欣', '䜣'],
+            '劍訢': ['剑䜣'],
+            })
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('刀劍 劍訢'), '刀剑 剑䜣')
+        self.assertEqual(converter.convert_text('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'), '刀剑 剑欣 剑〾訢 剑〾訢')
 
-    def test_vs1(self):
-        self.check_case('test_ids', 'vs1')
+    def test_vs(self):
+        stsdict = Trie({
+            '劍': ['剑'],
+            '劍󠄁': ['剑'],
+            '訢': ['欣', '䜣'],
+            '劍訢': ['剑䜣'],
+            })
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('刀劍 劍訢'), '刀剑 剑䜣')
+        self.assertEqual(converter.convert_text('刀劍󠄁 劍󠄁訢'), '刀剑 剑欣')
+        self.assertEqual(converter.convert_text('刀劍󠄃 劍󠄃訢'), '刀劍󠄃 劍󠄃欣')
+        self.assertEqual(converter.convert_text('刀劍󠄁󠄂 劍󠄁󠄂訢'), '刀劍󠄁󠄂 劍󠄁󠄂欣')
 
-    def test_cdm1(self):
-        self.check_case('test_ids', 'cdm1')
+    def test_cdm(self):
+        stsdict = Trie({
+            'A片': ['成人片'],
+            'Å片': ['特製成人片'],
+            })
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('看A片'), '看成人片')
+        self.assertEqual(converter.convert_text('看Å片'), '看特製成人片')
+        self.assertEqual(converter.convert_text('看A̧片'), '看A̧片')
+        self.assertEqual(converter.convert_text('看Å̧片'), '看Å̧片')
 
 
 @unittest.skip
