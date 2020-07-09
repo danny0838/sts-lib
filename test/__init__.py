@@ -372,6 +372,132 @@ class TestClassStsConverter(unittest.TestCase):
         converter = StsConverter(stsdict)
         self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
+    def test_convert(self):
+        stsdict = StsListMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(
+            list(converter.convert("""干了 干涉
+⿰虫风需要简转繁
+⿱艹⿰虫风不需要简转繁
+沙⿰虫风也简转繁""")),
+            [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), '\n',
+            '⿰虫风', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
+            '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
+            '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁'])
+
+    def test_convert_text(self):
+        stsdict = StsListMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(
+            converter.convert_text("""干了 干涉
+⿰虫风需要简转繁
+⿱艹⿰虫风不需要简转繁
+沙⿰虫风也简转繁"""),
+            r"""幹了 干涉
+⿰虫风需要簡轉繁
+⿱艹⿰虫风不需要簡轉繁
+沙⿰虫风也簡轉繁""")
+
+    def test_convert_file(self):
+        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
+        tempfile2 = os.path.join(root_dir, f"test2-{time.time()}.tmp")
+        try:
+            stsdict = StsListMaker().make('s2t', quiet=True)
+            converter = StsConverter(stsdict)
+
+            with open(tempfile, 'w', encoding='UTF-8') as f:
+                f.write("""干柴烈火 发财圆梦""")
+                f.close()
+            converter.convert_file(tempfile, tempfile2)
+            with open(tempfile2, 'r', encoding='UTF-8') as f:
+                result = f.read()
+                f.close()
+            self.assertEqual(result, """乾柴烈火 發財圓夢""")
+
+            with open(tempfile, 'w', encoding='GBK') as f:
+                f.write("""干柴烈火 发财圆梦""")
+                f.close()
+            converter.convert_file(tempfile, tempfile2, input_encoding='GBK', output_encoding='Big5')
+            with open(tempfile2, 'r', encoding='Big5') as f:
+                result = f.read()
+                f.close()
+            self.assertEqual(result, """乾柴烈火 發財圓夢""")
+        except:
+            raise
+        finally:
+            try:
+                os.remove(tempfile)
+            except FileNotFoundError:
+                pass
+            try:
+                os.remove(tempfile2)
+            except FileNotFoundError:
+                pass
+
+    def test_convert_option_format(self):
+        stsdict = Trie({
+            '⿰虫风': ['𧍯'],
+            '沙⿰虫风': ['沙虱'],
+            '干': ['幹', '乾', '干'],
+            '干涉': ['干涉'],
+            '会': ['會'],
+            '简': ['簡'],
+            '虫': ['蟲'],
+            '转': ['轉'],
+            '错': ['錯'],
+            '风': ['風'],
+            })
+        text = r"""干了 干涉
+⿰虫风需要简转繁
+⿱艹⿰虫风不需要简转繁
+沙⿰虫风也简转繁"""
+
+        converter = StsConverter(stsdict, options={'format': 'txt'})
+        self.assertEqual(
+            converter.convert_text(text),
+            r"""幹了 干涉
+𧍯需要簡轉繁
+⿱艹⿰虫风不需要簡轉繁
+沙虱也簡轉繁"""
+            )
+
+        converter = StsConverter(stsdict, options={'format': 'txtm'})
+        self.assertEqual(
+            converter.convert_text(text),
+            r"""{{干->幹|乾|干}}了 {{干涉}}
+{{⿰虫风->𧍯}}需要{{简->簡}}{{转->轉}}繁
+⿱艹⿰虫风不需要{{简->簡}}{{转->轉}}繁
+{{沙⿰虫风->沙虱}}也{{简->簡}}{{转->轉}}繁"""
+            )
+
+        converter = StsConverter(stsdict, options={'format': 'html'})
+        self.assertEqual(
+            converter.convert_text(text),
+            r"""<span class="sts-conv plural atomic"><del>干</del><ins>幹</ins><ins>乾</ins><ins>干</ins></span>了 <span class="sts-conv single exact"><del>干涉</del><ins>干涉</ins></span>
+<span class="sts-conv single atomic"><del>⿰虫风</del><ins>𧍯</ins></span>需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
+⿱艹⿰虫风不需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
+<span class="sts-conv single"><del>沙⿰虫风</del><ins>沙虱</ins></span>也<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁"""
+            )
+
+        converter = StsConverter(stsdict, options={'format': 'json'})
+        self.assertEqual(
+            converter.convert_text(text),
+            r"""[[["干"], ["幹", "乾", "干"]], "了", " ", [["干", "涉"], ["干涉"]], "\n", [["⿰虫风"], ["𧍯"]], "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", "⿱艹⿰虫风", "不", "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", [["沙", "⿰虫风"], ["沙虱"]], "也", [["简"], ["簡"]], [["转"], ["轉"]], "繁"]"""
+            )
+
+    def test_convert_option_exclude(self):
+        stsdict = StsListMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict, options={'exclude': r'-{(?P<return>.*?)}-'})
+        self.assertEqual(converter.convert_text(r"""-{尸}-廿山女田卜"""), r"""尸廿山女田卜""")
+
+        stsdict = StsListMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict, options={'exclude': r'<!-->(?P<return>.*?)<-->'})
+        self.assertEqual(converter.convert_text(r"""发财了<!-->财<--><!-->干<-->"""), r"""發財了财干""")
+
+        stsdict = StsListMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict, options={'exclude': r'「.*?」'})
+        self.assertEqual(converter.convert_text(r"""「奔馳」不是奔馳"""), r"""「奔馳」不是賓士""")
+
 
 class TestSts(unittest.TestCase):
     def convert_text(self, text, config, options={}, method='convert_text'):
@@ -432,43 +558,6 @@ class TestIds(TestSts):
 
     def test_cdm1(self):
         self.check_case('test_ids', 'cdm1')
-
-
-class TestExclude(TestSts):
-    def test_exclude1(self):
-        self.check_case('test_exclude', 'exclude1', 's2t', {
-            'exclude': r'-{(?P<return>.*?)}-',
-            })
-
-    def test_exclude2(self):
-        self.check_case('test_exclude', 'exclude2', 's2t', {
-            'exclude': r'<!-->(?P<return>.*?)<-->',
-            })
-
-    def test_exclude3(self):
-        self.check_case('test_exclude', 'exclude3', 's2twp', {
-            'exclude': r'「.*?」',
-            })
-
-
-class TestFormat(TestSts):
-    def test_generator(self):
-        text = """干了 干涉
-⿰虫风需要简转繁
-⿱艹⿰虫风不需要简转繁
-沙⿰虫风也简转繁"""
-        self.assertEqual(
-            list(self.convert_text(text, 's2t', method='convert')), 
-            [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), '\n', '⿰虫风', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n', '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n', '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁'])
-
-    def test_txtm(self):
-        self.check_case('test_format', 'format_txtm', options={'format': 'txtm'})
-
-    def test_html(self):
-        self.check_case('test_format', 'format_html', options={'format': 'html'})
-
-    def test_json(self):
-        self.check_case('test_format', 'format_json', options={'format': 'json'})
 
 
 @unittest.skip
