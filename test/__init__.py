@@ -631,9 +631,9 @@ class TestBasicCases(unittest.TestCase):
         self.assertEqual(converter.convert_text('看Å̧片'), '看Å̧片')
 
 
-@unittest.skip
 class TestConfigs(unittest.TestCase):
-    def test_configs(self):
+    @unittest.skip
+    def test_make(self):
         def clear_lists():
             pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
             for fh in os.scandir(config_dir):
