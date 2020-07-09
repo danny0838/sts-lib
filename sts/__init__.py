@@ -201,7 +201,13 @@ class StsDict():
             return False
         for key, value in self.items():
             try:
-                if not value == other[key]:
+                if value != other[key]:
+                    return False
+            except KeyError:
+                return False
+        for key, value in other.items():
+            try:
+                if value != self[key]:
                     return False
             except KeyError:
                 return False
