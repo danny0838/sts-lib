@@ -280,9 +280,14 @@ class TestClassStsDict(unittest.TestCase):
 
     def test_prefix(self):
         for stsdict in self.prepare_dicts({'註冊表': ['登錄檔']}):
-            stsdict2 = Table({'注': ['注', '註']})
+            stsdict2 = Table({'注': ['註', '注' ]})
             stsdict = stsdict._join_prefix(stsdict2)
             self.assertEqual(stsdict, {'注冊表': ['登錄檔'], '註冊表': ['登錄檔']})
+
+        for stsdict in self.prepare_dicts({'註冊表': ['登錄檔']}):
+            stsdict2 = Table({'注': ['注', '註'], '册': ['冊'], '注册': ['註冊']})
+            stsdict = stsdict._join_prefix(stsdict2)
+            self.assertEqual(stsdict, {'注册表': ['登錄檔'], '註冊表': ['登錄檔'], '註册表': ['登錄檔']})
 
     def test_postfix(self):
         for stsdict in self.prepare_dicts({'因为': ['因爲']}):
@@ -298,6 +303,28 @@ class TestClassStsDict(unittest.TestCase):
                 '则': ['則'], '达': ['達'], '规': ['規'],
                 '表達式': ['表示式'], '表达式': ['表示式'],
                 '正則表達式': ['正規表示式'], '正则表达式': ['正規表示式'], '正则表達式': ['正規表示式'], '正則表达式': ['正規表示式']
+                })
+
+        for stsdict in self.prepare_dicts({
+            '万用字元': ['萬用字元'], '数据': ['數據'],
+            '万': ['萬', '万'], '数': ['數'], '据': ['據', '据'], '问': ['問'], '题': ['題'],
+            }):
+            stsdict2 = Table({'元數據': ['後設資料'], '數據': ['資料']})
+            stsdict = stsdict.join(stsdict2)
+            self.assertEqual(stsdict, {
+                '万用字元': ['萬用字元'], '数据': ['資料'],
+                '万': ['萬', '万'], '数': ['數'], '据': ['據', '据'], '问': ['問'], '题': ['題'],
+                '元數據': ['後設資料'], '數據': ['資料'],
+                '元数据': ['後設資料'], '元数據': ['後設資料'], '元數据': ['後設資料'],
+                '数據': ['資料'], '數据': ['資料'],
+                })
+
+        for stsdict in self.prepare_dicts({'妳': ['你', '奶']}):
+            stsdict2 = Table({'奶媽': ['奶娘']})
+            stsdict = stsdict.join(stsdict2)
+            self.assertEqual(stsdict, {
+                '妳': ['你', '奶'],
+                '奶媽': ['奶娘'],
                 })
 
 

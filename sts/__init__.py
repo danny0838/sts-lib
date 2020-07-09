@@ -404,16 +404,17 @@ class StsDict():
         table:
             註冊表 => 登錄檔
         stsdict:
-            注 => 注 註
+            注 => 註 注
         swapped stsdict:
-            注 => 注
             註 => 注
         table._join_prefix(stsdict):
             注冊表 => 登錄檔
             註冊表 => 登錄檔
         """
         dict_ = self.__class__()
-        converter = stsdict.swap()
+        converter = self.__class__()
+        for key, values in stsdict.items():
+            converter.add(values[0], [key])
         for key, values in self.items():
             for newkey in converter.apply_enum(key, include_short=True, include_self=True):
                 dict_.add(newkey, values)
