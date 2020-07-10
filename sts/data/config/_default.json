@@ -51,6 +51,12 @@
       "src": [
         "../dictionary/JPVariants.txt"
       ]
+    }, {
+      "file": "../dictionary/JPVariantsExRev.list",
+      "mode": "swap",
+      "src": [
+        "../dictionary/JPVariantsEx.txt"
+      ]
     }
   ]
 }

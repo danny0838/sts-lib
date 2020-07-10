@@ -11,7 +11,8 @@
       "src": [
         "../dictionary/JPShinjitaiPhrases.txt",
         "../dictionary/JPShinjitaiCharacters.txt",
-        "../dictionary/JPVariantsRev.list"
+        "../dictionary/JPVariantsRev.list",
+        "../dictionary/JPVariantsExRev.list"
       ]
     }
   ]

@@ -102,6 +102,15 @@ class TestConfigs(unittest.TestCase):
         self.assertEqual('概率不低', converter.convert_text('機率不低'))
         self.assertEqual('概率不低', converter.convert_text('機會率不低'))
 
+    def test_t2jp(self):
+        stsdict = StsMaker().make('t2jp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('彎腰 搔擾 攪乱 幷用', converter.convert_text('彎腰 搔擾 攪亂 幷用'))
+
+        stsdict = StsMaker().make('t2jpx', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('弯腰 掻擾 撹乱 并用', converter.convert_text('彎腰 搔擾 攪亂 幷用'))
+
 
 if __name__ == '__main__':
     unittest.main()

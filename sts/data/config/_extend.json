@@ -18,6 +18,15 @@
         "../dictionary/TSCharacters.txt",
         "../dictionary/TSCharactersEx.txt"
       ]
+    },
+    {
+      "file": "../dictionary/JPVariants.list",
+      "mode": "load",
+      "sort": true,
+      "src": [
+        "../dictionary/JPVariants.txt",
+        "../dictionary/JPVariantsEx.txt"
+      ]
     }
   ]
 }
