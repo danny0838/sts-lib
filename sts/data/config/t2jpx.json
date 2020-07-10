@@ -1,0 +1,11 @@
+{
+  "name": "Traditional Chinese Characters (Kyūjitai) to New Japanese Kanji (Shinjitai) (with extended simplification)",
+  "dicts": [{
+    "file": "t2jpx.tlist",
+    "mode": "load",
+    "src": [
+      "JPVariants.txt",
+      "JPVariantsEx.txt"
+    ]
+  }]
+}

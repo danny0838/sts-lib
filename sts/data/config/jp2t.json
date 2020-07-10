@@ -9,7 +9,8 @@
     "src": [
       "JPShinjitaiPhrases.txt",
       "JPShinjitaiCharacters.txt",
-      "JPVariantsRev.list"
+      "JPVariantsRev.list",
+      "JPVariantsExRev.list"
     ]
   }]
 }
