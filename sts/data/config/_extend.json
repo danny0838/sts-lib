@@ -16,5 +16,13 @@
       "TSCharacters.txt",
       "TSCharactersEx.txt"
     ]
+  }, {
+    "file": "JPVariants.list",
+    "mode": "load",
+    "sort": true,
+    "src": [
+      "JPVariants.txt",
+      "JPVariantsEx.txt"
+    ]
   }]
 }

@@ -44,5 +44,11 @@
     "src": [
       "JPVariants.txt"
     ]
+  }, {
+    "file": "JPVariantsExRev.list",
+    "mode": "swap",
+    "src": [
+      "JPVariantsEx.txt"
+    ]
   }]
 }
