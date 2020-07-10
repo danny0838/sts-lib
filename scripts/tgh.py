@@ -8,23 +8,22 @@ from sts import Table
 
 def main():
     tgh = {}
-    with open(os.path.join(__file__, '..', '..', 'sts', 'data', 'scheme', 'ts_tgh_list.txt'), 'r', encoding='UTF-8') as f:
+    with open(os.path.join(__file__, '..', '..', 'sts', 'data', 'scheme', 'ts_tgh_convert.txt'), 'r', encoding='UTF-8') as f:
         for line in f:
             try:
-                id, char, *_ = line.split()
+                id, std, trad, vars, *_ = line.rstrip('\n').split('\t')
             except ValueError:
-                pass
-            tgh[char] = id
+                continue
+            tgh.setdefault(std, []).append((id, std, trad or None, list(vars)))
 
     # t2s
-    table = Table().load(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharactersEx.txt'))
-
-    table2 = Table()
-    for key, values in table.items():
-        if key in tgh:
-            values = [key] + values
-        table2.add(key, values)
-    table2.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharactersEx.txt'))
+    table = Table().load(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharacters.txt'))
+    for convs in tgh.values():
+        for conv in convs:
+            id, std, trad, vars = conv
+            for var in vars:
+                table.add(var, [std])
+    table.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharacters.txt'), sort=True)
 
 
 if __name__ == '__main__':
