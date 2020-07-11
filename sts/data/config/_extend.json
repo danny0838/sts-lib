@@ -18,11 +18,16 @@
     ]
   }, {
     "file": "JPVariants.list",
-    "mode": "load",
+    "mode": "join",
     "sort": true,
     "src": [
-      "JPVariants.txt",
-      "JPVariantsEx.txt"
+      [
+        "JPKyujitaiCharacters.txt"
+      ],
+      [
+        "JPVariants.txt",
+        "JPVariantsEx.txt"
+      ]
     ]
   }]
 }
