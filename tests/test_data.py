@@ -111,6 +111,13 @@ class TestConfigs(unittest.TestCase):
         converter = StsConverter(stsdict)
         self.assertEqual('弯腰 掻擾 撹乱 并用', converter.convert_text('彎腰 搔擾 攪亂 幷用'))
 
+    def test_jp2t(self):
+        stsdict = StsMaker().make('jp2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('森鷗 冒瀆 潑水 撥動', converter.convert_text('森鷗 冒瀆 潑水 撥動'))
+        self.assertEqual('森鷗 冒瀆 潑水 撥動', converter.convert_text('森鴎 冒涜 溌水 𫝼動'))
+        self.assertEqual('滯澀 敘述 戰鬥 麥麪', converter.convert_text('滞渋 敘述 戦闘 麦麺'))
+
 
 if __name__ == '__main__':
     unittest.main()
