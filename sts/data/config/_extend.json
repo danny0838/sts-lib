@@ -21,11 +21,17 @@
     },
     {
       "file": "../dictionary/JPVariants.list",
-      "mode": "load",
+      "mode": "join",
       "sort": true,
       "src": [
-        "../dictionary/JPVariants.txt",
-        "../dictionary/JPVariantsEx.txt"
+        "../dictionary/JPKyujitaiCharacters.txt",
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/JPVariants.txt",
+            "../dictionary/JPVariantsEx.txt"
+          ]
+        }
       ]
     }
   ]

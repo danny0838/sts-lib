@@ -7,11 +7,17 @@
     {
       "file": "../dictionary/t2jpx.tlist",
       "auto_space": true,
-      "mode": "load",
+      "mode": "join",
       "src": [
-        "../dictionary/JPVariantsPhrases.list",
-        "../dictionary/JPVariants.txt",
-        "../dictionary/JPVariantsEx.txt"
+        "../dictionary/JPKyujitaiCharacters.txt",
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/JPVariantsPhrases.list",
+            "../dictionary/JPVariants.txt",
+            "../dictionary/JPVariantsEx.txt"
+          ]
+        }
       ]
     }
   ]
