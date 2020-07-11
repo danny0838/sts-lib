@@ -731,6 +731,10 @@ class TestConfigs(unittest.TestCase):
     def test_t2jp(self):
         stsdict = StsMaker().make('t2jp', quiet=True)
         converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('買辦 欠缺 拇指 慰藉料'), '買弁 欠缺 母指 慰謝料')
+
+        stsdict = StsMaker().make('t2jp', quiet=True)
+        converter = StsConverter(stsdict)
         self.assertEqual(converter.convert_text('彎腰 搔擾 攪亂 幷用'), '彎腰 搔擾 攪乱 幷用')
 
         stsdict = StsMaker().make('t2jpx', quiet=True)

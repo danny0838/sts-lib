@@ -50,5 +50,11 @@
     "src": [
       "JPVariantsEx.txt"
     ]
+  }, {
+    "file": "JPVariantsPhrases.list",
+    "mode": "swap",
+    "src": [
+      "JPShinjitaiPhrases.txt"
+    ]
   }]
 }
