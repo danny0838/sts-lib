@@ -5,10 +5,15 @@
   ],
   "dicts": [{
     "file": "t2jp.tlist",
-    "mode": "load",
+    "mode": "join",
     "src": [
-      "JPVariantsPhrases.list",
-      "JPVariants.txt"
+      [
+        "JPKyujitaiCharacters.txt"
+      ],
+      [
+        "JPVariantsPhrases.list",
+        "JPVariants.txt"
+      ]
     ]
   }]
 }
