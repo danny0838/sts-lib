@@ -786,11 +786,11 @@ class Trie(StsDict):
             return StsDictMatch(conv, pos, match_end)
         return None
 
-class StsListMaker():
-    """A class for compling a dictionary.
+class StsMaker():
+    """A class for making a dictionary.
     """
     def make(self, config_name, base_dir=None, output_dir=None, skip_requires=False, quiet=False):
-        """Compile a dictionary according to config.
+        """Make a dictionary according to config.
 
         Load dictionaries specified in config and generate a new dictionary.
 
@@ -1135,7 +1135,7 @@ def main():
         quiet = args['quiet']
 
         for config in configs:
-            StsListMaker().make(config, output_dir=dir, quiet=quiet)
+            StsMaker().make(config, output_dir=dir, quiet=quiet)
 
     def convert(args):
         """Convert a file using the given config.
@@ -1151,7 +1151,7 @@ def main():
         input_encoding = args['in_enc']
         output_encoding = args['out_enc']
 
-        stsdict = StsListMaker().make(config, quiet=True)
+        stsdict = StsMaker().make(config, quiet=True)
         converter = StsConverter(stsdict, options)
 
         # read STDIN if no input file is specified

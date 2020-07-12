@@ -4,7 +4,7 @@ import re
 import json
 import time
 from pathlib import Path
-from sts import StsListMaker, StsConverter, Unicode, StsDict, Table, Trie
+from sts import StsMaker, StsConverter, Unicode, StsDict, Table, Trie
 
 root_dir = os.path.dirname(__file__)
 
@@ -328,9 +328,9 @@ class TestClassStsDict(unittest.TestCase):
                 })
 
 
-class TestClassStsListMaker(unittest.TestCase):
+class TestClassStsMaker(unittest.TestCase):
     def convert_text(self, text, config, options={}, method='convert_text'):
-        stsdict = StsListMaker().make(config, quiet=True)
+        stsdict = StsMaker().make(config, quiet=True)
         converter = StsConverter(stsdict, options)
         return getattr(converter, method)(text)
 
@@ -439,7 +439,7 @@ class TestClassStsConverter(unittest.TestCase):
         self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
     def test_convert(self):
-        stsdict = StsListMaker().make('s2t', quiet=True)
+        stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
         self.assertEqual(
             list(converter.convert("""干了 干涉
@@ -452,7 +452,7 @@ class TestClassStsConverter(unittest.TestCase):
             '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁'])
 
     def test_convert_text(self):
-        stsdict = StsListMaker().make('s2t', quiet=True)
+        stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
         self.assertEqual(
             converter.convert_text("""干了 干涉
@@ -468,7 +468,7 @@ class TestClassStsConverter(unittest.TestCase):
         tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
         tempfile2 = os.path.join(root_dir, f"test2-{time.time()}.tmp")
         try:
-            stsdict = StsListMaker().make('s2t', quiet=True)
+            stsdict = StsMaker().make('s2t', quiet=True)
             converter = StsConverter(stsdict)
 
             with open(tempfile, 'w', encoding='UTF-8') as f:
@@ -552,15 +552,15 @@ class TestClassStsConverter(unittest.TestCase):
             )
 
     def test_convert_option_exclude(self):
-        stsdict = StsListMaker().make('s2t', quiet=True)
+        stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict, options={'exclude': r'-{(?P<return>.*?)}-'})
         self.assertEqual(converter.convert_text(r"""-{尸}-廿山女田卜"""), r"""尸廿山女田卜""")
 
-        stsdict = StsListMaker().make('s2t', quiet=True)
+        stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict, options={'exclude': r'<!-->(?P<return>.*?)<-->'})
         self.assertEqual(converter.convert_text(r"""发财了<!-->财<--><!-->干<-->"""), r"""發財了财干""")
 
-        stsdict = StsListMaker().make('s2twp', quiet=True)
+        stsdict = StsMaker().make('s2twp', quiet=True)
         converter = StsConverter(stsdict, options={'exclude': r'「.*?」'})
         self.assertEqual(converter.convert_text(r"""「奔馳」不是奔馳"""), r"""「奔馳」不是賓士""")
 
@@ -606,7 +606,7 @@ class TestBasicCases(unittest.TestCase):
         self.assertEqual(converter.convert_text('⿱艹⿰虫风需要简转繁'), '⿱艹𧍯需要簡轉繁')
 
     def test_ids_broken(self):
-        stsdict = StsListMaker().make('tw2s', quiet=True)
+        stsdict = StsMaker().make('tw2s', quiet=True)
         converter = StsConverter(stsdict)
         self.assertEqual(converter.convert_text('IDC有這些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接著繁轉簡'), 'IDC有这些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接着繁转简')
         self.assertEqual(converter.convert_text('「⿰⿱⿲⿳」不影響後面'), '「⿰⿱⿲⿳」不影响后面')
@@ -667,8 +667,8 @@ class TestConfigs(unittest.TestCase):
                 if pattern.search(fh.path):
                     os.remove(fh)
 
-        config_dir = StsListMaker.DEFAULT_CONFIG_DIR
-        maker = StsListMaker()
+        config_dir = StsMaker.DEFAULT_CONFIG_DIR
+        maker = StsMaker()
         pattern = re.compile(r'\.json$', re.I)
         for file in os.listdir(config_dir):
             if pattern.search(file):

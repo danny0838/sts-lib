@@ -45,10 +45,10 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 ### Python
 
 ```python
-from sts import StsListMaker, StsConverter
+from sts import StsMaker, StsConverter
 
 # generate a dictionary file from a config and get its path
-dictfile = StsListMaker().make('s2t', quiet=True)
+dictfile = StsMaker().make('s2t', quiet=True)
 
 # initialize the converter from the dictionary file
 converter = StsConverter(dictfile, options={})
