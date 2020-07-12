@@ -8,6 +8,7 @@
     "mode": "join",
     "src": [
       [
+        "TWPhrasesRev.txt",
         "TWPhrasesRev.list",
         "TWVariantsRevPhrases.txt",
         "TWVariantsRev.list"

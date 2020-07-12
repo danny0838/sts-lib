@@ -685,6 +685,49 @@ class TestConfigs(unittest.TestCase):
                     clear_lists()
                     maker.make(file, quiet=True)
 
+    def test_cases(self):
+        stsdict = StsMaker().make('s2tw', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('几率很大'), '幾率很大')
+
+        stsdict = StsMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('几率很大'), '機率很大')
+
+        stsdict = StsMaker().make('tw2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '機率不低')
+
+        stsdict = StsMaker().make('tw2s', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '机率不低')
+
+        stsdict = StsMaker().make('tw2sp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '概率不低')
+
+        stsdict = StsMaker().make('s2hk', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('几率很大'), '幾率很大')
+
+        stsdict = StsMaker().make('s2hkp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('几率很大'), '機會率很大')
+
+        stsdict = StsMaker().make('hk2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '機率不低')
+
+        stsdict = StsMaker().make('hk2s', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '机率不低')
+        self.assertEqual(converter.convert_text('機會率不低'), '机会率不低')
+
+        stsdict = StsMaker().make('hk2sp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual(converter.convert_text('機率不低'), '概率不低')
+        self.assertEqual(converter.convert_text('機會率不低'), '概率不低')
+
 
 if __name__ == '__main__':
     unittest.main()

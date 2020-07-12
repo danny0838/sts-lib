@@ -9,10 +9,22 @@
       "TWPhrasesOther.txt"
     ]
   }, {
+    "file": "HKPhrases.list",
+    "mode": "load",
+    "src": [
+      "HKPhrases.txt"
+    ]
+  }, {
     "file": "TWPhrasesRev.list",
     "mode": "swap",
     "src": [
       "TWPhrases.list"
+    ]
+  }, {
+    "file": "HKPhrasesRev.list",
+    "mode": "swap",
+    "src": [
+      "HKPhrases.list"
     ]
   }, {
     "file": "TWVariantsRev.list",
