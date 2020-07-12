@@ -789,7 +789,7 @@ class Trie(StsDict):
 class StsMaker():
     """A class for making a dictionary.
     """
-    def make(self, config_name, base_dir=None, output_dir=None, skip_requires=False, quiet=False):
+    def make(self, config_name, base_dir=None, output_dir=None, skip_check=False, skip_requires=False, quiet=False):
         """Make a dictionary according to config.
 
         Load dictionaries specified in config and generate a new dictionary.
@@ -831,7 +831,7 @@ class StsMaker():
                 else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
                 for f in dict_['src']]
 
-            if not self.check_update(dest, files):
+            if not skip_check and not self.check_update(dest, files):
                 if not quiet: print(f'skip making (up-to-date): {dest}')
                 continue
 
@@ -1132,10 +1132,11 @@ def main():
         """
         configs = args['config']
         dir = args['dir']
+        skip_check = args['force']
         quiet = args['quiet']
 
         for config in configs:
-            StsMaker().make(config, output_dir=dir, quiet=quiet)
+            StsMaker().make(config, output_dir=dir, skip_check=skip_check, quiet=quiet)
 
     def convert(args):
         """Convert a file using the given config.
@@ -1228,6 +1229,8 @@ def main():
         help=make.__doc__, description=make.__doc__)
     parser_make.add_argument('config', nargs='+',
         help="""the config(s) to generate""")
+    parser_make.add_argument('--force', default=False, action='store_true',
+        help="""bypass update check and generate dicitonary(s) anyway""")
     parser_make.add_argument('-d', '--dir', default=None,
         help="""the directory to save the output (default: relative to config)""")
     parser_make.add_argument('-q', '--quiet', default=False, action='store_true',
