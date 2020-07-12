@@ -1,21 +1,21 @@
 {
-  "name": "Traditional Chinese (Taiwan standard) to Simplified Chinese (with phrases and extended simplification)",
+  "name": "Traditional Chinese (Hong Kong variant) to Simplified Chinese (with phrases and extended simplification)",
   "requires": [
     "_default"
   ],
   "dicts": [
     {
-      "file": "../dictionary/tw2spx.tlist",
+      "file": "../dictionary/hk2spx.tlist",
       "auto_space": true,
       "mode": "join",
       "src": [
         {
           "mode": "load",
           "src": [
-            "../dictionary/TWPhrasesRev.txt",
-            "../dictionary/TWPhrasesRev.list",
-            "../dictionary/TWVariantsRevPhrases.txt",
-            "../dictionary/TWVariantsRev.list"
+            "../dictionary/HKPhrasesRev.txt",
+            "../dictionary/HKPhrasesRev.list",
+            "../dictionary/HKVariantsRevPhrases.txt",
+            "../dictionary/HKVariantsRev.list"
           ]
         },
         {

@@ -11,10 +11,24 @@
       ]
     },
     {
+      "file": "../dictionary/HKPhrases.list",
+      "mode": "load",
+      "src": [
+        "../dictionary/HKPhrases.txt"
+      ]
+    },
+    {
       "file": "../dictionary/TWPhrasesRev.list",
       "mode": "swap",
       "src": [
         "../dictionary/TWPhrases.list"
+      ]
+    },
+    {
+      "file": "../dictionary/HKPhrasesRev.list",
+      "mode": "swap",
+      "src": [
+        "../dictionary/HKPhrases.list"
       ]
     },
     {

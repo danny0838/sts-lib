@@ -59,6 +59,49 @@ class TestConfigs(unittest.TestCase):
             output = [list(x) if isinstance(x, tuple) else x for x in converter.convert(input)]
             self.assertEqual(expected, output)
 
+    def test_cases(self):
+        stsdict = StsMaker().make('s2tw', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('幾率很大', converter.convert_text('几率很大'))
+
+        stsdict = StsMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('機率很大', converter.convert_text('几率很大'))
+
+        stsdict = StsMaker().make('tw2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('機率不低', converter.convert_text('機率不低'))
+
+        stsdict = StsMaker().make('tw2s', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('机率不低', converter.convert_text('機率不低'))
+
+        stsdict = StsMaker().make('tw2sp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('概率不低', converter.convert_text('機率不低'))
+
+        stsdict = StsMaker().make('s2hk', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('幾率很大', converter.convert_text('几率很大'))
+
+        stsdict = StsMaker().make('s2hkp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('機會率很大', converter.convert_text('几率很大'))
+
+        stsdict = StsMaker().make('hk2t', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('機率不低', converter.convert_text('機率不低'))
+
+        stsdict = StsMaker().make('hk2s', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('机率不低', converter.convert_text('機率不低'))
+        self.assertEqual('机会率不低', converter.convert_text('機會率不低'))
+
+        stsdict = StsMaker().make('hk2sp', quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual('概率不低', converter.convert_text('機率不低'))
+        self.assertEqual('概率不低', converter.convert_text('機會率不低'))
+
 
 if __name__ == '__main__':
     unittest.main()
