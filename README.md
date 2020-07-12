@@ -59,7 +59,7 @@ converter.convert_text('汉字')  # 漢字
 # perform conversion for a file (None for stdin/stdout)
 converter.convert_file(input=None, output=None)
 
-# process converted data stream
+# process conversion data generator
 [p for p in converter.convert("汉字")]  # [StsDictConv(key=['汉'], values=['漢']), '字']
 ```
 
