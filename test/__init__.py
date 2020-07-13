@@ -688,23 +688,23 @@ class TestConfigs(unittest.TestCase):
     def test_cases(self):
         stsdict = StsMaker().make('s2tw', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('几率很大'), '幾率很大')
+        self.assertEqual(converter.convert_text('高级设置默认的几率是50%'), '高級設置默認的幾率是50%')
 
         stsdict = StsMaker().make('s2twp', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('几率很大'), '機率很大')
+        self.assertEqual(converter.convert_text('高级设置默认的几率是50%'), '高階設定預設的機率是50%')
 
         stsdict = StsMaker().make('tw2t', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('機率不低'), '機率不低')
+        self.assertEqual(converter.convert_text('進階設定預設的機率是50%'), '進階設定預設的機率是50%')
 
         stsdict = StsMaker().make('tw2s', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('機率不低'), '机率不低')
+        self.assertEqual(converter.convert_text('進階設定預設的機率是50%'), '进阶设定预设的机率是50%')
 
         stsdict = StsMaker().make('tw2sp', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('機率不低'), '概率不低')
+        self.assertEqual(converter.convert_text('進階設定預設的機率是50%'), '高级设置默认的概率是50%')
 
         stsdict = StsMaker().make('s2hk', quiet=True)
         converter = StsConverter(stsdict)
