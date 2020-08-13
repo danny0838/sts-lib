@@ -641,7 +641,7 @@ class TestBasicCases(unittest.TestCase):
 
 
 class TestConfigs(unittest.TestCase):
-    @unittest.skip
+    @unittest.skip('comment out for advanced test (time consuming)')
     def test_make(self):
         def clear_lists():
             pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
