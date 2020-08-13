@@ -154,8 +154,6 @@ class TestClassStsDict(unittest.TestCase):
             for stsdict in self.prepare_dicts():
                 stsdict.load(tempfile)
                 self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦']})
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -179,8 +177,6 @@ class TestClassStsDict(unittest.TestCase):
                 with open(tempfile, 'r', encoding='UTF-8') as f:
                     text = f.read()
                 self.assertEqual(text, '姜\t姜 薑\n干\t干 榦\n')
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -204,8 +200,6 @@ class TestClassStsDict(unittest.TestCase):
                 f.write('{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}')
             stsdict = Trie().loadjson(tempfile)
             self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -229,8 +223,6 @@ class TestClassStsDict(unittest.TestCase):
             stsdict.dumpjson(tempfile)
             with open(tempfile, 'r', encoding='UTF-8') as f:
                 self.assertEqual(json.load(f), {"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}})
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -377,8 +369,6 @@ class TestClassStsConverter(unittest.TestCase):
                 f.close()
             converter = StsConverter(tempfile)
             self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -393,8 +383,6 @@ class TestClassStsConverter(unittest.TestCase):
                 f.close()
             converter = StsConverter(tempfile)
             self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -409,8 +397,6 @@ class TestClassStsConverter(unittest.TestCase):
                 f.close()
             converter = StsConverter(tempfile)
             self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -425,8 +411,6 @@ class TestClassStsConverter(unittest.TestCase):
                 f.close()
             converter = StsConverter(tempfile)
             self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
@@ -488,8 +472,6 @@ class TestClassStsConverter(unittest.TestCase):
                 result = f.read()
                 f.close()
             self.assertEqual(result, """乾柴烈火 發財圓夢""")
-        except:
-            raise
         finally:
             try:
                 os.remove(tempfile)
