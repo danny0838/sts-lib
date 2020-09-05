@@ -26,7 +26,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         ],
     python_requires="~=3.6",
-    packages=find_packages(),
+    packages=find_packages(exclude=['test']),
     package_data={
         "": [
             "data/config/*.json",
