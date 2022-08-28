@@ -4,9 +4,26 @@ import re
 import json
 import time
 from pathlib import Path
+import tempfile
+
 from sts import StsMaker, StsConverter, Unicode, StsDict, Table, Trie
 
+
 root_dir = os.path.dirname(__file__)
+
+
+def setUpModule():
+    """Set up a temp directory for testing
+    """
+    global _tmpdir, tmpdir
+    _tmpdir = tempfile.TemporaryDirectory(prefix='init-')
+    tmpdir = _tmpdir.name
+
+
+def tearDownModule():
+    """Cleanup the temp directory
+    """
+    _tmpdir.cleanup()
 
 
 class TestClassUnicode(unittest.TestCase):
@@ -35,6 +52,10 @@ class TestClassUnicode(unittest.TestCase):
 
 
 class TestClassStsDict(unittest.TestCase):
+    def setUp(self):
+        """Set up a sub temp directory for testing."""
+        self.root = tempfile.mkdtemp(dir=tmpdir)
+
     def prepare_dicts(self, *args, **kwargs):
         d1 = StsDict(*args, **kwargs)
         d2 = Table(*args, **kwargs)
@@ -148,103 +169,76 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
     def test_load(self):
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
-        tempfile2 = os.path.join(root_dir, f"test2-{time.time()}.tmp")
-        try:
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write("""干\t幹 乾""")
-                f.close()
-            with open(tempfile2, 'w', encoding='UTF-8') as f:
-                f.write("""干\t干 榦\n姜\t姜 薑""")
-                f.close()
-            for stsdict in self.prepare_dicts():
-                with self.subTest(type=type(stsdict)):
-                    stsdict.load(tempfile, tempfile2)
-                    self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']})
+        tempfile = os.path.join(self.root, 'test.tmp')
+        tempfile2 = os.path.join(self.root, 'test2.tmp')
 
-            # check for cases of 0 or 2+ tabs
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write("""干\t幹 乾\t# 一些註解\n姜\n干\t干\n\n干\t榦""")
-                f.close()
-            for stsdict in self.prepare_dicts():
-                with self.subTest(type=type(stsdict)):
-                    stsdict.load(tempfile)
-                    self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦']})
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
-            try:
-                os.remove(tempfile2)
-            except FileNotFoundError:
-                pass
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹 乾""")
+        with open(tempfile2, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t干 榦\n姜\t姜 薑""")
+        for stsdict in self.prepare_dicts():
+            with self.subTest(type=type(stsdict)):
+                stsdict.load(tempfile, tempfile2)
+                self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']})
+
+        # check for cases of 0 or 2+ tabs
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹 乾\t# 一些註解\n姜\n干\t干\n\n干\t榦""")
+        for stsdict in self.prepare_dicts():
+            with self.subTest(type=type(stsdict)):
+                stsdict.load(tempfile)
+                self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦']})
 
     def test_dump(self):
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
-        try:
-            for stsdict in self.prepare_dicts({'干': ['干', '榦'], '姜': ['姜', '薑']}):
-                with self.subTest(type=type(stsdict)):
-                    stsdict.dump(tempfile)
-                    with open(tempfile, 'r', encoding='UTF-8') as f:
-                        text = f.read()
-                    self.assertEqual(text, '干\t干 榦\n姜\t姜 薑\n')
+        tempfile = os.path.join(self.root, 'test.tmp')
 
-                    stsdict.dump(tempfile, sort=True)
-                    with open(tempfile, 'r', encoding='UTF-8') as f:
-                        text = f.read()
-                    self.assertEqual(text, '姜\t姜 薑\n干\t干 榦\n')
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
+        for stsdict in self.prepare_dicts({'干': ['干', '榦'], '姜': ['姜', '薑']}):
+            with self.subTest(type=type(stsdict)):
+                stsdict.dump(tempfile)
+                with open(tempfile, 'r', encoding='UTF-8') as fh:
+                    text = fh.read()
+                self.assertEqual(text, '干\t干 榦\n姜\t姜 薑\n')
+
+                stsdict.dump(tempfile, sort=True)
+                with open(tempfile, 'r', encoding='UTF-8') as fh:
+                    text = fh.read()
+                self.assertEqual(text, '姜\t姜 薑\n干\t干 榦\n')
 
     def test_loadjson(self):
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
-        try:
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
-            stsdict = StsDict().loadjson(tempfile)
-            self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        tempfile = os.path.join(self.root, 'test.tmp')
 
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
-            stsdict = Table().loadjson(tempfile)
-            self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
+        stsdict = StsDict().loadjson(tempfile)
+        self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write('{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}')
-            stsdict = Trie().loadjson(tempfile)
-            self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
+        stsdict = Table().loadjson(tempfile)
+        self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write('{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}')
+        stsdict = Trie().loadjson(tempfile)
+        self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
     def test_dumpjson(self):
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
-        try:
-            stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-            stsdict.dumpjson(tempfile)
-            with open(tempfile, 'r', encoding='UTF-8') as f:
-                self.assertEqual(json.load(f), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        tempfile = os.path.join(self.root, 'test.tmp')
 
-            stsdict = Table({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-            stsdict.dumpjson(tempfile)
-            with open(tempfile, 'r', encoding='UTF-8') as f:
-                self.assertEqual(json.load(f), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        stsdict.dumpjson(tempfile)
+        with open(tempfile, 'r', encoding='UTF-8') as fh:
+            self.assertEqual(json.load(fh), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
-            stsdict = Trie({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-            stsdict.dumpjson(tempfile)
-            with open(tempfile, 'r', encoding='UTF-8') as f:
-                self.assertEqual(json.load(f), {"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}})
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
+        stsdict = Table({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        stsdict.dumpjson(tempfile)
+        with open(tempfile, 'r', encoding='UTF-8') as fh:
+            self.assertEqual(json.load(fh), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+
+        stsdict = Trie({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        stsdict.dumpjson(tempfile)
+        with open(tempfile, 'r', encoding='UTF-8') as fh:
+            self.assertEqual(json.load(fh), {"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}})
 
     def test_match(self):
         for stsdict in self.prepare_dicts({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']}):
@@ -387,62 +381,37 @@ class TestClassStsMaker(unittest.TestCase):
 
 
 class TestClassStsConverter(unittest.TestCase):
+    def setUp(self):
+        """Set up a sub temp directory for testing."""
+        self.root = tempfile.mkdtemp(dir=tmpdir)
+
     def test_init(self):
-        # file as str (.list)
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.list")
-        try:
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write("""干\t幹 乾 干\n干姜\t乾薑""")
-                f.close()
-            converter = StsConverter(tempfile)
-            self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
+        tempfile = os.path.join(self.root, 'test.list')
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
+        converter = StsConverter(tempfile)
+        self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
 
         # file as str (.jlist)
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.jlist")
-        try:
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write("""{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}""")
-                f.close()
-            converter = StsConverter(tempfile)
-            self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
+        tempfile = os.path.join(self.root, 'test.jlist')
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}""")
+        converter = StsConverter(tempfile)
+        self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
         # file as str (.tlist)
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.tlist")
-        try:
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write("""{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}""")
-                f.close()
-            converter = StsConverter(tempfile)
-            self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
+        tempfile = os.path.join(self.root, 'test.tlist')
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}""")
+        converter = StsConverter(tempfile)
+        self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
         # file as os.PathLike object
-        tempfile = Path(os.path.join(root_dir, f"test-{time.time()}.list"))
-        try:
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write("""干\t幹 乾 干\n干姜\t乾薑""")
-                f.close()
-            converter = StsConverter(tempfile)
-            self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
+        tempfile = Path(os.path.join(self.root, 'test-path-like.list'))
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
+        converter = StsConverter(tempfile)
+        self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
 
         # StsDict
         stsdict = Trie({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
@@ -476,38 +445,25 @@ class TestClassStsConverter(unittest.TestCase):
 沙⿰虫风也簡轉繁""")
 
     def test_convert_file(self):
-        tempfile = os.path.join(root_dir, f"test-{time.time()}.tmp")
-        tempfile2 = os.path.join(root_dir, f"test2-{time.time()}.tmp")
-        try:
-            stsdict = StsMaker().make('s2t', quiet=True)
-            converter = StsConverter(stsdict)
+        tempfile = os.path.join(self.root, 'test.tmp')
+        tempfile2 = os.path.join(self.root, 'test2.tmp')
 
-            with open(tempfile, 'w', encoding='UTF-8') as f:
-                f.write("""干柴烈火 发财圆梦""")
-                f.close()
-            converter.convert_file(tempfile, tempfile2)
-            with open(tempfile2, 'r', encoding='UTF-8') as f:
-                result = f.read()
-                f.close()
-            self.assertEqual(result, """乾柴烈火 發財圓夢""")
+        stsdict = StsMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
 
-            with open(tempfile, 'w', encoding='GBK') as f:
-                f.write("""干柴烈火 发财圆梦""")
-                f.close()
-            converter.convert_file(tempfile, tempfile2, input_encoding='GBK', output_encoding='Big5')
-            with open(tempfile2, 'r', encoding='Big5') as f:
-                result = f.read()
-                f.close()
-            self.assertEqual(result, """乾柴烈火 發財圓夢""")
-        finally:
-            try:
-                os.remove(tempfile)
-            except FileNotFoundError:
-                pass
-            try:
-                os.remove(tempfile2)
-            except FileNotFoundError:
-                pass
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干柴烈火 发财圆梦""")
+        converter.convert_file(tempfile, tempfile2)
+        with open(tempfile2, 'r', encoding='UTF-8') as fh:
+            result = fh.read()
+        self.assertEqual(result, """乾柴烈火 發財圓夢""")
+
+        with open(tempfile, 'w', encoding='GBK') as fh:
+            fh.write("""干柴烈火 发财圆梦""")
+        converter.convert_file(tempfile, tempfile2, input_encoding='GBK', output_encoding='Big5')
+        with open(tempfile2, 'r', encoding='Big5') as fh:
+            result = fh.read()
+        self.assertEqual(result, """乾柴烈火 發財圓夢""")
 
     def test_convert_option_format(self):
         stsdict = Trie({
