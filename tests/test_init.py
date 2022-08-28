@@ -654,9 +654,10 @@ class TestConfigs(unittest.TestCase):
     def test_make(self):
         def clear_lists():
             pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
-            for fh in os.scandir(config_dir):
-                if pattern.search(fh.path):
-                    os.remove(fh)
+            with os.scandir(config_dir) as it:
+                for file in it:
+                    if pattern.search(file.path):
+                        os.remove(file)
 
         config_dir = StsMaker.DEFAULT_CONFIG_DIR
         maker = StsMaker()
