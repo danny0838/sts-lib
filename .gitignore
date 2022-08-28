@@ -1,7 +1,13 @@
-/build/
-/dist/
-*.egg-info
+# Byte-compiled
+__pycache__/
 *.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Compiled dictionary
 *.list
 *.jlist
 *.tlist
