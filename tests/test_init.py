@@ -376,17 +376,15 @@ class TestClassStsMaker(unittest.TestCase):
         return getattr(converter, method)(text)
 
     def check_case(self, subdir, name, config=None, options={}):
-        dir = os.path.join(root_dir, subdir)
+        dir_ = os.path.join(root_dir, subdir)
 
-        with open(os.path.join(dir, name + '.in'), 'r', encoding='UTF-8') as f:
-            input = f.read()
-            f.close()
+        with open(os.path.join(dir_, name + '.in'), 'r', encoding='UTF-8') as fh:
+            input = fh.read()
 
-        with open(os.path.join(dir, name + '.ans'), 'r', encoding='UTF-8') as f:
-            answer = f.read()
-            f.close()
+        with open(os.path.join(dir_, name + '.ans'), 'r', encoding='UTF-8') as fh:
+            answer = fh.read()
 
-        result = self.convert_text(input, config or os.path.join(dir, name + '.json'), options)
+        result = self.convert_text(input, config or os.path.join(dir_, name + '.json'), options)
         self.assertEqual(result, answer)
 
     def test_merge1(self):
