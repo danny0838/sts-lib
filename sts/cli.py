@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Command line interface."""
 import argparse
+import os
+import sys
 
 from . import StsConverter, StsMaker, Table
 from . import __doc__ as _doc
@@ -87,8 +89,15 @@ def convert(args):
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(prog='sts', description=_doc)
-    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}',
+    # Improve program name when executed through python -m
+    # NOTE: We don't expect a bad command name such as having a space.
+    if os.path.basename(sys.argv[0]) == '__main__.py':
+        prog = f'{os.path.basename(sys.executable)} -m sts'
+    else:
+        prog = None
+
+    parser = argparse.ArgumentParser(prog=prog, description=_doc)
+    parser.add_argument('--version', action='version', version=f'{__package__} {__version__}',
                         help="""show version information and exit""")
     subparsers = parser.add_subparsers(dest='func', metavar='COMMAND')
 
