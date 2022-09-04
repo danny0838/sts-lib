@@ -99,7 +99,8 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(prog=prog, description=_doc)
     parser.add_argument('--version', action='version', version=f'{__package__} {__version__}',
                         help="""show version information and exit""")
-    subparsers = parser.add_subparsers(dest='func', metavar='COMMAND')
+    subparsers = parser.add_subparsers(dest='func', metavar='COMMAND',
+                                       help="""The sub-command to run. Get usage help with e.g. %(prog)s convert -h""")
 
     # subcommand: convert
     parser_convert = subparsers.add_parser('convert',
