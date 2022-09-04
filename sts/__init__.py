@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """An open library for flexible simplified-traditional Chinese text conversion.
 """
-import sys
+import argparse
+import html
+import json
+import math
 import os
 import re
-import argparse
-import json
-import html
-from collections import namedtuple, OrderedDict
-import math
+import sys
+from collections import OrderedDict, namedtuple
+from contextlib import nullcontext
 
 __version__ = '0.19.1'
 __author__ = 'Danny Lin'
@@ -18,6 +19,7 @@ __license__ = 'Apache 2.0'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
+
 
 def lazyprop(fn):
     """Lazy property decorator
@@ -51,6 +53,7 @@ def lazyprop(fn):
 
     return _lazyprop
 
+
 class Unicode():
     """Utilities for Unicode string handling.
     """
@@ -83,15 +86,16 @@ class Unicode():
                 # IDS trinary operator
                 is_ids = True
                 length += 3
-            elif is_ids and not (0x4E00 <= code <= 0x9FFF  # CJK unified
-                    or 0x3400 <= code <= 0x4DBF or 0x20000 <= code <= 0x3FFFF  # Ext-A, ExtB+
-                    or 0xF900 <= code <= 0xFAFF or 0x2F800 <= code <= 0x2FA1F  # Compatibility
-                    or 0x2E80 <= code <= 0x2FDF  # Radical
-                    or 0x31C0 <= code <= 0x31EF  # Stroke
-                    or 0xE000 <= code <= 0xF8FF or 0xF0000 <= code <= 0x1FFFFF  # Private
-                    or code == 0xFF1F  # ？
-                    or 0xFE00 <= code <= 0xFE0F or 0xE0100 <= code <= 0xE01EF  # VS
-                    ):
+            elif is_ids and not (
+                0x4E00 <= code <= 0x9FFF  # CJK unified
+                or 0x3400 <= code <= 0x4DBF or 0x20000 <= code <= 0x3FFFF  # Ext-A, ExtB+
+                or 0xF900 <= code <= 0xFAFF or 0x2F800 <= code <= 0x2FA1F  # Compatibility
+                or 0x2E80 <= code <= 0x2FDF  # Radical
+                or 0x31C0 <= code <= 0x31EF  # Stroke
+                or 0xE000 <= code <= 0xF8FF or 0xF0000 <= code <= 0x1FFFFF  # Private
+                or code == 0xFF1F  # ？
+                or 0xFE00 <= code <= 0xFE0F or 0xE0100 <= code <= 0xE01EF  # VS
+            ):
                 # check for a valid IDS to avoid a breaking on e.g.:
                 #
                 #     IDS包括⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，可用於…
@@ -149,6 +153,7 @@ class Unicode():
             i += length
         return result
 
+
 class StsDict():
     """Base class of an STS dictionary.
 
@@ -172,7 +177,7 @@ class StsDict():
     def __repr__(self):
         """Implementation of repr(self).
         """
-        return f"{self.__class__.__name__}({repr(list(self.items()))})"
+        return f'{self.__class__.__name__}({repr(list(self.items()))})'
 
     def __getitem__(self, key):
         """Implementation of self[key].
@@ -254,14 +259,14 @@ class StsDict():
         """Add all key-values pairs from plain-dict file(s).
         """
         for file in files:
-            with open(file, "r", encoding="UTF-8") as f:
+            with open(file, 'r', encoding='UTF-8') as f:
                 for line in f:
                     try:
-                        key, values, *_ = line.rstrip('\n').split("\t")
+                        key, values, *_ = line.rstrip('\n').split('\t')
                     except ValueError:
                         pass
                     else:
-                        self.add(key, values.split(" "))
+                        self.add(key, values.split(' '))
                 f.close()
         return self
 
@@ -272,12 +277,16 @@ class StsDict():
             file: path of file to save. Use stdout if None.
             sort: True to sort the output.
         """
-        f = open(file, "w", encoding="UTF-8", newline="") if file else sys.stdout
         iterator = self.items()
-        if sort: iterator = sorted(iterator)
-        for key, values in iterator:
-            f.write(f'{key}\t{" ".join(values)}\n')
-        if f is not sys.stdout: f.close()
+        if sort:
+            iterator = sorted(iterator)
+        with (
+            open(file, 'w', encoding='UTF-8', newline='')
+            if file
+            else nullcontext(sys.stdout)
+        ) as fh:
+            for key, values in iterator:
+                fh.write(f'{key}\t{" ".join(values)}\n')
 
     def loadjson(self, file):
         """Load from a JSON file.
@@ -303,9 +312,12 @@ class StsDict():
             indent: indent the output with a specified integer.
             sort: True to sort the output.
         """
-        f = open(file, "w", encoding="UTF-8", newline="") if file else sys.stdout
-        json.dump(self._dict, f, ensure_ascii=False, indent=indent, sort_keys=sort)
-        if f is not sys.stdout: f.close()
+        with (
+            open(file, 'w', encoding='UTF-8', newline='')
+            if file
+            else nullcontext(sys.stdout)
+        ) as fh:
+            json.dump(self._dict, fh, ensure_ascii=False, indent=indent, sort_keys=sort)
 
     def print(self, sort=False):
         """Print key-values pairs.
@@ -314,7 +326,8 @@ class StsDict():
             sort: True to sort the output.
         """
         iterator = self.items()
-        if sort: iterator = sorted(iterator)
+        if sort:
+            iterator = sorted(iterator)
         for key, values in iterator:
             print(f'{key} => {" ".join(values)}')
 
@@ -472,7 +485,7 @@ class StsDict():
         while i >= 1:
             end = pos + i
             current_parts = parts[pos:end]
-            current = "".join(current_parts)
+            current = ''.join(current_parts)
             try:
                 conv = StsDictConv(current_parts, self._dict[current])
             except KeyError:
@@ -543,12 +556,12 @@ class StsDict():
                 while len(substack):
                     stack.append(substack.pop())
             elif matched > 0:
-                results["".join(parts)] = True
+                results[''.join(parts)] = True
 
         results = list(results)
 
         if len(results) == 0:
-            results.append(text if isinstance(text, str) else "".join(text))
+            results.append(text if isinstance(text, str) else ''.join(text))
 
         return results
 
@@ -596,6 +609,7 @@ class StsDict():
         if not has_atomic_match:
             stack.append((parts, matched, index + 1))
 
+
 class Table(StsDict):
     """A cache-boosted STS dictionary.
 
@@ -619,7 +633,7 @@ class Table(StsDict):
     def key_headchars(self):
         """Get a set of the first char of the keys.
         """
-        return set(key[0] for key in self._dict)
+        return {key[0] for key in self._dict}
 
     def match(self, parts, pos, maxlen=math.inf):
         """Match a unicode composite at pos.
@@ -637,7 +651,7 @@ class Table(StsDict):
             while i >= 1:
                 end = pos + i
                 current_parts = parts[pos:end]
-                current = "".join(current_parts)
+                current = ''.join(current_parts)
                 try:
                     conv = StsDictConv(current_parts, self._dict[current])
                 except KeyError:
@@ -646,6 +660,7 @@ class Table(StsDict):
                     return StsDictMatch(conv, pos, end)
                 i -= 1
         return None
+
 
 class Trie(StsDict):
     """An STS dictionary with trie (prefix tree) format.
@@ -662,7 +677,7 @@ class Trie(StsDict):
         try:
             for k in self._split(key):
                 trie = trie[k]
-            return trie[""]
+            return trie['']
         except KeyError:
             raise KeyError(key)
 
@@ -691,7 +706,7 @@ class Trie(StsDict):
         """
         def recurse(trie):
             for key in trie:
-                if key == "":
+                if key == '':
                     yield ''.join(keystack)
                 else:
                     keystack.append(key)
@@ -700,7 +715,7 @@ class Trie(StsDict):
             keystack.pop()
             triestack.pop()
 
-        keystack = [""]
+        keystack = ['']
         triestack = [self._dict]
         yield from recurse(triestack[-1])
 
@@ -709,7 +724,7 @@ class Trie(StsDict):
         """
         def recurse(trie):
             for key in trie:
-                if key == "":
+                if key == '':
                     yield trie[key]
                 else:
                     triestack.append(trie[key])
@@ -724,7 +739,7 @@ class Trie(StsDict):
         """
         def recurse(trie):
             for key in trie:
-                if key == "":
+                if key == '':
                     yield ''.join(keystack), trie[key]
                 else:
                     keystack.append(key)
@@ -733,7 +748,7 @@ class Trie(StsDict):
             keystack.pop()
             triestack.pop()
 
-        keystack = [""]
+        keystack = ['']
         triestack = [self._dict]
         yield from recurse(triestack[-1])
 
@@ -747,7 +762,7 @@ class Trie(StsDict):
         values = [values] if isinstance(values, str) else values
 
         current = self._dict
-        for i, composite in enumerate(Unicode.split(key)):
+        for composite in Unicode.split(key):
             current = current.setdefault(composite, {})
 
         list_ = current.setdefault('', [])
@@ -775,7 +790,7 @@ class Trie(StsDict):
             except KeyError:
                 break
             try:
-                match = trie[""]
+                match = trie['']
             except KeyError:
                 pass
             else:
@@ -785,6 +800,7 @@ class Trie(StsDict):
             conv = StsDictConv(parts[pos:match_end], match)
             return StsDictMatch(conv, pos, match_end)
         return None
+
 
 class StsMaker():
     """A class for making a dictionary.
@@ -812,7 +828,7 @@ class StsMaker():
         config_file = self.get_config_file(config_name, base_dir=base_dir)
         config_dir = os.path.abspath(os.path.dirname(config_file))
 
-        with open(config_file, "r", encoding="UTF-8") as f:
+        with open(config_file, 'r', encoding='UTF-8') as f:
             config = json.load(f)
             f.close()
 
@@ -827,15 +843,18 @@ class StsMaker():
             format = os.path.splitext(dest)[1][1:].lower()
             mode = dict_['mode']
             sort = dict_.get('sort', False)
-            files = [self.get_stsdict_file(f, base_dir=config_dir) if isinstance(f, str)
-                else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
-                for f in dict_['src']]
+            files = [self.get_stsdict_file(f, base_dir=config_dir)
+                     if isinstance(f, str)
+                     else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
+                     for f in dict_['src']]
 
             if not skip_check and not self.check_update(dest, files):
-                if not quiet: print(f'skip making (up-to-date): {dest}')
+                if not quiet:
+                    print(f'skip making (up-to-date): {dest}')
                 continue
 
-            if not quiet: print(f'making: {dest}')
+            if not quiet:
+                print(f'making: {dest}')
 
             if mode == 'load':
                 table = Table().load(*files)
@@ -923,10 +942,11 @@ class StsMaker():
     DEFAULT_CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'data', 'config')
     DEFAULT_DICTIONARY_DIR = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
 
+
 class StsConverter():
     """Convert a text using an stsdict.
     """
-    def __init__(self, stsdict, options={}):
+    def __init__(self, stsdict, options=None):
         """Initialize a converter.
 
         Args:
@@ -941,9 +961,9 @@ class StsConverter():
                 self.table = Table().loadjson(stsdict)
             elif ext.lower() == '.tlist':
                 self.table = Trie().loadjson(stsdict)
-            else: # default: list
+            else:  # default: list
                 self.table = Table().load(stsdict)
-        self.options = {**self.default_options, **options}
+        self.options = {**self.default_options, **(options or {})}
 
     def convert(self, text):
         """Convert a text.
@@ -1006,9 +1026,9 @@ class StsConverter():
                     old = ''.join(olds)
 
                     if len(news) == 1 and old == news[0]:
-                        yield "{{" + old + "}}"
+                        yield '{{' + old + '}}'
                     else:
-                        yield "{{" + old + "->" + "|".join(news) + "}}"
+                        yield '{{' + old + '->' + '|'.join(news) + '}}'
 
         def parts_to_html(parts):
             for part in parts:
@@ -1018,7 +1038,7 @@ class StsConverter():
                     olds, news = part
                     old = ''.join(olds)
                     content = f'<del>{html.escape(old)}</del>'
-                    for i, v in enumerate(news):
+                    for v in news:
                         content += f'<ins>{html.escape(v)}</ins>'
 
                     # classes
@@ -1032,13 +1052,13 @@ class StsConverter():
                     if len(olds) == 1:
                         classes.append('atomic')
 
-                    part = f'''<span class="{' '.join(classes)}">{content}</span>'''
+                    part = f"""<span class="{' '.join(classes)}">{content}</span>"""
                     yield part
 
         conversion = self.convert(text)
 
         if self.options['format'] == 'htmlpage':
-            return '''<!DOCTYPE html>
+            return """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -1055,9 +1075,9 @@ pre { white-space: pre-wrap; }
 </style>
 </head>
 <body>
-<pre contenteditable="true">''' + ''.join(parts_to_html(conversion)) + '''</pre>
+<pre contenteditable="true">""" + ''.join(parts_to_html(conversion)) + """</pre>
 </body>
-</html>'''
+</html>"""
         elif self.options['format'] == 'html':
             return ''.join(parts_to_html(conversion))
         elif self.options['format'] == 'json':
@@ -1074,20 +1094,27 @@ pre { white-space: pre-wrap; }
             input: a file path or None for stdin.
             output: a file path or None for stdout.
         """
-        f = open(input, "r", encoding=input_encoding, newline="") if input else sys.stdin
-        text = f.read()
-        f.close()
+        with (
+            open(input, 'r', encoding=input_encoding, newline='')
+            if input
+            else nullcontext(sys.stdin)
+        ) as fh:
+            text = fh.read()
 
         conversion = self.convert_text(text)
 
-        f = open(output, "w", encoding=output_encoding, newline="") if output else sys.stdout
-        f.write(conversion)
-        if f is not sys.stdout: f.close()
+        with (
+            open(output, 'w', encoding=output_encoding, newline='')
+            if output
+            else nullcontext(sys.stdout)
+        ) as fh:
+            fh.write(conversion)
 
-    default_options={
+    default_options = {
         'format': 'txt',
         'exclude': None,
-        }
+    }
+
 
 def main():
     def sort(args):
@@ -1145,10 +1172,10 @@ def main():
         outputs = args['output']
         force_stdout = args['stdout']
         config = args['config']
-        options={
+        options = {
             'format': args['format'],
             'exclude': args['exclude'],
-            }
+        }
         input_encoding = args['in_enc']
         output_encoding = args['out_enc']
 
@@ -1166,75 +1193,75 @@ def main():
     # define the parsers
     parser = argparse.ArgumentParser(prog='sts', description=__doc__)
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}',
-        help="""show version information and exit""")
+                        help="""show version information and exit""")
     subparsers = parser.add_subparsers(dest='func', metavar='COMMAND')
 
     # subcommand: convert
     parser_convert = subparsers.add_parser('convert',
-        help=convert.__doc__, description=convert.__doc__)
+                                           help=convert.__doc__, description=convert.__doc__)
     parser_convert.add_argument('file', nargs='*',
-        help="""file(s) to convert (default: STDIN)""")
+                                help="""file(s) to convert (default: STDIN)""")
     parser_convert.add_argument('-c', '--config', default='s2t',
-        help="""the config to use, either a built-in config name or a path to a custom JSON file
+                                help="""the config to use, either a built-in config name or a path to a custom JSON file
 (built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t)
 (default: %(default)s)""")
-    parser_convert.add_argument('-f', '--format', default="txt",
-        choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
-        help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
+    parser_convert.add_argument('-f', '--format', default='txt',
+                                choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
+                                help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
     parser_convert.add_argument('--exclude',
-        help="""exclude text matching given regex from conversion, and replace it with the "return" subgroup value if exists""")
+                                help="""exclude text matching given regex from conversion, and replace it with the "return" subgroup value if exists""")
     parser_convert.add_argument('--in-enc', default='UTF-8', metavar='ENCODING',
-        help="""encoding for input (default: %(default)s)""")
+                                help="""encoding for input (default: %(default)s)""")
     parser_convert.add_argument('--out-enc', default='UTF-8', metavar='ENCODING',
-        help="""encoding for output (default: %(default)s)""")
+                                help="""encoding for output (default: %(default)s)""")
     parser_convert.add_argument('-o', '--output', default=[], action='append',
-        help="""path to output (for the corresponding input) (default: to input)""")
+                                help="""path to output (for the corresponding input) (default: to input)""")
     parser_convert.add_argument('--stdout', default=False, action='store_true',
-        help="""write all converted text to STDOUT instead""")
+                                help="""write all converted text to STDOUT instead""")
 
     # subcommand: sort
     parser_sort = subparsers.add_parser('sort',
-        help=sort.__doc__, description=sort.__doc__)
+                                        help=sort.__doc__, description=sort.__doc__)
     parser_sort.add_argument('file', nargs='+',
-        help="""file(s) to sort""")
+                             help="""file(s) to sort""")
     parser_sort.add_argument('-o', '--output', default=[], action='append',
-        help="""path to output (for the corresponding input) (default: to input)""")
+                             help="""path to output (for the corresponding input) (default: to input)""")
 
     # subcommand: swap
     parser_swap = subparsers.add_parser('swap',
-        help=swap.__doc__, description=swap.__doc__)
+                                        help=swap.__doc__, description=swap.__doc__)
     parser_swap.add_argument('file', nargs='+',
-        help="""file(s) to swap""")
+                             help="""file(s) to swap""")
     parser_swap.add_argument('-o', '--output', default=[], action='append',
-        help="""path to output (for the corresponding input) (default: to input)""")
+                             help="""path to output (for the corresponding input) (default: to input)""")
 
     # subcommand: merge
     parser_merge = subparsers.add_parser('merge',
-        help=merge.__doc__, description=merge.__doc__)
+                                         help=merge.__doc__, description=merge.__doc__)
     parser_merge.add_argument('input', nargs='+',
-        help="""files to merge""")
+                              help="""files to merge""")
     parser_merge.add_argument('output',
-        help="""file to save as""")
+                              help="""file to save as""")
 
     # subcommand: find
     parser_find = subparsers.add_parser('find',
-        help=find.__doc__, description=find.__doc__)
+                                        help=find.__doc__, description=find.__doc__)
     parser_find.add_argument('keyword',
-        help="""keyword to find""")
+                             help="""keyword to find""")
     parser_find.add_argument('input',
-        help="""file to find""")
+                             help="""file to find""")
 
     # subcommand: make
     parser_make = subparsers.add_parser('make',
-        help=make.__doc__, description=make.__doc__)
+                                        help=make.__doc__, description=make.__doc__)
     parser_make.add_argument('config', nargs='+',
-        help="""the config(s) to generate""")
+                             help="""the config(s) to generate""")
     parser_make.add_argument('--force', default=False, action='store_true',
-        help="""bypass update check and generate dicitonary(s) anyway""")
+                             help="""bypass update check and generate dicitonary(s) anyway""")
     parser_make.add_argument('-d', '--dir', default=None,
-        help="""the directory to save the output (default: relative to config)""")
+                             help="""the directory to save the output (default: relative to config)""")
     parser_make.add_argument('-q', '--quiet', default=False, action='store_true',
-        help="""do not show process information""")
+                             help="""do not show process information""")
 
     # parse the command
     args = vars(parser.parse_args())
@@ -1243,5 +1270,6 @@ def main():
     else:
         parser.parse_args(['-h'])
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
