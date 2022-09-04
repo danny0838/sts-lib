@@ -51,7 +51,7 @@ def find(args):
 
 
 def make(args):
-    """Generate conversion dictionary(s).
+    """Generate conversion dictionary(ies).
     """
     configs = args['config']
     dir = args['dir']
@@ -163,7 +163,7 @@ def parse_args(argv=None):
     parser_make.add_argument('config', nargs='+',
                              help="""the config(s) to generate""")
     parser_make.add_argument('--force', default=False, action='store_true',
-                             help="""bypass update check and generate dicitonary(s) anyway""")
+                             help="""bypass update check and generate dicitonary(ies) anyway""")
     parser_make.add_argument('-d', '--dir', default=None,
                              help="""the directory to save the output (default: relative to config)""")
     parser_make.add_argument('-q', '--quiet', default=False, action='store_true',
