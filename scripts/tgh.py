@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """處理通用規範漢字表
 """
-import sys
 import os
-import re
-import json
-from sts import StsDict, Table
+
+from sts import Table
+
 
 def main():
     tgh = {}
@@ -26,5 +25,6 @@ def main():
                 table.add(var, [std])
     table.dump(os.path.join(__file__, '..', '..', 'sts', 'data', 'dictionary', 'TSCharacters.txt'), sort=True)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
