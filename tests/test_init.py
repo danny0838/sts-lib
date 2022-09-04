@@ -1,9 +1,12 @@
 import unittest
+from unittest import mock
 import os
+import io
 import re
 import json
 import time
 from pathlib import Path
+from contextlib import redirect_stdout
 import tempfile
 
 from sts import StsMaker, StsConverter, Unicode, StsDict, Table, Trie
@@ -222,6 +225,14 @@ class TestClassStsDict(unittest.TestCase):
                     text = fh.read()
                 self.assertEqual(text, '姜\t姜 薑\n干\t干 榦\n')
 
+    def test_dump_stdout(self):
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_({'干': ['干', '榦'], '姜': ['姜', '薑']})
+                with redirect_stdout(io.StringIO()) as fh:
+                    stsdict.dump()
+                self.assertEqual(fh.getvalue(), '干\t干 榦\n姜\t姜 薑\n')
+
     def test_loadjson(self):
         tempfile = os.path.join(self.root, 'test.tmp')
 
@@ -257,6 +268,12 @@ class TestClassStsDict(unittest.TestCase):
         stsdict.dumpjson(tempfile)
         with open(tempfile, 'r', encoding='UTF-8') as fh:
             self.assertEqual(json.load(fh), {"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}})
+
+    def test_dumpjson_stdout(self):
+        stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        with redirect_stdout(io.StringIO()) as fh:
+            stsdict.dumpjson()
+        self.assertEqual(json.loads(fh.getvalue()), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
 
     def test_match(self):
         for class_ in (StsDict, Table, Trie):
@@ -490,6 +507,32 @@ class TestClassStsConverter(unittest.TestCase):
         with open(tempfile2, 'r', encoding='Big5') as fh:
             result = fh.read()
         self.assertEqual(result, """乾柴烈火 發財圓夢""")
+
+    def test_convert_file_stdin(self):
+        tempfile2 = os.path.join(self.root, 'test2.tmp')
+
+        stsdict = StsMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
+
+        with mock.patch('sys.stdin', io.StringIO("""干柴烈火 发财圆梦""")):
+            converter.convert_file(None, tempfile2)
+        with open(tempfile2, 'r', encoding='UTF-8') as fh:
+            result = fh.read()
+        self.assertEqual(result, """乾柴烈火 發財圓夢""")
+
+    def test_convert_file_stdout(self):
+        tempfile = os.path.join(self.root, 'test.tmp')
+
+        stsdict = StsMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
+
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干柴烈火 发财圆梦""")
+
+        with redirect_stdout(io.StringIO()) as fh:
+            converter.convert_file(tempfile)
+
+        self.assertEqual(fh.getvalue(), """乾柴烈火 發財圓夢""")
 
     def test_convert_option_format(self):
         stsdict = Trie({
