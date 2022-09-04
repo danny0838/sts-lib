@@ -50,7 +50,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'sts = sts:main',
+            'sts = sts.cli:main',
         ],
     },
 )
