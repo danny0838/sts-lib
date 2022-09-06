@@ -29,28 +29,31 @@ def tearDownModule():
 
 class TestClassUnicode(unittest.TestCase):
     def test_split(self):
-        self.assertEqual(Unicode.split('沙⿰虫风简转繁'), ['沙', '⿰虫风', '简', '转', '繁'])
-        self.assertEqual(Unicode.split('沙⿱艹⿰虫风简转繁'), ['沙', '⿱艹⿰虫风', '简', '转', '繁'])
-        self.assertEqual(Unicode.split('「⿰⿱⿲⿳」不影響'), ['「', '⿰⿱⿲⿳', '」', '不', '影', '響'])
-        self.assertEqual(Unicode.split('⿰⿱⿲⿳ 不影響'), ['⿰⿱⿲⿳', ' ', '不', '影', '響'])
-        self.assertEqual(Unicode.split('⿸⿹⿺⿻\n不影響'), ['⿸⿹⿺⿻', '\n', '不', '影', '響'])
-        self.assertEqual(Unicode.split('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'), ['⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'])
-        self.assertEqual(Unicode.split('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'), ['刀', '〾劍', ' ', '〾劍', '訢', ' ', '劍', '〾訢', ' ', '〾劍', '〾訢'])
-        self.assertEqual(Unicode.split('刀劍󠄁 劍󠄃訢'), ['刀', '劍󠄁', ' ', '劍󠄃', '訢'])
-        self.assertEqual(Unicode.split('刀劍󠄁󠄂 劍󠄁󠄂訢'), ['刀', '劍󠄁󠄂', ' ', '劍󠄁󠄂', '訢'])
-        self.assertEqual(Unicode.split('⿱𠀀𠀀芀⿱〾艹劍󠄁無情'), ['⿱𠀀𠀀', '芀', '⿱〾艹劍󠄁', '無', '情'])
+        self.assertEqual(['沙', '⿰虫风', '简', '转', '繁'], Unicode.split('沙⿰虫风简转繁'))
+        self.assertEqual(['沙', '⿱艹⿰虫风', '简', '转', '繁'], Unicode.split('沙⿱艹⿰虫风简转繁'))
+        self.assertEqual(['「', '⿰⿱⿲⿳', '」', '不', '影', '響'], Unicode.split('「⿰⿱⿲⿳」不影響'))
+        self.assertEqual(['⿰⿱⿲⿳', ' ', '不', '影', '響'], Unicode.split('⿰⿱⿲⿳ 不影響'))
+        self.assertEqual(['⿸⿹⿺⿻', '\n', '不', '影', '響'], Unicode.split('⿸⿹⿺⿻\n不影響'))
+        self.assertEqual(['⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'], Unicode.split('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'))
+        self.assertEqual(['刀', '〾劍', ' ', '〾劍', '訢', ' ', '劍', '〾訢', ' ', '〾劍', '〾訢'], Unicode.split('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'))
+        self.assertEqual(['刀', '劍󠄁', ' ', '劍󠄃', '訢'], Unicode.split('刀劍󠄁 劍󠄃訢'))
+        self.assertEqual(['刀', '劍󠄁󠄂', ' ', '劍󠄁󠄂', '訢'], Unicode.split('刀劍󠄁󠄂 劍󠄁󠄂訢'))
+        self.assertEqual(['⿱𠀀𠀀', '芀', '⿱〾艹劍󠄁', '無', '情'], Unicode.split('⿱𠀀𠀀芀⿱〾艹劍󠄁無情'))
 
-        self.assertEqual(Unicode.split('A片 Å片 A̧片 Å̧片'), ['A', '片', ' ', 'Å', '片', ' ', 'A̧', '片', ' ', 'Å̧', '片'])
-        self.assertEqual(Unicode.split('áéíóúý'), ['á', 'é', 'í', 'ó', 'ú', 'ý'])
-        self.assertEqual(Unicode.split('áéíóúý'), ['á', 'é', 'í', 'ó', 'ú', 'ý'])
+        self.assertEqual(['A', '片', ' ', 'Å', '片', ' ', 'A̧', '片', ' ', 'Å̧', '片'], Unicode.split('A片 Å片 A̧片 Å̧片'))
+        self.assertEqual(['á', 'é', 'í', 'ó', 'ú', 'ý'], Unicode.split('áéíóúý'))
+        self.assertEqual(['á', 'é', 'í', 'ó', 'ú', 'ý'], Unicode.split('áéíóúý'))
         self.assertNotEqual(Unicode.split('áéíóúý'), Unicode.split('áéíóúý'))
-        self.assertEqual(Unicode.split('Lorem ipsum dolor sit amet.'), [
-            'L', 'o', 'r', 'e', 'm', ' ',
-            'i', 'p', 's', 'u', 'm', ' ',
-            'd', 'o', 'l', 'o', 'r', ' ',
-            's', 'i', 't', ' ',
-            'a', 'm', 'e', 't', '.',
-        ])
+        self.assertEqual(
+            [
+                'L', 'o', 'r', 'e', 'm', ' ',
+                'i', 'p', 's', 'u', 'm', ' ',
+                'd', 'o', 'l', 'o', 'r', ' ',
+                's', 'i', 't', ' ',
+                'a', 'm', 'e', 't', '.',
+            ],
+            Unicode.split('Lorem ipsum dolor sit amet.'),
+        )
 
 
 class TestClassStsDict(unittest.TestCase):
@@ -62,29 +65,29 @@ class TestClassStsDict(unittest.TestCase):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+                self.assertEqual({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
                 stsdict = class_(StsDict({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}))
-                self.assertEqual(stsdict, StsDict({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}))
+                self.assertEqual(StsDict({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}), stsdict)
 
                 stsdict = class_([('干', ['幹', '乾', '干']), ('姜', ['姜', '薑']), ('干姜', ['乾薑'])])
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+                self.assertEqual({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
                 stsdict = class_(干=['幹', '乾', '干'], 姜=['姜', '薑'], 干姜=['乾薑'])
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+                self.assertEqual({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
     def test_repr(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-                self.assertEqual(eval(repr(stsdict)), stsdict)
+                self.assertEqual(stsdict, eval(repr(stsdict)))
 
     def test_getitem(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾', '干'], '豆干': ['豆乾']})
-                self.assertEqual(stsdict['干'], ['幹', '乾', '干'])
-                self.assertEqual(stsdict['豆干'], ['豆乾'])
+                self.assertEqual(['幹', '乾', '干'], stsdict['干'])
+                self.assertEqual(['豆乾'], stsdict['豆干'])
                 with self.assertRaises(KeyError):
                     stsdict['豆']
                 with self.assertRaises(KeyError):
@@ -103,16 +106,16 @@ class TestClassStsDict(unittest.TestCase):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_()
-                self.assertEqual(len(stsdict), 0)
+                self.assertEqual(0, len(stsdict))
 
                 stsdict = class_({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
-                self.assertEqual(len(stsdict), 3)
+                self.assertEqual(3, len(stsdict))
 
     def test_iter(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-                self.assertEqual(set(stsdict), {'干', '姜', '干姜'})
+                self.assertEqual({'干', '姜', '干姜'}, set(stsdict))
 
     def test_eq(self):
         dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
@@ -128,19 +131,19 @@ class TestClassStsDict(unittest.TestCase):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-                self.assertEqual(set(stsdict.keys()), {'干', '姜', '干姜'})
+                self.assertEqual({'干', '姜', '干姜'}, set(stsdict.keys()))
 
     def test_values(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-                self.assertEqual({tuple(x) for x in stsdict.values()}, {('幹', '乾', '干'), ('姜', '薑'), ('乾薑',)})
+                self.assertEqual({('幹', '乾', '干'), ('姜', '薑'), ('乾薑',)}, {tuple(x) for x in stsdict.values()})
 
     def test_items(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-                self.assertEqual(dict(stsdict.items()), {'干': ['幹', '乾'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+                self.assertEqual({'干': ['幹', '乾'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, dict(stsdict.items()))
 
     def test_add(self):
         for class_ in (StsDict, Table, Trie):
@@ -148,16 +151,16 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict = class_()
 
                 stsdict.add('干', ['幹', '乾'])
-                self.assertEqual(stsdict, {'干': ['幹', '乾']})
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
                 stsdict.add('干', '干')
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干']})
+                self.assertEqual({'干': ['幹', '乾', '干']}, stsdict)
 
                 stsdict.add('干', ['榦'])
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦']})
+                self.assertEqual({'干': ['幹', '乾', '干', '榦']}, stsdict)
 
                 stsdict.add('姜', ['姜', '薑'])
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']})
+                self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']}, stsdict)
 
     def test_add2(self):
         for class_ in (StsDict, Table, Trie):
@@ -165,10 +168,10 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict = class_({'干': ['幹', '乾']})
 
                 stsdict.add('干', ['幹'])
-                self.assertEqual(stsdict, {'干': ['幹', '乾']})
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
                 stsdict.add('干', ['乾'], skip_check=True)
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '乾']})
+                self.assertEqual({'干': ['幹', '乾', '乾']}, stsdict)
 
     def test_update(self):
         for class_ in (StsDict, Table, Trie):
@@ -177,11 +180,11 @@ class TestClassStsDict(unittest.TestCase):
 
                 dict_ = StsDict({'干': ['干'], '姜': ['姜', '薑']})
                 stsdict.update(dict_)
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']})
+                self.assertEqual({'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}, stsdict)
 
                 dict_ = {'干': ['干', '榦'], '干姜': ['乾薑']}
                 stsdict.update(dict_)
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+                self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
     def test_load(self):
         tempfile = os.path.join(self.root, 'test.tmp')
@@ -196,7 +199,7 @@ class TestClassStsDict(unittest.TestCase):
             with self.subTest(type=class_):
                 stsdict = class_()
                 stsdict.load(tempfile, tempfile2)
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']})
+                self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']}, stsdict)
 
         # check for cases of 0 or 2+ tabs
         with open(tempfile, 'w', encoding='UTF-8') as fh:
@@ -205,7 +208,7 @@ class TestClassStsDict(unittest.TestCase):
             with self.subTest(type=class_):
                 stsdict = class_()
                 stsdict.load(tempfile)
-                self.assertEqual(stsdict, {'干': ['幹', '乾', '干', '榦']})
+                self.assertEqual({'干': ['幹', '乾', '干', '榦']}, stsdict)
 
     def test_dump(self):
         tempfile = os.path.join(self.root, 'test.tmp')
@@ -217,12 +220,12 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.dump(tempfile)
                 with open(tempfile, 'r', encoding='UTF-8') as fh:
                     text = fh.read()
-                self.assertEqual(text, '干\t干 榦\n姜\t姜 薑\n')
+                self.assertEqual('干\t干 榦\n姜\t姜 薑\n', text)
 
                 stsdict.dump(tempfile, sort=True)
                 with open(tempfile, 'r', encoding='UTF-8') as fh:
                     text = fh.read()
-                self.assertEqual(text, '姜\t姜 薑\n干\t干 榦\n')
+                self.assertEqual('姜\t姜 薑\n干\t干 榦\n', text)
 
     def test_dump_stdout(self):
         for class_ in (StsDict, Table, Trie):
@@ -230,7 +233,7 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict = class_({'干': ['干', '榦'], '姜': ['姜', '薑']})
                 with redirect_stdout(io.StringIO()) as fh:
                     stsdict.dump()
-                self.assertEqual(fh.getvalue(), '干\t干 榦\n姜\t姜 薑\n')
+                self.assertEqual('干\t干 榦\n姜\t姜 薑\n', fh.getvalue())
 
     def test_loadjson(self):
         tempfile = os.path.join(self.root, 'test.tmp')
@@ -238,17 +241,17 @@ class TestClassStsDict(unittest.TestCase):
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
         stsdict = StsDict().loadjson(tempfile)
-        self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
         stsdict = Table().loadjson(tempfile)
-        self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write('{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}')
         stsdict = Trie().loadjson(tempfile)
-        self.assertEqual(stsdict, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
     def test_dumpjson(self):
         tempfile = os.path.join(self.root, 'test.tmp')
@@ -256,72 +259,80 @@ class TestClassStsDict(unittest.TestCase):
         stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
         stsdict.dumpjson(tempfile)
         with open(tempfile, 'r', encoding='UTF-8') as fh:
-            self.assertEqual(json.load(fh), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+            self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, json.load(fh))
 
         stsdict = Table({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
         stsdict.dumpjson(tempfile)
         with open(tempfile, 'r', encoding='UTF-8') as fh:
-            self.assertEqual(json.load(fh), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+            self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, json.load(fh))
 
         stsdict = Trie({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
         stsdict.dumpjson(tempfile)
         with open(tempfile, 'r', encoding='UTF-8') as fh:
-            self.assertEqual(json.load(fh), {'干': {'': ['干', '榦'], '姜': {'': ['乾薑']}}, '姜': {'': ['姜', '薑']}})
+            self.assertEqual({'干': {'': ['干', '榦'], '姜': {'': ['乾薑']}}, '姜': {'': ['姜', '薑']}}, json.load(fh))
 
     def test_dumpjson_stdout(self):
         stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
         with redirect_stdout(io.StringIO()) as fh:
             stsdict.dumpjson()
-        self.assertEqual(json.loads(fh.getvalue()), {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, json.loads(fh.getvalue()))
 
     def test_match(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-                self.assertEqual(stsdict.match('吃干姜了', 0), None)
-                self.assertEqual(stsdict.match('吃干姜了', 1), ((['干', '姜'], ['乾薑']), 1, 3))
-                self.assertEqual(stsdict.match('吃干姜了', 2), ((['姜'], ['姜', '薑']), 2, 3))
-                self.assertEqual(stsdict.match('吃干姜了', 3), None)
+                self.assertIsNone(stsdict.match('吃干姜了', 0))
+                self.assertEqual(((['干', '姜'], ['乾薑']), 1, 3), stsdict.match('吃干姜了', 1))
+                self.assertEqual(((['姜'], ['姜', '薑']), 2, 3), stsdict.match('吃干姜了', 2))
+                self.assertIsNone(stsdict.match('吃干姜了', 3))
 
     def test_apply(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-                self.assertEqual(list(stsdict.apply('吃干姜了')), ['吃', (['干', '姜'], ['乾薑']), '了'])
+                self.assertEqual(['吃', (['干', '姜'], ['乾薑']), '了'], list(stsdict.apply('吃干姜了')))
 
     def test_apply_enum(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'钟': ['鐘', '鍾'], '药': ['藥', '葯'], '用药': ['用藥']})
                 self.assertEqual(
+                    ['看鐘用藥', '看鍾用藥'],
                     stsdict.apply_enum('看钟用药', include_short=False, include_self=False),
-                    ['看鐘用藥', '看鍾用藥'])
+                )
                 self.assertEqual(
+                    ['看鐘用藥', '看鐘用葯', '看鍾用藥', '看鍾用葯'],
                     stsdict.apply_enum('看钟用药', include_short=True, include_self=False),
-                    ['看鐘用藥', '看鐘用葯', '看鍾用藥', '看鍾用葯'])
+                )
                 self.assertEqual(
+                    ['看鐘用藥', '看鐘用药', '看鍾用藥', '看鍾用药', '看钟用藥', '看钟用药'],
                     stsdict.apply_enum('看钟用药', include_short=False, include_self=True),
-                    ['看鐘用藥', '看鐘用药', '看鍾用藥', '看鍾用药', '看钟用藥', '看钟用药'])
+                )
                 self.assertEqual(
+                    ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯'],
                     stsdict.apply_enum('看钟用药', include_short=True, include_self=True),
-                    ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯'])
+                )
 
     def test_apply_enum2(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'采信': ['採信'], '信息': ['訊息']})
                 self.assertEqual(
+                    ['採信息'],
                     stsdict.apply_enum('采信息', include_short=False, include_self=False),
-                    ['採信息'])
+                )
                 self.assertEqual(
+                    ['採信息', '采訊息'],
                     stsdict.apply_enum('采信息', include_short=True, include_self=False),
-                    ['採信息', '采訊息'])
+                )
                 self.assertEqual(
+                    ['採信息', '采信息'],
                     stsdict.apply_enum('采信息', include_short=False, include_self=True),
-                    ['採信息', '采信息'])
+                )
                 self.assertEqual(
+                    ['採信息', '采信息', '采訊息'],
                     stsdict.apply_enum('采信息', include_short=True, include_self=True),
-                    ['採信息', '采信息', '采訊息'])
+                )
 
     def test_prefix(self):
         for class_ in (StsDict, Table, Trie):
@@ -329,14 +340,14 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict = class_({'註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['註', '注']})
                 stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual(stsdict, {'注冊表': ['登錄檔'], '註冊表': ['登錄檔']})
+                self.assertEqual({'注冊表': ['登錄檔'], '註冊表': ['登錄檔']}, stsdict)
 
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['注', '註'], '册': ['冊'], '注册': ['註冊']})
                 stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual(stsdict, {'注册表': ['登錄檔'], '註冊表': ['登錄檔'], '註册表': ['登錄檔']})
+                self.assertEqual({'注册表': ['登錄檔'], '註冊表': ['登錄檔'], '註册表': ['登錄檔']}, stsdict)
 
     def test_postfix(self):
         for class_ in (StsDict, Table, Trie):
@@ -344,7 +355,7 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict = class_({'因为': ['因爲']})
                 stsdict2 = Table({'爲': ['為']})
                 stsdict = stsdict._join_postfix(stsdict2)
-                self.assertEqual(stsdict, {'因为': ['因為'], '爲': ['為']})
+                self.assertEqual({'因为': ['因為'], '爲': ['為']}, stsdict)
 
     def test_join(self):
         for class_ in (StsDict, Table, Trie):
@@ -352,11 +363,11 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict = class_({'则': ['則'], '达': ['達'], '规': ['規']})
                 stsdict2 = Table({'正則表達式': ['正規表示式'], '表達式': ['表示式']})
                 stsdict = stsdict.join(stsdict2)
-                self.assertEqual(stsdict, {
+                self.assertEqual({
                     '则': ['則'], '达': ['達'], '规': ['規'],
                     '表達式': ['表示式'], '表达式': ['表示式'],
                     '正則表達式': ['正規表示式'], '正则表达式': ['正規表示式'], '正则表達式': ['正規表示式'], '正則表达式': ['正規表示式']
-                })
+                }, stsdict)
 
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
@@ -366,23 +377,23 @@ class TestClassStsDict(unittest.TestCase):
                 })
                 stsdict2 = Table({'元數據': ['後設資料'], '數據': ['資料']})
                 stsdict = stsdict.join(stsdict2)
-                self.assertEqual(stsdict, {
+                self.assertEqual({
                     '万用字元': ['萬用字元'], '数据': ['資料'],
                     '万': ['萬', '万'], '数': ['數'], '据': ['據', '据'], '问': ['問'], '题': ['題'],
                     '元數據': ['後設資料'], '數據': ['資料'],
                     '元数据': ['後設資料'], '元数據': ['後設資料'], '元數据': ['後設資料'],
                     '数據': ['資料'], '數据': ['資料'],
-                })
+                }, stsdict)
 
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'妳': ['你', '奶']})
                 stsdict2 = Table({'奶媽': ['奶娘']})
                 stsdict = stsdict.join(stsdict2)
-                self.assertEqual(stsdict, {
+                self.assertEqual({
                     '妳': ['你', '奶'],
                     '奶媽': ['奶娘'],
-                })
+                }, stsdict)
 
 
 class TestClassStsMaker(unittest.TestCase):
@@ -401,7 +412,7 @@ class TestClassStsMaker(unittest.TestCase):
             answer = fh.read()
 
         result = self.convert_text(input, config or os.path.join(dir_, name + '.json'), options)
-        self.assertEqual(result, answer)
+        self.assertEqual(answer, result)
 
     def test_merge1(self):
         self.check_case('test_make', 'merge1')
@@ -432,60 +443,59 @@ class TestClassStsConverter(unittest.TestCase):
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
         converter = StsConverter(tempfile)
-        self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['幹', '乾', '干'], '干姜': ['乾薑']}, converter.table)
 
         # file as str (.jlist)
         tempfile = os.path.join(self.root, 'test.jlist')
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write("""{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}""")
         converter = StsConverter(tempfile)
-        self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, converter.table)
 
         # file as str (.tlist)
         tempfile = os.path.join(self.root, 'test.tlist')
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write("""{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}""")
         converter = StsConverter(tempfile)
-        self.assertEqual(converter.table, {'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, converter.table)
 
         # file as os.PathLike object
         tempfile = Path(os.path.join(self.root, 'test-path-like.list'))
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
         converter = StsConverter(tempfile)
-        self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['幹', '乾', '干'], '干姜': ['乾薑']}, converter.table)
 
         # StsDict
         stsdict = Trie({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.table, {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, converter.table)
 
     def test_convert(self):
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(
-            list(converter.convert("""干了 干涉
+        input = """干了 干涉
 ⿰虫风需要简转繁
 ⿱艹⿰虫风不需要简转繁
-沙⿰虫风也简转繁""")),
-            [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), '\n',
-             '⿰虫风', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
-             '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
-             '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁'],
-        )
+沙⿰虫风也简转繁"""
+        expected = [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), '\n',
+                    '⿰虫风', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
+                    '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
+                    '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁']
+        self.assertEqual(expected, list(converter.convert(input)))
 
     def test_convert_text(self):
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(
-            converter.convert_text("""干了 干涉
+        input = """干了 干涉
 ⿰虫风需要简转繁
 ⿱艹⿰虫风不需要简转繁
-沙⿰虫风也简转繁"""),
-            r"""幹了 干涉
+沙⿰虫风也简转繁"""
+        expected = r"""幹了 干涉
 ⿰虫风需要簡轉繁
 ⿱艹⿰虫风不需要簡轉繁
-沙⿰虫风也簡轉繁""")
+沙⿰虫风也簡轉繁"""
+        self.assertEqual(expected, converter.convert_text(input))
 
     def test_convert_file(self):
         tempfile = os.path.join(self.root, 'test.tmp')
@@ -499,14 +509,14 @@ class TestClassStsConverter(unittest.TestCase):
         converter.convert_file(tempfile, tempfile2)
         with open(tempfile2, 'r', encoding='UTF-8') as fh:
             result = fh.read()
-        self.assertEqual(result, """乾柴烈火 發財圓夢""")
+        self.assertEqual("""乾柴烈火 發財圓夢""", result)
 
         with open(tempfile, 'w', encoding='GBK') as fh:
             fh.write("""干柴烈火 发财圆梦""")
         converter.convert_file(tempfile, tempfile2, input_encoding='GBK', output_encoding='Big5')
         with open(tempfile2, 'r', encoding='Big5') as fh:
             result = fh.read()
-        self.assertEqual(result, """乾柴烈火 發財圓夢""")
+        self.assertEqual("""乾柴烈火 發財圓夢""", result)
 
     def test_convert_file_stdin(self):
         tempfile2 = os.path.join(self.root, 'test2.tmp')
@@ -518,7 +528,7 @@ class TestClassStsConverter(unittest.TestCase):
             converter.convert_file(None, tempfile2)
         with open(tempfile2, 'r', encoding='UTF-8') as fh:
             result = fh.read()
-        self.assertEqual(result, """乾柴烈火 發財圓夢""")
+        self.assertEqual("""乾柴烈火 發財圓夢""", result)
 
     def test_convert_file_stdout(self):
         tempfile = os.path.join(self.root, 'test.tmp')
@@ -532,7 +542,7 @@ class TestClassStsConverter(unittest.TestCase):
         with redirect_stdout(io.StringIO()) as fh:
             converter.convert_file(tempfile)
 
-        self.assertEqual(fh.getvalue(), """乾柴烈火 發財圓夢""")
+        self.assertEqual("""乾柴烈火 發財圓夢""", fh.getvalue())
 
     def test_convert_option_format(self):
         stsdict = Trie({
@@ -553,50 +563,42 @@ class TestClassStsConverter(unittest.TestCase):
 沙⿰虫风也简转繁"""
 
         converter = StsConverter(stsdict, options={'format': 'txt'})
-        self.assertEqual(
-            converter.convert_text(text),
-            r"""幹了 干涉
+        expected = r"""幹了 干涉
 𧍯需要簡轉繁
 ⿱艹⿰虫风不需要簡轉繁
-沙虱也簡轉繁""",
-        )
+沙虱也簡轉繁"""
+        self.assertEqual(expected, converter.convert_text(text))
 
         converter = StsConverter(stsdict, options={'format': 'txtm'})
-        self.assertEqual(
-            converter.convert_text(text),
-            r"""{{干->幹|乾|干}}了 {{干涉}}
+        expected = r"""{{干->幹|乾|干}}了 {{干涉}}
 {{⿰虫风->𧍯}}需要{{简->簡}}{{转->轉}}繁
 ⿱艹⿰虫风不需要{{简->簡}}{{转->轉}}繁
-{{沙⿰虫风->沙虱}}也{{简->簡}}{{转->轉}}繁""",
-        )
+{{沙⿰虫风->沙虱}}也{{简->簡}}{{转->轉}}繁"""
+        self.assertEqual(expected, converter.convert_text(text))
 
         converter = StsConverter(stsdict, options={'format': 'html'})
-        self.assertEqual(
-            converter.convert_text(text),
-            r"""<span class="sts-conv plural atomic"><del>干</del><ins>幹</ins><ins>乾</ins><ins>干</ins></span>了 <span class="sts-conv single exact"><del>干涉</del><ins>干涉</ins></span>
+        expected = r"""<span class="sts-conv plural atomic"><del>干</del><ins>幹</ins><ins>乾</ins><ins>干</ins></span>了 <span class="sts-conv single exact"><del>干涉</del><ins>干涉</ins></span>
 <span class="sts-conv single atomic"><del>⿰虫风</del><ins>𧍯</ins></span>需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
 ⿱艹⿰虫风不需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
-<span class="sts-conv single"><del>沙⿰虫风</del><ins>沙虱</ins></span>也<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁""",  # noqa: E501
-        )
+<span class="sts-conv single"><del>沙⿰虫风</del><ins>沙虱</ins></span>也<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁"""  # noqa: E501
+        self.assertEqual(expected, converter.convert_text(text))
 
         converter = StsConverter(stsdict, options={'format': 'json'})
-        self.assertEqual(
-            converter.convert_text(text),
-            r"""[[["干"], ["幹", "乾", "干"]], "了", " ", [["干", "涉"], ["干涉"]], "\n", [["⿰虫风"], ["𧍯"]], "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", "⿱艹⿰虫风", "不", "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", [["沙", "⿰虫风"], ["沙虱"]], "也", [["简"], ["簡"]], [["转"], ["轉"]], "繁"]""",  # noqa: E501
-        )
+        expected = r"""[[["干"], ["幹", "乾", "干"]], "了", " ", [["干", "涉"], ["干涉"]], "\n", [["⿰虫风"], ["𧍯"]], "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", "⿱艹⿰虫风", "不", "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", [["沙", "⿰虫风"], ["沙虱"]], "也", [["简"], ["簡"]], [["转"], ["轉"]], "繁"]"""  # noqa: E501
+        self.assertEqual(expected, converter.convert_text(text))
 
     def test_convert_option_exclude(self):
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict, options={'exclude': r'-{(?P<return>.*?)}-'})
-        self.assertEqual(converter.convert_text(r"""-{尸}-廿山女田卜"""), r"""尸廿山女田卜""")
+        self.assertEqual(r"""尸廿山女田卜""", converter.convert_text(r"""-{尸}-廿山女田卜"""))
 
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict, options={'exclude': r'<!-->(?P<return>.*?)<-->'})
-        self.assertEqual(converter.convert_text(r"""发财了<!-->财<--><!-->干<-->"""), r"""發財了财干""")
+        self.assertEqual(r"""發財了财干""", converter.convert_text(r"""发财了<!-->财<--><!-->干<-->"""))
 
         stsdict = StsMaker().make('s2twp', quiet=True)
         converter = StsConverter(stsdict, options={'exclude': r'「.*?」'})
-        self.assertEqual(converter.convert_text(r"""「奔馳」不是奔馳"""), r"""「奔馳」不是賓士""")
+        self.assertEqual(r"""「奔馳」不是賓士""", converter.convert_text(r"""「奔馳」不是奔馳"""))
 
 
 class TestBasicCases(unittest.TestCase):
@@ -610,8 +612,8 @@ class TestBasicCases(unittest.TestCase):
             '风': ['風'],
         })
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('⿰虫风简转繁不会出错'), '⿰虫风簡轉繁不會出錯')
-        self.assertEqual(converter.convert_text('⿱艹⿰虫风简转繁不会出错'), '⿱艹⿰虫风簡轉繁不會出錯')
+        self.assertEqual('⿰虫风簡轉繁不會出錯', converter.convert_text('⿰虫风简转繁不会出错'))
+        self.assertEqual('⿱艹⿰虫风簡轉繁不會出錯', converter.convert_text('⿱艹⿰虫风简转繁不会出错'))
 
         stsdict = Trie({
             '⿰虫风': ['𧍯'],
@@ -623,8 +625,8 @@ class TestBasicCases(unittest.TestCase):
             '风': ['風'],
         })
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('⿰虫风需要简转繁'), '𧍯需要簡轉繁')
-        self.assertEqual(converter.convert_text('⿱艹⿰虫风不需要简转繁'), '⿱艹⿰虫风不需要簡轉繁')
+        self.assertEqual('𧍯需要簡轉繁', converter.convert_text('⿰虫风需要简转繁'))
+        self.assertEqual('⿱艹⿰虫风不需要簡轉繁', converter.convert_text('⿱艹⿰虫风不需要简转繁'))
 
         stsdict = Trie({
             '⿱艹⿰虫风': ['⿱艹𧍯'],
@@ -636,15 +638,15 @@ class TestBasicCases(unittest.TestCase):
             '风': ['風'],
         })
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('⿰虫风不需要简转繁'), '⿰虫风不需要簡轉繁')
-        self.assertEqual(converter.convert_text('⿱艹⿰虫风需要简转繁'), '⿱艹𧍯需要簡轉繁')
+        self.assertEqual('⿰虫风不需要簡轉繁', converter.convert_text('⿰虫风不需要简转繁'))
+        self.assertEqual('⿱艹𧍯需要簡轉繁', converter.convert_text('⿱艹⿰虫风需要简转繁'))
 
     def test_ids_broken(self):
         stsdict = StsMaker().make('tw2s', quiet=True)
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('IDC有這些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接著繁轉簡'), 'IDC有这些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接着繁转简')
-        self.assertEqual(converter.convert_text('「⿰⿱⿲⿳」不影響後面'), '「⿰⿱⿲⿳」不影响后面')
-        self.assertEqual(converter.convert_text('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠\n這行無影響'), '⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠\n这行无影响')
+        self.assertEqual('IDC有这些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接着繁转简', converter.convert_text('IDC有這些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接著繁轉簡'))
+        self.assertEqual('「⿰⿱⿲⿳」不影响后面', converter.convert_text('「⿰⿱⿲⿳」不影響後面'))
+        self.assertEqual('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠\n这行无影响', converter.convert_text('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠\n這行無影響'))
 
     def test_vi(self):
         stsdict = Trie({
@@ -654,8 +656,8 @@ class TestBasicCases(unittest.TestCase):
             '劍訢': ['剑䜣'],
         })
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('刀劍 劍訢'), '刀剑 剑䜣')
-        self.assertEqual(converter.convert_text('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'), '刀剑 剑欣 剑〾訢 剑〾訢')
+        self.assertEqual('刀剑 剑䜣', converter.convert_text('刀劍 劍訢'))
+        self.assertEqual('刀剑 剑欣 剑〾訢 剑〾訢', converter.convert_text('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'))
 
     def test_vs(self):
         stsdict = Trie({
@@ -665,10 +667,10 @@ class TestBasicCases(unittest.TestCase):
             '劍訢': ['剑䜣'],
         })
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('刀劍 劍訢'), '刀剑 剑䜣')
-        self.assertEqual(converter.convert_text('刀劍󠄁 劍󠄁訢'), '刀剑 剑欣')
-        self.assertEqual(converter.convert_text('刀劍󠄃 劍󠄃訢'), '刀劍󠄃 劍󠄃欣')
-        self.assertEqual(converter.convert_text('刀劍󠄁󠄂 劍󠄁󠄂訢'), '刀劍󠄁󠄂 劍󠄁󠄂欣')
+        self.assertEqual('刀剑 剑䜣', converter.convert_text('刀劍 劍訢'))
+        self.assertEqual('刀剑 剑欣', converter.convert_text('刀劍󠄁 劍󠄁訢'))
+        self.assertEqual('刀劍󠄃 劍󠄃欣', converter.convert_text('刀劍󠄃 劍󠄃訢'))
+        self.assertEqual('刀劍󠄁󠄂 劍󠄁󠄂欣', converter.convert_text('刀劍󠄁󠄂 劍󠄁󠄂訢'))
 
     def test_cdm(self):
         stsdict = Trie({
@@ -676,20 +678,20 @@ class TestBasicCases(unittest.TestCase):
             '黑桃Å': ['扇子Å'],
         })
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('出黑桃A'), '出葵扇A')
-        self.assertEqual(converter.convert_text('出黑桃Å'), '出扇子Å')
-        self.assertEqual(converter.convert_text('出黑桃A̧'), '出黑桃A̧')
-        self.assertEqual(converter.convert_text('出黑桃Å̧'), '出黑桃Å̧')
+        self.assertEqual('出葵扇A', converter.convert_text('出黑桃A'))
+        self.assertEqual('出扇子Å', converter.convert_text('出黑桃Å'))
+        self.assertEqual('出黑桃A̧', converter.convert_text('出黑桃A̧'))
+        self.assertEqual('出黑桃Å̧', converter.convert_text('出黑桃Å̧'))
 
         stsdict = Trie({
             'A片': ['成人片'],
             'Å片': ['特製成人片'],
         })
         converter = StsConverter(stsdict)
-        self.assertEqual(converter.convert_text('看A片'), '看成人片')
-        self.assertEqual(converter.convert_text('看Å片'), '看特製成人片')
-        self.assertEqual(converter.convert_text('看A̧片'), '看A̧片')
-        self.assertEqual(converter.convert_text('看Å̧片'), '看Å̧片')
+        self.assertEqual('看成人片', converter.convert_text('看A片'))
+        self.assertEqual('看特製成人片', converter.convert_text('看Å片'))
+        self.assertEqual('看A̧片', converter.convert_text('看A̧片'))
+        self.assertEqual('看Å̧片', converter.convert_text('看Å̧片'))
 
 
 class TestConfigs(unittest.TestCase):
