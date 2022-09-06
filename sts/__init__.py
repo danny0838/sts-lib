@@ -10,7 +10,7 @@ import sys
 from collections import OrderedDict, namedtuple
 from contextlib import nullcontext
 
-__version__ = '0.19.2'
+__version__ = '0.20.0'
 __author__ = 'Danny Lin'
 __author_email__ = 'danny0838@gmail.com'
 __homepage__ = 'https://github.com/danny0838/sts-lib'
