@@ -25,7 +25,7 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 
 * `sts --help` 或 `sts COMMAND --help` 檢視可用指令的詳細說明文檔。
 
-* `sts convert [OPTIONs] [file [file ...]]` 執行簡繁轉換：
+* `sts convert [OPTIONs] [file ...]` 執行簡繁轉換：
   * `file` 為一或多個欲轉換的檔案。（省略則讀取標準輸入 STDIN）
   * `-c CONFIG` 指定配置檔，可為內建配置檔名稱或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
   * `-f FORMAT` 指定輸出格式，可用格式如下：
@@ -39,7 +39,7 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
     * 例如 `sts convert -c s2twp --exclude "-{(?P<return>.*?)}-"` 會把 `-{程序}-正义` 轉換為 `程序正義`。
   * `--in-enc ENCODING` 指定輸入編碼。可用編碼參見[這裡](https://docs.python.org/3/library/codecs.html#standard-encodings)。
   * `--out-enc ENCODING` 指定輸出編碼。可用編碼參見[這裡](https://docs.python.org/3/library/codecs.html#standard-encodings)。
-  * `-o OUTPUT` 指定對應輸入檔案轉換結果的輸出路徑。（無對應者輸出至原處）
+  * `-o OUTPUT` 可重覆多次，指定對應輸入檔案轉換結果的輸出路徑。（無對應者輸出至原檔）
   * `--stdout` 將所有轉換結果輸出至標準輸出 STDOUT。
 
 ### Python
@@ -50,17 +50,49 @@ from sts import StsMaker, StsConverter
 # generate a dictionary file from a config and get its path
 dictfile = StsMaker().make('s2t', quiet=True)
 
-# initialize the converter from the dictionary file
+# initialize a converter from the dictionary file
 converter = StsConverter(dictfile, options={})
 
-# perform conversion for a text
+# perform conversion for a string
 converter.convert_text('汉字')  # 漢字
 
 # perform conversion for a file (None for stdin/stdout)
 converter.convert_file(input=None, output=None)
 
-# process conversion data generator
-[p for p in converter.convert("汉字")]  # [StsDictConv(key=['汉'], values=['漢']), '字']
+# perform a conversion for a string and process the result data generator
+[p for p in converter.convert("干了吧")]  # [StsDictConv(key=['干', '了'], values=['幹了', '乾了']), '吧']
+```
+
+## Config 配置檔
+
+```javascript
+/**
+ * @typedef {Object} configScheme
+ * @property {string} [name] - name/description of the config
+ * @property {string[]} [requires] - required configs, which are made before
+ *     making from this config, as an absolute path, or a path relative to the
+ *     directory of this config file, or the basename of a built-in config file
+ *     (with or without ".json")
+ * @property {dictScheme[]} dicts - schemes of each dictionary file to generate
+ */
+
+/**
+ * @typedef {Object} dictScheme
+ * @property {string} file - path of the dictionary file to generate. Each as
+ *     an absolute path, or a path relative to the specified output directory
+ *     (or the directory of this config file). Each should be a .tlist
+ *     (compiled trie), .jlist (compiled table), or .list (plain text table).
+ * @property {string} mode - the mode to handle the loaded source files: "load"
+ *     to simply merge the loaded keys and values; "swap" to reverse the
+ *     dictionary (i.e. use the values as keys and the keys as values); "join"
+ *     to build from a chain of dictionaries (in which case src must be an
+ *     array of subarrays of strings)
+ * @property {boolean} [sort] - true to sort the keys of the output dictionary
+ * @property {Array.<(string|string[])>} src - the source files. Each as an
+ *     absolute path, or a path relative to the directory of this config file,
+ *     or the basename of a built-in dictionary file. Each should be a .txt or
+ *     .list dictionary file.
+ */
 ```
 
 ## License 許可協議
