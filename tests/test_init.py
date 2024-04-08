@@ -10,6 +10,8 @@ from unittest import mock
 
 from sts import StsConverter, StsDict, StsMaker, Table, Trie, Unicode
 
+from . import slow_test
+
 root_dir = os.path.dirname(__file__)
 
 
@@ -695,7 +697,7 @@ class TestBasicCases(unittest.TestCase):
 
 
 class TestConfigs(unittest.TestCase):
-    @unittest.skip('comment out for advanced test (time consuming)')
+    @slow_test()
     def test_make(self):
         def clear_lists():
             pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
