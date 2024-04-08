@@ -11,10 +11,6 @@ from collections import OrderedDict, namedtuple
 from contextlib import nullcontext
 
 __version__ = '0.19.1'
-__author__ = 'Danny Lin'
-__author_email__ = 'danny0838@gmail.com'
-__homepage__ = 'https://github.com/danny0838/sts-lib'
-__license__ = 'Apache 2.0'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
