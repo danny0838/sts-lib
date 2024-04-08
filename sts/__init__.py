@@ -390,7 +390,7 @@ class StsDict():
         of applying using self and then using stsdict.
 
         This will invoke stsdict.apply_enum and it's recommended that stsdict
-        be Table or Trie class for better performance.
+        be a Table or Trie for better performance.
 
         Returns:
             a new object with the same class.
@@ -402,22 +402,22 @@ class StsDict():
     def _join_prefix(self, stsdict):
         """Prefix self with stsdict.
 
-        Convert keys of self using swapped stsdict.
-        (Enumerate all potential matches.)
+        Convert keys of self using the reversed stsdict, enumerating all
+        possible matches.
+
+        Example:
+            table:
+                註冊表 => 登錄檔
+            stsdict:
+                注 => 註 注
+            reversed stsdict:
+                註 => 注
+            table._join_prefix(stsdict):
+                注冊表 => 登錄檔
+                註冊表 => 登錄檔
 
         Returns:
             a new object with the same class.
-
-        e.g.
-        table:
-            註冊表 => 登錄檔
-        stsdict:
-            注 => 註 注
-        swapped stsdict:
-            註 => 注
-        table._join_prefix(stsdict):
-            注冊表 => 登錄檔
-            註冊表 => 登錄檔
         """
         dict_ = self.__class__()
         converter = self.__class__()
@@ -431,20 +431,20 @@ class StsDict():
     def _join_postfix(self, stsdict):
         """Postfix self with stsdict.
 
-        Convert values of self using stsdict.
-        (Enumerate maximal matches.)
+        Convert values of self using stsdict, enumerating all maximal matches.
+        Plus all conversions of stsdict.
+
+        Example:
+            table:
+                因为 => 因爲
+            stsdict:
+                爲 => 為
+            table._join_postfix(stsdict):
+                因为 => 因為
+                爲 => 為
 
         Returns:
             a new object with the same class.
-
-        e.g.
-        table:
-            因为 => 因爲
-        stsdict:
-            爲 => 為
-        table._join_postfix(stsdict):
-            因为 => 因為
-            爲 => 為
         """
         dict_ = self.__class__()
         for key, values in self.items():
@@ -496,8 +496,9 @@ class StsDict():
         Args:
             parts: a string or iterable parts to be converted.
 
-        Returns:
-             a generator of parts, which is a string or an StsDictConv.
+        Yields:
+            the next converted part as an StsDictConv, or an unmatched part as
+            a str.
         """
         parts = self._split(parts)
         i = 0
@@ -514,29 +515,29 @@ class StsDict():
     def apply_enum(self, parts, include_short=False, include_self=False):
         """Enumerate all possible conversions of text.
 
+        Example:
+            table:
+                钟 => 鐘 鍾
+                药 => 藥 葯
+                用药 => 用藥
+            text:
+                '看钟用药'
+            table.apply_enum(text, include_short=False, include_self=False):
+                ['看鐘用藥', '看鍾用藥']
+            table.apply_enum(text, include_short=True, include_self=False):
+                ['看鐘用藥', '看鐘用葯', '看鍾用藥', '看鍾用葯']
+            table.apply_enum(text, include_short=False, include_self=True):
+                ['看鐘用藥', '看鐘用药', '看鍾用藥', '看鍾用药', '看钟用藥', '看钟用药']
+            table.apply_enum(text, include_short=True, include_self=True):
+                ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯']
+
         Args:
             parts: a string or iterable parts to be converted.
             include_short: include non-maximal-match conversions
             include_self: include source for every match
 
         Returns:
-            list: a list of possible conversions.
-
-        e.g.
-        table:
-            钟 => 鐘 鍾
-            药 => 藥 葯
-            用药 => 用藥
-        text:
-            '看钟用药'
-        table.apply_enum(text, include_short=False, include_self=False):
-            ['看鐘用藥', '看鍾用藥']
-        table.apply_enum(text, include_short=True, include_self=False):
-            ['看鐘用藥', '看鐘用葯', '看鍾用藥', '看鍾用葯']
-        table.apply_enum(text, include_short=False, include_self=True):
-            ['看鐘用藥', '看鐘用药', '看鍾用藥', '看鍾用药', '看钟用藥', '看钟用药']
-        table.apply_enum(text, include_short=True, include_self=True):
-            ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯']
+            a list of possible conversions.
         """
         text = parts
         parts = self._split(parts)
@@ -798,26 +799,46 @@ class Trie(StsDict):
 
 
 class StsMaker():
-    """A class for making a dictionary.
+    """A class for making dictionary file(s).
     """
-    def make(self, config_name, base_dir=None, output_dir=None, skip_check=False, skip_requires=False, quiet=False):
-        """Make a dictionary according to config.
-
-        Load dictionaries specified in config and generate a new dictionary.
+    def make(self, config_name, base_dir=None, output_dir=None,
+             skip_check=False, skip_requires=False, quiet=False):
+        """Make dictionary file(s) according to a config.
 
         scheme of config (.json):
-        {
-            "name": "...",
-            "requires": [
-                "..."  // a required config (relative to this config file)
-            ],
-            "dicts": [{
-                "file": "...",  // relative to default config directory
-                "type": "...",  // list, jlist, tlist
-                "mode": "...",  // load, swap, join
-                "src": ["...", ...]  // list of .txt or .list files
-            }, ...]
-        }
+            {
+                "name": "...",
+                "requires": [
+                    "..."  // a required config (relative to this config file)
+                ],
+                "dicts": [  // dictionaries to generate
+                    {
+                        "file": "...",  // path of the generated dictionary
+                                        // file, relative to output_dir
+                        "mode": "...",  // mode to handle the loaded sources:
+                                        // load, swap, join
+                        "sort": true,   // truthy to sort the keys of the
+                                        // generated dictionary
+                        "src": ["...", ...]  // list of the source file paths,
+                                             // should be .txt or .list files
+                    },
+                    ...
+                ]
+            }
+
+        Args:
+            config_name: a str for the config file or name
+            base_dir: a str for the base directory to parse the config path
+                from config_name, or None for CWD
+            output_dir: a str for the output directory, or None for
+                the directory of the config file
+            skip_check: truthy to generate every dictionary no matter that it's
+                already up-to-date
+            skip_requires: truthy to skip making from required configs
+            quiet: truthy to skip reporting details
+
+        Returns:
+            a str for the path of the last generated dictionary file
         """
         # locate and load the config file
         config_file = self.get_config_file(config_name, base_dir=base_dir)
@@ -961,10 +982,11 @@ class StsConverter():
         self.options = {**self.default_options, **(options or {})}
 
     def convert(self, text):
-        """Convert a text.
+        """Convert a text and yield each part.
 
-        Returns:
-            a generator of converted data.
+        Yields:
+            the next converted part as an StsDictConv, or an unmatched part as
+            a str.
         """
         try:
             regex = re.compile(self.options['exclude'])
@@ -1000,10 +1022,10 @@ class StsConverter():
         yield from conversion
 
     def convert_text(self, text):
-        """Convert a text.
+        """Convert a text and return the result.
 
         Returns:
-            converted text content.
+            a str of converted parts in the specified format.
         """
         def parts_to_text(parts):
             for part in parts:
