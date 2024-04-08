@@ -342,7 +342,11 @@ class StsDict():
             if file
             else nullcontext(sys.stdout)
         ) as fh:
-            json.dump(self._dict, fh, ensure_ascii=False, indent=indent, sort_keys=sort)
+            json.dump(
+                self._dict, fh, indent=indent, sort_keys=sort,
+                separators=(',', ':') if indent is None else None,
+                ensure_ascii=False, check_circular=False,
+            )
 
     def print(self, sort=False):
         """Print key-values pairs.
