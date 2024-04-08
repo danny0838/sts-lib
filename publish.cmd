@@ -1,15 +1,15 @@
 :: Publish this package to PyPI.
 ::
-:: System requirements:
-:: * OS: Windows
-::
 @echo off
-python -m pip install --user --upgrade setuptools wheel twine
+set "dir=%~dp0."
+set "build=%dir%\build"
+set "dist=%dir%\dist"
 
-:: prevent removed files from being included in the distribution
-set src="sts_lib.egg-info\SOURCES.txt"
-if exist %src% del %src%
-python setup.py clean --all
+python -m pip install --upgrade build twine
 
-python setup.py sdist bdist_wheel
-python -m twine upload --skip-existing dist/*
+:: Purge previously built files by bdist (wheel) to prevent deleted files
+:: being included in the package.
+if exist "%build%" rmdir /s /q "%build%"
+
+python -m build --sdist --wheel "%dir%"
+python -m twine upload --skip-existing "%dist%\*"
