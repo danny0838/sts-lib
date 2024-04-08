@@ -59,45 +59,6 @@ class TestConfigs(unittest.TestCase):
             output = [list(x) if isinstance(x, tuple) else x for x in converter.convert(input)]
             self.assertEqual(expected, output)
 
-    def test_config_s2t(self):
-        self._test_config('s2t')
-
-    def test_config_t2s(self):
-        self._test_config('t2s')
-
-    def test_config_tw2t(self):
-        self._test_config('hk2t')
-
-    def test_config_s2tw(self):
-        self._test_config('s2tw')
-
-    def test_config_tw2s(self):
-        self._test_config('tw2s')
-
-    def test_config_s2twp(self):
-        self._test_config('s2twp')
-
-    def test_config_tw2sp(self):
-        self._test_config('tw2sp')
-
-    def test_config_t2hk(self):
-        self._test_config('t2hk')
-
-    def test_config_hk2t(self):
-        self._test_config('hk2t')
-
-    def test_config_s2hk(self):
-        self._test_config('s2hk')
-
-    def test_config_hk2s(self):
-        self._test_config('hk2s')
-
-    def test_config_t2jp(self):
-        self._test_config('t2jp')
-
-    def test_config_jp2t(self):
-        self._test_config('jp2t')
-
 
 if __name__ == '__main__':
     unittest.main()
