@@ -1015,7 +1015,7 @@ class StsMaker():
 class StsConverter():
     """Convert a text using an stsdict.
     """
-    def __init__(self, stsdict, options=None):
+    def __init__(self, stsdict):
         """Initialize a converter.
 
         Args:
@@ -1032,53 +1032,47 @@ class StsConverter():
                 self.table = Trie().loadjson(stsdict)
             else:  # default: list
                 self.table = Table().load(stsdict)
-        self.options = {**self.default_options, **(options or {})}
 
-    def convert(self, text):
+    def convert(self, text, exclude=None):
         """Convert a text and yield each part.
 
         Yields:
             the next converted part as an StsDictConv, or an unmatched part as
             a str.
         """
-        try:
-            regex = re.compile(self.options['exclude'])
-        except TypeError:
-            conversion = self.table.apply(text)
-        except re.error as ex:
-            raise ValueError(f'regex syntax error for --exclude: {ex}')
-        else:
-            def convert_with_regex(text, regex):
-                index = 0
-                for m in regex.finditer(text):
-                    start, end = m.start(0), m.end(0)
+        if exclude is None:
+            yield from self.table.apply(text)
+            return
 
-                    t = text[index:start]
-                    if t:
-                        yield from self.table.apply(t)
+        def convert_with_regex(text, regex):
+            index = 0
+            for m in regex.finditer(text):
+                start, end = m.start(0), m.end(0)
 
-                    t = text[start:end]
-                    if t:
-                        try:
-                            yield m.group('return')
-                        except IndexError:
-                            yield t
-
-                    index = end
-
-                t = text[index:]
+                t = text[index:start]
                 if t:
                     yield from self.table.apply(t)
 
-            conversion = convert_with_regex(text, regex)
+                t = text[start:end]
+                if t:
+                    try:
+                        yield m.group('return')
+                    except IndexError:
+                        yield t
 
-        yield from conversion
+                index = end
 
-    def convert_formatted(self, text):
+            t = text[index:]
+            if t:
+                yield from self.table.apply(t)
+
+        yield from convert_with_regex(text, exclude)
+
+    def convert_formatted(self, text, format=None, exclude=None):
         """Convert a text and yield each formatted part.
         """
-        conv = self.convert(text)
-        format = self.options.get('format', 'txt')
+        conv = self.convert(text, exclude=exclude)
+        format = format if format is not None else 'txt'
         formatter = getattr(self, f'_convert_formatted_{format}')
         yield from formatter(conv)
 
@@ -1152,16 +1146,18 @@ class StsConverter():
         )
         yield from encoder.iterencode(StreamList(parts))
 
-    def convert_text(self, text):
+    def convert_text(self, text, format=None, exclude=None):
         """Convert a text and return the result.
 
         Returns:
             a str of converted parts in the specified format.
         """
-        conv = self.convert_formatted(text)
+        conv = self.convert_formatted(text, format=format, exclude=exclude)
         return ''.join(conv)
 
-    def convert_file(self, input=None, output=None, input_encoding='UTF-8', output_encoding='UTF-8'):
+    def convert_file(self, input=None, output=None,
+                     input_encoding='UTF-8', output_encoding='UTF-8',
+                     format=None, exclude=None):
         """Convert input and write to output.
 
         Args:
@@ -1175,7 +1171,7 @@ class StsConverter():
         ) as fh:
             text = fh.read()
 
-        conv = self.convert_formatted(text)
+        conv = self.convert_formatted(text, format=format, exclude=exclude)
 
         with (
             open(output, 'w', encoding=output_encoding, newline='')
@@ -1184,11 +1180,6 @@ class StsConverter():
         ) as fh:
             for part in conv:
                 fh.write(part)
-
-    default_options = {
-        'format': 'txt',
-        'exclude': None,
-    }
 
     default_htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
 

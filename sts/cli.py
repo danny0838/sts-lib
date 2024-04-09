@@ -2,6 +2,7 @@
 """Command line interface."""
 import argparse
 import os
+import re
 import sys
 
 from . import StsConverter, StsMaker, Table
@@ -69,15 +70,13 @@ def convert(args):
     outputs = args['output']
     force_stdout = args['stdout']
     config = args['config']
-    options = {
-        'format': args['format'],
-        'exclude': args['exclude'],
-    }
+    format = args['format']
+    exclude = args['exclude']
     input_encoding = args['in_enc']
     output_encoding = args['out_enc']
 
     stsdict = StsMaker().make(config, quiet=True)
-    converter = StsConverter(stsdict, options)
+    converter = StsConverter(stsdict)
 
     # read STDIN if no input file is specified
     if not len(inputs):
@@ -85,7 +84,16 @@ def convert(args):
 
     for i, input in enumerate(inputs):
         output = None if force_stdout else input if i >= len(outputs) else outputs[i]
-        converter.convert_file(input, output, input_encoding, output_encoding)
+        converter.convert_file(input, output, input_encoding, output_encoding,
+                               format=format, exclude=exclude)
+
+
+def regex(text):
+    """Compile a regex str with nice error message."""
+    try:
+        return re.compile(text)
+    except re.error as exc:
+        raise ValueError(f'regex syntax error: {exc}') from None
 
 
 def parse_args(argv=None):
@@ -114,7 +122,7 @@ def parse_args(argv=None):
     parser_convert.add_argument('-f', '--format', default='txt',
                                 choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
                                 help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
-    parser_convert.add_argument('--exclude',
+    parser_convert.add_argument('--exclude', type=regex,
                                 help="""exclude text matching given regex from conversion, and replace it with the "return" subgroup value if exists""")
     parser_convert.add_argument('--in-enc', default='UTF-8', metavar='ENCODING',
                                 help="""encoding for input (default: %(default)s)""")

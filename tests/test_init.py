@@ -508,12 +508,12 @@ class TestClassStsDict(unittest.TestCase):
 
 
 class TestClassStsMaker(unittest.TestCase):
-    def convert_text(self, text, config, options=None, method='convert_text'):
+    def convert_text(self, text, config, method='convert_text'):
         stsdict = StsMaker().make(config, quiet=True)
-        converter = StsConverter(stsdict, options)
+        converter = StsConverter(stsdict)
         return getattr(converter, method)(text)
 
-    def check_case(self, subdir, name, config=None, options=None):
+    def check_case(self, subdir, name, config=None):
         dir_ = os.path.join(root_dir, subdir)
 
         with open(os.path.join(dir_, name + '.in'), 'r', encoding='UTF-8') as fh:
@@ -522,7 +522,7 @@ class TestClassStsMaker(unittest.TestCase):
         with open(os.path.join(dir_, name + '.ans'), 'r', encoding='UTF-8') as fh:
             answer = fh.read()
 
-        result = self.convert_text(input, config or os.path.join(dir_, name + '.json'), options)
+        result = self.convert_text(input, config or os.path.join(dir_, name + '.json'))
         self.assertEqual(answer, result)
 
     def test_merge1(self):
@@ -595,6 +595,77 @@ class TestClassStsConverter(unittest.TestCase):
                     '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁']
         self.assertEqual(expected, list(converter.convert(input)))
 
+    def test_convert_exclude(self):
+        stsdict = StsMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
+        expected = ['尸', '廿', '山', '女', '田', (['卜'], ['卜', '蔔'])]
+        output = list(converter.convert(r"""-{尸}-廿山女田卜""", re.compile(r'-{(?P<return>.*?)}-')))
+        self.assertEqual(expected, output)
+
+        stsdict = StsMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
+        expected = [(['发', '财'], ['發財']), (['了'], ['了', '瞭']), '财', '干']
+        output = list(converter.convert(r"""发财了<!-->财<--><!-->干<-->""", re.compile(r'<!-->(?P<return>.*?)<-->')))
+        self.assertEqual(expected, output)
+
+        stsdict = StsMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict)
+        expected = ['「奔馳」', '不', '是', (['奔', '馳'], ['賓士'])]
+        output = list(converter.convert(r"""「奔馳」不是奔馳""", re.compile(r'「.*?」')))
+        self.assertEqual(expected, output)
+
+    def test_convert_formatted(self):
+        stsdict = Trie({
+            '⿰虫风': ['𧍯'],
+            '沙⿰虫风': ['沙虱'],
+            '干': ['幹', '乾', '干'],
+            '干涉': ['干涉'],
+            '会': ['會'],
+            '简': ['簡'],
+            '虫': ['蟲'],
+            '转': ['轉'],
+            '错': ['錯'],
+            '风': ['風'],
+        })
+        converter = StsConverter(stsdict)
+        input = r"""干了 干涉
+⿰虫风需要简转繁
+⿱艹⿰虫风不需要简转繁
+沙⿰虫风也简转繁"""
+
+        expected = r"""幹了 干涉
+𧍯需要簡轉繁
+⿱艹⿰虫风不需要簡轉繁
+沙虱也簡轉繁"""
+        output = ''.join(converter.convert_formatted(input, 'txt'))
+        self.assertEqual(expected, output)
+
+        expected = r"""{{干->幹|乾|干}}了 {{干涉}}
+{{⿰虫风->𧍯}}需要{{简->簡}}{{转->轉}}繁
+⿱艹⿰虫风不需要{{简->簡}}{{转->轉}}繁
+{{沙⿰虫风->沙虱}}也{{简->簡}}{{转->轉}}繁"""
+        output = ''.join(converter.convert_formatted(input, 'txtm'))
+        self.assertEqual(expected, output)
+
+        expected = r"""<span class="sts-conv plural atomic"><del>干</del><ins>幹</ins><ins>乾</ins><ins>干</ins></span>了 <span class="sts-conv single exact"><del>干涉</del><ins>干涉</ins></span>
+<span class="sts-conv single atomic"><del>⿰虫风</del><ins>𧍯</ins></span>需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
+⿱艹⿰虫风不需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
+<span class="sts-conv single"><del>沙⿰虫风</del><ins>沙虱</ins></span>也<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁"""  # noqa: E501
+        output = ''.join(converter.convert_formatted(input, 'html'))
+        self.assertEqual(expected, output)
+
+        expected = r"""[[["干"], ["幹", "乾", "干"]], "了", " ", [["干", "涉"], ["干涉"]], "\n", [["⿰虫风"], ["𧍯"]], "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", "⿱艹⿰虫风", "不", "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", [["沙", "⿰虫风"], ["沙虱"]], "也", [["简"], ["簡"]], [["转"], ["轉"]], "繁"]"""  # noqa: E501
+        output = ''.join(converter.convert_formatted(input, 'json'))
+        self.assertEqual(expected, output)
+
+    def test_convert_formatted_options(self):
+        converter = StsConverter(Table())
+
+        with mock.patch('sts.StsConverter.convert') as mocker:
+            regex = re.compile(r'<!--(.*?)-->')
+            list(converter.convert_formatted('乾柴', exclude=regex))
+            mocker.assert_called_with('乾柴', exclude=regex)
+
     def test_convert_text(self):
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
@@ -607,6 +678,19 @@ class TestClassStsConverter(unittest.TestCase):
 ⿱艹⿰虫风不需要簡轉繁
 沙⿰虫风也簡轉繁"""
         self.assertEqual(expected, converter.convert_text(input))
+
+    def test_convert_text_options(self):
+        converter = StsConverter(Table())
+
+        with mock.patch('sts.StsConverter.convert_formatted') as mocker:
+            regex = re.compile(r'<!--(.*?)-->')
+            converter.convert_text('乾柴', format='json', exclude=regex)
+            mocker.assert_called_with('乾柴', format='json', exclude=regex)
+
+        with mock.patch('sts.StsConverter.convert_formatted') as mocker:
+            regex = re.compile(r'<!--(.*?)-->')
+            converter.convert_text('程序', 'txtm', regex)
+            mocker.assert_called_with('程序', format='txtm', exclude=regex)
 
     def test_convert_file(self):
         tempfile = os.path.join(self.root, 'test.tmp')
@@ -655,61 +739,14 @@ class TestClassStsConverter(unittest.TestCase):
 
         self.assertEqual("""乾柴烈火 發財圓夢""", fh.getvalue())
 
-    def test_convert_option_format(self):
-        stsdict = Trie({
-            '⿰虫风': ['𧍯'],
-            '沙⿰虫风': ['沙虱'],
-            '干': ['幹', '乾', '干'],
-            '干涉': ['干涉'],
-            '会': ['會'],
-            '简': ['簡'],
-            '虫': ['蟲'],
-            '转': ['轉'],
-            '错': ['錯'],
-            '风': ['風'],
-        })
-        text = r"""干了 干涉
-⿰虫风需要简转繁
-⿱艹⿰虫风不需要简转繁
-沙⿰虫风也简转繁"""
+    def test_convert_file_options(self):
+        converter = StsConverter(Table())
 
-        converter = StsConverter(stsdict, options={'format': 'txt'})
-        expected = r"""幹了 干涉
-𧍯需要簡轉繁
-⿱艹⿰虫风不需要簡轉繁
-沙虱也簡轉繁"""
-        self.assertEqual(expected, converter.convert_text(text))
-
-        converter = StsConverter(stsdict, options={'format': 'txtm'})
-        expected = r"""{{干->幹|乾|干}}了 {{干涉}}
-{{⿰虫风->𧍯}}需要{{简->簡}}{{转->轉}}繁
-⿱艹⿰虫风不需要{{简->簡}}{{转->轉}}繁
-{{沙⿰虫风->沙虱}}也{{简->簡}}{{转->轉}}繁"""
-        self.assertEqual(expected, converter.convert_text(text))
-
-        converter = StsConverter(stsdict, options={'format': 'html'})
-        expected = r"""<span class="sts-conv plural atomic"><del>干</del><ins>幹</ins><ins>乾</ins><ins>干</ins></span>了 <span class="sts-conv single exact"><del>干涉</del><ins>干涉</ins></span>
-<span class="sts-conv single atomic"><del>⿰虫风</del><ins>𧍯</ins></span>需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
-⿱艹⿰虫风不需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
-<span class="sts-conv single"><del>沙⿰虫风</del><ins>沙虱</ins></span>也<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁"""  # noqa: E501
-        self.assertEqual(expected, converter.convert_text(text))
-
-        converter = StsConverter(stsdict, options={'format': 'json'})
-        expected = r"""[[["干"], ["幹", "乾", "干"]], "了", " ", [["干", "涉"], ["干涉"]], "\n", [["⿰虫风"], ["𧍯"]], "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", "⿱艹⿰虫风", "不", "需", "要", [["简"], ["簡"]], [["转"], ["轉"]], "繁", "\n", [["沙", "⿰虫风"], ["沙虱"]], "也", [["简"], ["簡"]], [["转"], ["轉"]], "繁"]"""  # noqa: E501
-        self.assertEqual(expected, converter.convert_text(text))
-
-    def test_convert_option_exclude(self):
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict, options={'exclude': r'-{(?P<return>.*?)}-'})
-        self.assertEqual(r"""尸廿山女田卜""", converter.convert_text(r"""-{尸}-廿山女田卜"""))
-
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict, options={'exclude': r'<!-->(?P<return>.*?)<-->'})
-        self.assertEqual(r"""發財了财干""", converter.convert_text(r"""发财了<!-->财<--><!-->干<-->"""))
-
-        stsdict = StsMaker().make('s2twp', quiet=True)
-        converter = StsConverter(stsdict, options={'exclude': r'「.*?」'})
-        self.assertEqual(r"""「奔馳」不是賓士""", converter.convert_text(r"""「奔馳」不是奔馳"""))
+        with mock.patch('sts.StsConverter.convert_formatted') as mocker, \
+             mock.patch('sys.stdin', io.StringIO('干姜')):
+            regex = re.compile(r'<!--(.*?)-->')
+            converter.convert_file(None, format='html', exclude=regex)
+            mocker.assert_called_with('干姜', format='html', exclude=regex)
 
 
 class TestBasicCases(unittest.TestCase):

@@ -51,13 +51,15 @@ from sts import StsMaker, StsConverter
 dictfile = StsMaker().make('s2t', quiet=True)
 
 # initialize a converter from the dictionary file
-converter = StsConverter(dictfile, options={})
+converter = StsConverter(dictfile)
 
 # perform conversion for a string
-converter.convert_text('汉字')  # 漢字
+converter.convert_text('汉字', format='txt', exclude=None)  # 漢字
 
 # perform conversion for a file (None for stdin/stdout)
-converter.convert_file(input=None, output=None)
+converter.convert_file(input=None, output=None
+                       input_encoding='UTF-8', output_encoding='UTF-8',
+                       format='txt', exclude=None)
 
 # perform a conversion for a string and process the result data generator
 [p for p in converter.convert("干了吧")]  # [StsDictConv(key=['干', '了'], values=['幹了', '乾了']), '吧']
