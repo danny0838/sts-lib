@@ -1146,6 +1146,7 @@ class StsConverter():
     def _convert_formatted_json(self, parts, indent=None):
         encoder = json.JSONEncoder(
             indent=indent,
+            separators=(',', ':') if indent is None else None,
             ensure_ascii=False, check_circular=False,
         )
         yield from encoder.iterencode(StreamList(parts))
