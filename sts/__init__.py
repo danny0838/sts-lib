@@ -403,7 +403,9 @@ class StsDict():
         Convert keys of self using the reversed stsdict, enumerating all
         possible matches.
 
-        Example:
+        Yield a new key-value pair for the first value of an stsdict entry,
+        e.g.:
+
             table:
                 註冊表 => 登錄檔
             stsdict:
@@ -414,15 +416,38 @@ class StsDict():
                 注冊表 => 登錄檔
                 註冊表 => 登錄檔
 
+        Yield a new minor key-value pair for each minor value of an stsdict
+        entry, e.g.:
+
+            table:
+                註冊表 => 登錄檔
+            stsdict:
+                注 => 注 註
+            reversed stsdict:
+                註 => 注
+            table._join_prefix(stsdict):
+                註冊表 => 登錄檔
+                注冊表 => 注冊表 登錄檔
+
         Returns:
             a new object with the same class.
         """
         dict_ = self.__class__()
         converter = self.__class__()
+        converter_minor = self.__class__()
         for key, values in stsdict.items():
-            converter.add(values[0], [key])
+            for i, value in enumerate(values):
+                if i == 0:
+                    converter.add(value, [key])
+                else:
+                    converter_minor.add(value, [key])
         for key, values in self.items():
             for newkey in converter.apply_enum(key, include_short=True, include_self=True):
+                dict_.add(newkey, values)
+            for newkey in converter_minor.apply_enum(key, include_short=True, include_self=True):
+                if newkey == key:
+                    continue
+                dict_.add(newkey, newkey)
                 dict_.add(newkey, values)
         return dict_
 

@@ -347,9 +347,16 @@ class TestClassStsDict(unittest.TestCase):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'註冊表': ['登錄檔']})
+                stsdict2 = Table({'注': ['注', '註']})
+                stsdict = stsdict._join_prefix(stsdict2)
+                self.assertEqual({'註冊表': ['登錄檔'], '注冊表': ['注冊表', '登錄檔']}, stsdict)
+
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_({'註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['注', '註'], '册': ['冊'], '注册': ['註冊']})
                 stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual({'注册表': ['登錄檔'], '註冊表': ['登錄檔'], '註册表': ['登錄檔']}, stsdict)
+                self.assertEqual({'注册表': ['登錄檔'], '註冊表': ['登錄檔'], '註册表': ['登錄檔'], '注冊表': ['注冊表', '登錄檔']}, stsdict)
 
     def test_postfix(self):
         for class_ in (StsDict, Table, Trie):
@@ -396,6 +403,17 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertEqual({
                     '妳': ['你', '奶'],
                     '奶媽': ['奶娘'],
+                    '妳媽': ['妳媽', '奶娘'],
+                }, stsdict)
+
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_({'汇': ['匯', '彙'], '编': ['編'], '汇编': ['彙編']})
+                stsdict2 = Table({'彙編': ['組譯']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({
+                    '彙編': ['組譯'], '彙编': ['組譯'], '汇': ['匯', '彙'],
+                    '汇編': ['汇編', '組譯'], '汇编': ['組譯'], '编': ['編'],
                 }, stsdict)
 
 
