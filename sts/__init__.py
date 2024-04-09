@@ -254,15 +254,14 @@ class StsDict():
         """Add all key-values pairs from plain-dict file(s).
         """
         for file in files:
-            with open(file, 'r', encoding='UTF-8') as f:
-                for line in f:
+            with open(file, 'r', encoding='UTF-8') as fh:
+                for line in fh:
                     try:
                         key, values, *_ = line.rstrip('\n').split('\t')
                     except ValueError:
                         pass
                     else:
                         self.add(key, values.split(' '))
-                f.close()
         return self
 
     def dump(self, file=None, sort=False):
@@ -291,10 +290,9 @@ class StsDict():
         Returns:
             a new object with the same class.
         """
-        with open(file, 'r', encoding='UTF-8') as f:
+        with open(file, 'r', encoding='UTF-8') as fh:
             stsdict = self.__class__()
-            stsdict._dict = json.load(f)
-            f.close()
+            stsdict._dict = json.load(fh)
         return stsdict
 
     def dumpjson(self, file=None, indent=None, sort=False):
@@ -450,8 +448,7 @@ class StsDict():
         for key, values in self.items():
             for value in values:
                 dict_.add(key, stsdict.apply_enum(value))
-        dict_.update(stsdict)
-        return dict_
+        return dict_.update(stsdict)
 
     def _split(self, parts):
         """Split parts into a list of Unicode composites.
@@ -844,9 +841,8 @@ class StsMaker():
         config_file = self.get_config_file(config_name, base_dir=base_dir)
         config_dir = os.path.abspath(os.path.dirname(config_file))
 
-        with open(config_file, 'r', encoding='UTF-8') as f:
-            config = json.load(f)
-            f.close()
+        with open(config_file, 'r', encoding='UTF-8') as fh:
+            config = json.load(fh)
 
         # handle required configs
         if not skip_requires:
@@ -908,11 +904,11 @@ class StsMaker():
             return relative_config
 
         if os.path.basename(config) == config:
-            search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config)
+            search_file = os.path.join(self.default_config_dir, config)
             if os.path.isfile(search_file):
                 return search_file
             if not config.lower().endswith('.json'):
-                search_file = os.path.join(self.DEFAULT_CONFIG_DIR, config + '.json')
+                search_file = os.path.join(self.default_config_dir, config + '.json')
                 if os.path.isfile(search_file):
                     return search_file
 
@@ -934,7 +930,7 @@ class StsMaker():
             return relative_stsdict
 
         if os.path.basename(stsdict) == stsdict:
-            search_file = os.path.join(self.DEFAULT_DICTIONARY_DIR, stsdict)
+            search_file = os.path.join(self.default_dictionary_dir, stsdict)
             if os.path.isfile(search_file):
                 return search_file
 
@@ -955,8 +951,8 @@ class StsMaker():
 
         return False
 
-    DEFAULT_CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'data', 'config')
-    DEFAULT_DICTIONARY_DIR = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
+    default_config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
+    default_dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
 
 
 class StsConverter():
