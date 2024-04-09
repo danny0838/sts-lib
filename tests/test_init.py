@@ -8,7 +8,15 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
-from sts import StsConverter, StsDict, StsMaker, Table, Trie, Unicode
+from sts import (
+    StreamList,
+    StsConverter,
+    StsDict,
+    StsMaker,
+    Table,
+    Trie,
+    Unicode,
+)
 
 from . import slow_test
 
@@ -27,6 +35,88 @@ def tearDownModule():
     """Cleanup the temp directory
     """
     _tmpdir.cleanup()
+
+
+class TestClassStreamList(unittest.TestCase):
+    def test_iterable(self):
+        obj = []
+        stream = StreamList(iter(obj))
+        self.assertFalse(stream)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertFalse(stream)
+
+        obj = []
+        stream = StreamList(iter(obj))
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertFalse(stream)
+
+        obj = [1, 2, 3]
+        stream = StreamList(iter(obj))
+        self.assertTrue(stream)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
+
+        obj = [1, 2, 3]
+        stream = StreamList(iter(obj))
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
+
+        obj = [None]
+        stream = StreamList(iter(obj))
+        self.assertTrue(stream)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
+
+        obj = [None]
+        stream = StreamList(iter(obj))
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
+
+    def test_list(self):
+        obj = []
+        stream = StreamList(obj)
+        self.assertFalse(stream)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertFalse(stream)
+
+        obj = []
+        stream = StreamList(obj)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertFalse(stream)
+
+        obj = [1, 2, 3]
+        stream = StreamList(obj)
+        self.assertTrue(stream)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
+
+        obj = [1, 2, 3]
+        stream = StreamList(obj)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
+
+        obj = [None]
+        stream = StreamList(obj)
+        self.assertTrue(stream)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
+
+        obj = [None]
+        stream = StreamList(obj)
+        self.assertEqual(obj, list(stream))
+        self.assertEqual([], list(stream))
+        self.assertTrue(stream)
 
 
 class TestClassUnicode(unittest.TestCase):

@@ -49,6 +49,38 @@ def lazyprop(fn):
     return _lazyprop
 
 
+class StreamList(list):
+    """A wrapper to make an iterable JSON serializable as a list.
+
+    - Must be an instance of list (to make JSON encoder treat as a list).
+    - Must be truthy when non-empty and falsy when empty.
+    """
+    def __init__(self, iterable):
+        self._iterator = iter(iterable)
+        self._head_sent = False
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._head_sent:
+            return next(self._iterator)
+        if not hasattr(self, '_head'):
+            self._head = next(self._iterator)
+        self._head_sent = True
+        return self._head
+
+    def __bool__(self):
+        if hasattr(self, '_head'):
+            return True
+        try:
+            self._head = next(self._iterator)
+        except StopIteration:
+            return False
+        else:
+            return True
+
+
 class Unicode():
     """Utilities for Unicode string handling.
     """
@@ -1042,88 +1074,92 @@ class StsConverter():
 
         yield from conversion
 
+    def convert_formatted(self, text):
+        """Convert a text and yield each formatted part.
+        """
+        conv = self.convert(text)
+        format = self.options.get('format', 'txt')
+        formatter = getattr(self, f'_convert_formatted_{format}')
+        yield from formatter(conv)
+
+    def _convert_formatted_txt(self, parts):
+        for part in parts:
+            if isinstance(part, str):
+                yield part
+            else:
+                yield part[1][0]
+
+    def _convert_formatted_txtm(self, parts, start='{{', end='}}', sep='->', vsep='|'):
+        for part in parts:
+            if isinstance(part, str):
+                yield part
+            else:
+                olds, news = part
+                old = ''.join(olds)
+
+                if len(news) == 1 and old == news[0]:
+                    yield f'{start}{old}{end}'
+                else:
+                    new = vsep.join(news)
+                    yield f'{start}{old}{sep}{new}{end}'
+
+    def _convert_formatted_html(self, parts):
+        for part in parts:
+            if isinstance(part, str):
+                yield html.escape(part)
+            else:
+                olds, news = part
+                old = ''.join(olds)
+                content = f'<del>{html.escape(old)}</del>'
+                for v in news:
+                    content += f'<ins>{html.escape(v)}</ins>'
+
+                # classes
+                classes = ['sts-conv']
+                if len(news) == 1:
+                    classes.append('single')
+                else:
+                    classes.append('plural')
+                if old == news[0]:
+                    classes.append('exact')
+                if len(olds) == 1:
+                    classes.append('atomic')
+
+                part = f"""<span class="{' '.join(classes)}">{content}</span>"""
+                yield part
+
+    def _convert_formatted_htmlpage(self, parts):
+        with open(self.default_htmlpage_template,
+                  encoding='UTF-8', newline='') as fh:
+            html = fh.read()
+
+        pos = 0
+        for m in self.regex_template.finditer(html):
+            yield html[pos:m.start(0)]
+
+            key = m.group(1)
+            if key == 'CONTENT':
+                yield from self._convert_formatted_html(parts)
+
+            pos = m.end(0)
+
+        yield html[pos:]
+
+    def _convert_formatted_json(self, parts, indent=None):
+        encoder = json.JSONEncoder(
+            indent=indent,
+            ensure_ascii=False, check_circular=False,
+        )
+        yield from encoder.iterencode(StreamList(parts))
+
     def convert_text(self, text):
         """Convert a text and return the result.
 
         Returns:
             a str of converted parts in the specified format.
         """
-        def parts_to_text(parts):
-            for part in parts:
-                if isinstance(part, str):
-                    yield part
-                else:
-                    yield part[1][0]
-
-        def parts_to_marked_text(parts):
-            for part in parts:
-                if isinstance(part, str):
-                    yield part
-                else:
-                    olds, news = part
-                    old = ''.join(olds)
-
-                    if len(news) == 1 and old == news[0]:
-                        yield '{{' + old + '}}'
-                    else:
-                        yield '{{' + old + '->' + '|'.join(news) + '}}'
-
-        def parts_to_html(parts):
-            for part in parts:
-                if isinstance(part, str):
-                    yield html.escape(part)
-                else:
-                    olds, news = part
-                    old = ''.join(olds)
-                    content = f'<del>{html.escape(old)}</del>'
-                    for v in news:
-                        content += f'<ins>{html.escape(v)}</ins>'
-
-                    # classes
-                    classes = ['sts-conv']
-                    if len(news) == 1:
-                        classes.append('single')
-                    else:
-                        classes.append('plural')
-                    if old == news[0]:
-                        classes.append('exact')
-                    if len(olds) == 1:
-                        classes.append('atomic')
-
-                    part = f"""<span class="{' '.join(classes)}">{content}</span>"""
-                    yield part
-
-        conversion = self.convert(text)
-
-        if self.options['format'] == 'htmlpage':
-            return """<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-pre { white-space: pre-wrap; }
-.sts-conv { font-weight: normal; border: thin dotted #AAA; }
-.sts-conv.plural { background: #FFFF99; }
-.sts-conv.exact { background: #DDDDFF; }
-.sts-conv.single { background: #CCFFCC; }
-.sts-conv ins, .sts-conv del { text-decoration: none; }
-.sts-conv del { display: none; }
-.sts-conv ins { display: none; }
-.sts-conv ins:first-of-type { display: inline; }
-</style>
-</head>
-<body>
-<pre contenteditable="true">""" + ''.join(parts_to_html(conversion)) + """</pre>
-</body>
-</html>"""
-        elif self.options['format'] == 'html':
-            return ''.join(parts_to_html(conversion))
-        elif self.options['format'] == 'json':
-            return json.dumps(list(conversion), ensure_ascii=False)
-        elif self.options['format'] == 'txtm':
-            return ''.join(parts_to_marked_text(conversion))
-        else:  # default: format = 'txt'
-            return ''.join(parts_to_text(conversion))
+        conv = self.convert_formatted(text)
+        return ''.join(conv)
 
     def convert_file(self, input=None, output=None, input_encoding='UTF-8', output_encoding='UTF-8'):
         """Convert input and write to output.
@@ -1139,16 +1175,21 @@ pre { white-space: pre-wrap; }
         ) as fh:
             text = fh.read()
 
-        conversion = self.convert_text(text)
+        conv = self.convert_formatted(text)
 
         with (
             open(output, 'w', encoding=output_encoding, newline='')
             if output
             else nullcontext(sys.stdout)
         ) as fh:
-            fh.write(conversion)
+            for part in conv:
+                fh.write(part)
 
     default_options = {
         'format': 'txt',
         'exclude': None,
     }
+
+    default_htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
+
+    regex_template = re.compile(r'%(\w+)%')
