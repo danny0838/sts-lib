@@ -1128,6 +1128,8 @@ class StsConverter():
             key = m.group(1)
             if key == 'CONTENT':
                 yield from self._convert_formatted_html(parts)
+            elif key == 'VERSION':
+                yield __version__
 
             pos = m.end(0)
 

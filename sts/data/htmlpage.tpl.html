@@ -2,13 +2,464 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<title>簡繁秘書 v%VERSION%</title>
 <style>
-#viewer { white-space: pre-wrap; }
-#viewer a { border: thin dotted #AAA; text-decoration: none; }
+kbd { border: 1px solid #999; border-radius: 2px; padding: 2px 4px; background-color: #f5f5f5; font-weight: bold; }
+#viewer { border: thin ridge #0066CC; padding: 0.5em; background-color: #f8f8ee; white-space: pre-wrap; }
+#viewer a { border: thin dotted #AAA; color: unset; text-decoration: none; }
+#viewer a:focus { outline: medium solid blue; }
+#viewer a.nonchecked, .nonchecked { background-color: #FFFF99; }  /* 未審字 */
+#viewer a.checked, .checked { background-color: #CCFFFF; }  /* 已審字 */
+#viewer a.single, .single { background-color: #DDDDFF; }  /* 單選字 */
+#viewer a.picked, .picked { background-color: #CCFFCC; }  /* 選定字 */
+#viewer a.editing, .editing { background-color: #FFDDDD; }  /* 編輯中 */
 #viewer a ins, #viewer a del { text-decoration: none; }
+.popup {
+  position: absolute;
+  z-Index: 1;
+  margin: 1.5em 0.5em 0.5em 0.5em;
+  border: 1px solid #666;
+  padding: 0.5em;
+  max-width: 50%;
+  background-color: #fff;
+  box-shadow: 1px 1px 2px #000;
+}
+.popup a { padding: .3em; cursor: pointer; }
+.popup a:hover { background-color: #ccc; }
+.popup a:not([tabindex="0"])::before { content: attr(tabindex) "."; }
 </style>
+<script>
+function moveAnchor(anchor, offset, filter) {
+  const viewer = document.querySelector('#viewer');
+  const anchors = viewer.querySelectorAll('a');
+  const len = anchors.length;
+
+  // no anchor, it's impossible to move
+  if (len === 0) {
+    return false;
+  }
+
+  let idx = Array.prototype.indexOf.call(anchors, anchor);
+
+  if (idx === -1) {
+    throw new Error(`specified anchor is invalid`);
+  }
+
+  let anchorNew;
+  while (true) {
+    idx += offset;
+    while (idx >= len) { idx -= len; }
+    while (idx < 0) { idx += len; }
+    anchorNew = anchors[idx];
+    if (anchorNew === anchor) {
+      return false;
+    }
+    if (typeof filter !== "function" || filter(anchorNew)) {
+      break;
+    }
+  }
+  return anchorNew;
+}
+
+function moveCandidate(anchor, offset, filter) {
+  const cands = anchor.querySelectorAll('ins');
+  const len = cands.length;
+
+  // no cand, it's impossible to move
+  if (len === 0) {
+    return -1;
+  }
+
+  let cand = anchor.querySelector('ins:not([hidden])');
+  let idx = Array.prototype.indexOf.call(cands, cand);
+  let candNew;
+  idx += offset;
+  if (idx >= len) { idx = len - 1; }
+  if (idx < 0) { idx = 0; }
+  candNew = cands[idx];
+  if (typeof filter !== "function" || filter(candNew)) {
+    return idx;
+  }
+  return -1;
+}
+
+function setCandidate(anchor, idx) {
+  if (idx < 0) {
+    return setCandidateDel(anchor);
+  }
+  return setCandidateIns(anchor, idx);
+}
+
+function setCandidateIns(anchor, idx) {
+  const cands = anchor.querySelectorAll('ins');
+  const cand = cands[idx];
+  if (!cand) { return false; }
+
+  anchor.querySelector('del').hidden = true;
+  for (const c of cands) {
+    c.hidden = true;
+  }
+  cand.hidden = false;
+
+  for (const elem of anchor.querySelectorAll('span')) {
+    elem.remove();
+  }
+  markPicked(anchor);
+  return true;
+}
+
+function setCandidateDel(anchor) {
+  const cand = anchor.querySelector('del');
+  if (!cand) { return false; }
+
+  cand.hidden = false;
+  for (const c of anchor.querySelectorAll('ins')) {
+    c.hidden = true;
+  }
+
+  for (const elem of anchor.querySelectorAll('span')) {
+    elem.remove();
+  }
+  markPicked(anchor);
+  return true;
+}
+
+function setCandidateCustom(anchor, text) {
+  for (const c of anchor.querySelectorAll('del, ins')) {
+    c.hidden = true;
+  }
+
+  let elem = anchor.querySelector('span');
+  if (!elem) {
+    elem = anchor.appendChild(document.createElement('span'));
+  }
+  if (typeof text === 'string') {
+    elem.textContent = text;
+  }
+
+  markPicked(anchor);
+  return true;
+}
+
+function markChecked(anchor) {
+  if (!anchor.classList.contains('nonchecked')) {
+    return;
+  }
+  anchor.classList.add('checked');
+  anchor.classList.remove('nonchecked');
+}
+
+function markPicked(anchor) {
+  // do not mark picked for a single-candidate with original converted value
+  if (anchor.classList.contains('single') && anchor.querySelector('ins:not([hidden])')) {
+    return;
+  }
+  anchor.classList.add('picked');
+  markChecked(anchor);
+}
+
+function showPopup(anchor) {
+  const popup = document.createElement('aside');
+  const subpopup = popup.appendChild(document.createElement('span'));
+
+  const onMouseDown = (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+      return;
+    }
+
+    event.preventDefault();
+    const a = event.target;
+    setCandidate(anchor, a.tabIndex - 1);
+  };
+
+  // del
+  {
+    const cand = anchor.querySelector('del');
+    const b = subpopup.appendChild(document.createElement('b'));
+    const a = b.appendChild(document.createElement('a'));
+    a.textContent = cand.textContent;
+    a.tabIndex = 0;
+    a.addEventListener('mousedown', onMouseDown);
+  }
+
+  subpopup.appendChild(document.createTextNode('→'));
+
+  // ins
+  {
+    const cands = anchor.querySelectorAll('ins');
+    for (let i = 0, I = cands.length; i < I; i++) {
+      const cand = cands[i];
+      const a = subpopup.appendChild(document.createElement('a'));
+      a.textContent = cand.textContent;
+      a.tabIndex = i + 1;
+      a.addEventListener('mousedown', onMouseDown);
+    }
+  }
+
+  popup.classList.add('popup');
+  popup.style.top = getOffsetY(anchor) + 'px';
+  const parent = anchor.offsetParent;
+  parent.appendChild(popup);
+  let x = getOffsetX(anchor);
+  if (x + subpopup.scrollWidth < parent.scrollWidth) { popup.style.left = x + 'px'; }
+  else { popup.style.right = '0px'; }
+}
+
+function removePopup() {
+  for (const elem of document.querySelectorAll('.popup')) {
+    elem.remove();
+  }
+}
+
+function getOffsetX(field) {
+  let offset = 0;
+  while (field) {
+    offset += field.offsetLeft;
+    field = field.offsetParent;
+  }
+  return offset;
+}
+
+function getOffsetY(field) {
+  let offset = 0;
+  while (field) {
+    offset += field.offsetTop;
+    field = field.offsetParent;
+  }
+  return offset;
+}
+
+function onKeyDown(event) {
+  const target = event.target.closest('a');
+  if (!target) { return; }
+
+  if (target.matches('.editing') && event.key !== "`") {
+    return;
+  }
+
+  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+    return;
+  }
+
+  switch (event.key) {
+    case "`": {
+      event.preventDefault();
+      if (target.classList.contains('editing')) {
+        target.classList.remove('editing');
+        const elem = target.querySelector('span');
+        elem.contentEditable = false;
+        elem.textContent = elem.textContent;
+        target.focus();
+      } else {
+        target.classList.add('editing');
+        let elem = target.querySelector('span');
+        if (!elem) {
+          const cand = target.querySelector('del:not([hidden]), ins:not([hidden])');
+          setCandidateCustom(target, cand.textContent);
+          elem = target.querySelector('span');
+        }
+        elem.contentEditable = true;
+        elem.focus();
+      }
+      break;
+    }
+    case "PageUp": case "PageDown":
+    case "q": case "e": {
+      event.preventDefault();
+      const offset = ["PageDown", "e"].includes(event.key) ? 1 : -1;
+      const anchorNew = moveAnchor(target, offset, a => {
+        return a.matches('.nonchecked');
+      });
+      if (!anchorNew) {
+        return;
+      }
+      anchorNew.focus();
+      break;
+    }
+    case "ArrowLeft": case "ArrowRight":
+    case "a": case "d": {
+      event.preventDefault();
+      const offset = ["ArrowRight", "d"].includes(event.key) ? 1 : -1;
+      const anchorNew = moveAnchor(target, offset, a => {
+        return a.matches(':not(.single)');
+      });
+      if (!anchorNew) {
+        return;
+      }
+      anchorNew.focus();
+      break;
+    }
+    case "z": case "c": {
+      event.preventDefault();
+      const offset = event.key === "c" ? 1 : -1;
+      let current = target.querySelector('del').textContent;
+      const anchorNew = moveAnchor(target, offset, a => {
+        return a.querySelector('del').textContent === current;
+      });
+      if (!anchorNew) {
+        return;
+      }
+      anchorNew.focus();
+      break;
+    }
+    case "ArrowUp": case "ArrowDown":
+    case "s": case "w": {
+      event.preventDefault();
+      const offset = ["ArrowUp", "w"].includes(event.key) ? 1 : -1;
+      const idxNew = moveCandidate(target, offset);
+      if (idxNew === -1) {
+        return;
+      }
+      setCandidate(target, idxNew);
+      break;
+    }
+    case "0": case "1": case "2": case "3": case "4":
+    case "5":case "6": case "7": case "8": case "9": {
+      event.preventDefault();
+      const idx = parseInt(event.key, 10) - 1;
+      setCandidate(target, idx);
+      break;
+    }
+    case "Enter": {
+      event.preventDefault();
+      let mode = prompt(`\
+請指定自動套用方式：
+1.將目前選字套用至前面所有未審的相同字
+2.將目前選字套用至前面所有相同字
+3.將目前選字套用至後面所有未審的相同字
+4.將目前選字套用至後面所有相同字
+5.將目前選字套用至全文所有未審的相同字
+6.將目前選字套用至全文所有相同字`);
+
+      mode = parseInt(mode, 10);
+      if (!(1 <= mode && mode <= 6)) {
+        return;
+      }
+
+      const func = (() => {
+        const customCand = target.querySelector('span');
+        if (customCand) {
+          const text = customCand.textContent;
+          return (anchor) => {
+            setCandidateCustom(anchor, text);
+          };
+        } else {
+          const cands = target.querySelectorAll('ins');
+          const candCur = target.querySelector('ins:not([hidden])');
+          const candIdx = Array.prototype.indexOf.call(cands, candCur);
+          return (anchor) => {
+            setCandidate(anchor, candIdx);
+          };
+        }
+      })();
+
+      const viewer = document.querySelector('#viewer');
+      const anchors = viewer.querySelectorAll('a');
+      const charCur = target.querySelector('del').textContent;
+
+      let start, end;
+      if ([1, 2].includes(mode)) {
+        start = 0;
+        end = Array.prototype.indexOf.call(anchors, target);
+      } else if ([3, 4].includes(mode)) {
+        start = Array.prototype.indexOf.call(anchors, target) + 1;
+        end = anchors.length;
+      } else if ([5, 6].includes(mode)) {
+        start = 0;
+        end = anchors.length;
+      }
+
+      for (let i = start; i < end; i++) {
+        const anchor = anchors[i];
+        if (anchor === target) {
+          continue;
+        }
+        if (anchor.querySelector('del').textContent !== charCur) {
+          continue;
+        }
+        if ([1, 3, 5].includes(mode) && !anchor.matches('.nonchecked')) {
+          continue;
+        }
+        func(anchor);
+      }
+
+      target.focus();
+      break;
+    }
+    case "Escape": {
+      event.preventDefault();
+      removePopup();
+      break;
+    }
+  }
+}
+
+function onFocus(event) {
+  const target = event.target.closest('a');
+  if (!target) { return; }
+  event.preventDefault();
+  removePopup();
+  showPopup(target);
+}
+
+function onBlur(event) {
+  const target = event.target.closest('a');
+  if (!target) { return; }
+  event.preventDefault();
+  markChecked(target);
+  removePopup();
+}
+
+document.addEventListener('DOMContentLoaded', (event) => {
+  const viewer = document.querySelector('#viewer');
+  viewer.addEventListener('keydown', onKeyDown);
+  viewer.addEventListener('focus', onFocus, true);
+  viewer.addEventListener('blur', onBlur, true);
+
+  for (const elem of viewer.querySelectorAll('a')) {
+    elem.tabIndex = 0;
+    const insElems = elem.querySelectorAll('ins');
+    const cls = (insElems.length > 1) ? 'nonchecked' : 'single';
+    elem.classList.add(cls);
+  }
+
+  const target = viewer.querySelector('a.nonchecked');
+  if (target) { target.focus(); }
+});
+</script>
 </head>
 <body>
-<pre id="viewer" contenteditable="true">%CONTENT%</pre>
+<pre id="viewer">%CONTENT%</pre>
+<details>
+<summary>操作說明</summary>
+<p>使用滑鼠或以下操作鍵校對及處理文本，完成後可直接複製文本至他處使用。</p>
+<p>如果游標跑掉、操作鍵按了沒有反應，請點擊或用 <kbd>Tab</kbd> 鍵選擇任意上色標示的字，即可繼續用操作鍵操作。</p>
+
+<h3>上色標示說明</h3>
+<ul>
+  <li><span class="single">紫色</span>：單選字。只有單一選項的字。</li>
+  <li><span class="nonchecked">黃色</span>：未審字。未檢查的字。</li>
+  <li><span class="checked">藍色</span>：已審字。已檢查的字（未修改）。</li>
+  <li><span class="picked">綠色</span>：已選字。已修改的字。</li>
+  <li><span class="editing">紅色</span>：編輯中。可按 <kbd>`</kbd> 切換編輯模式。</li>
+</ul>
+
+<h3>操作鍵</h3>
+<ul>
+  <li><kbd>Shift+Tab</kbd>／<kbd>Tab</kbd>：移向上／下一個欄位。</li>
+  <li><kbd>Q</kbd>／<kbd>E</kbd>或<kbd>PgUp</kbd>／<kbd>PgDn</kbd>：移向上／下一個未審字。</li>
+  <li><kbd>A</kbd>／<kbd>D</kbd>或<kbd>←</kbd>／<kbd>→</kbd>：移向上／下一個待校字（非單選字）。</li>
+  <li><kbd>Z</kbd>／<kbd>C</kbd>：移向上／下一個相同字。</li>
+  <li><kbd>S</kbd>／<kbd>W</kbd>或<kbd>↓</kbd>／<kbd>↑</kbd>：套用前／後一個候選字。</li>
+  <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
+  <li><kbd>Enter</kbd>：將目前的選字自動套用至其他相同字。</li>
+  <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，編輯模式下本鍵以外的操作鍵將無效。</li>
+</ul>
+</details>
 </body>
 </html>
