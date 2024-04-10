@@ -1108,22 +1108,12 @@ class StsConverter():
             else:
                 olds, news = part
                 old = ''.join(olds)
-                content = f'<del>{html.escape(old)}</del>'
-                for v in news:
-                    content += f'<ins>{html.escape(v)}</ins>'
+                content = f'<del hidden>{html.escape(old)}</del>'
+                for i, v in enumerate(news):
+                    hidden = '' if i == 0 else ' hidden'
+                    content += f'<ins{hidden}>{html.escape(v)}</ins>'
 
-                # classes
-                classes = ['sts-conv']
-                if len(news) == 1:
-                    classes.append('single')
-                else:
-                    classes.append('plural')
-                if old == news[0]:
-                    classes.append('exact')
-                if len(olds) == 1:
-                    classes.append('atomic')
-
-                part = f"""<span class="{' '.join(classes)}">{content}</span>"""
+                part = f"""<a>{content}</a>"""
                 yield part
 
     def _convert_formatted_htmlpage(self, parts):

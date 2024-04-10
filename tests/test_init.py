@@ -647,10 +647,10 @@ class TestClassStsConverter(unittest.TestCase):
         output = ''.join(converter.convert_formatted(input, 'txtm'))
         self.assertEqual(expected, output)
 
-        expected = r"""<span class="sts-conv plural atomic"><del>干</del><ins>幹</ins><ins>乾</ins><ins>干</ins></span>了 <span class="sts-conv single exact"><del>干涉</del><ins>干涉</ins></span>
-<span class="sts-conv single atomic"><del>⿰虫风</del><ins>𧍯</ins></span>需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
-⿱艹⿰虫风不需要<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁
-<span class="sts-conv single"><del>沙⿰虫风</del><ins>沙虱</ins></span>也<span class="sts-conv single atomic"><del>简</del><ins>簡</ins></span><span class="sts-conv single atomic"><del>转</del><ins>轉</ins></span>繁"""  # noqa: E501
+        expected = r"""<a><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
+<a><del hidden>⿰虫风</del><ins>𧍯</ins></a>需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
+⿱艹⿰虫风不需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
+<a><del hidden>沙⿰虫风</del><ins>沙虱</ins></a>也<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁"""  # noqa: E501
         output = ''.join(converter.convert_formatted(input, 'html'))
         self.assertEqual(expected, output)
 
