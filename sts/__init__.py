@@ -10,7 +10,7 @@ import sys
 from collections import OrderedDict, namedtuple
 from contextlib import nullcontext
 
-__version__ = '0.20.0'
+__version__ = '0.21.0'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
