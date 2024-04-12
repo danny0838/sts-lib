@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from textwrap import dedent
 from unittest import mock
 
 from sts import (
@@ -305,7 +306,7 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.add('姜', ['姜', '薑'])
                 self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']}, stsdict)
 
-    def test_add2(self):
+    def test_add_skip_check(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_({'干': ['幹', '乾']})
@@ -612,40 +613,537 @@ class TestClassTable(unittest.TestCase):
 
 
 class TestClassStsMaker(unittest.TestCase):
-    def convert_text(self, text, config, method='convert_text'):
-        stsdict = StsMaker().make(config, quiet=True)
+    def setUp(self):
+        """Set up a sub temp directory for testing."""
+        self.root = tempfile.mkdtemp(dir=tmpdir)
+
+    def test_format_list(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
+        with open(stsdict, encoding='UTF-8') as fh:
+            self.assertEqual(
+                '干姜\t乾薑\n姜\t薑\n干\t幹 乾 干\n',
+                fh.read()
+            )
+
+    def test_format_jlist(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.jlist',
+                        'mode': 'load',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.jlist'), stsdict)
+        with open(stsdict, encoding='UTF-8') as fh:
+            self.assertEqual(
+                '{"干姜":["乾薑"],"姜":["薑"],"干":["幹","乾","干"]}',
+                fh.read()
+            )
+
+    def test_format_tlist(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.tlist',
+                        'mode': 'load',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.tlist'), stsdict)
+        with open(stsdict, encoding='UTF-8') as fh:
+            self.assertEqual(
+                '{"干":{"姜":{"":["乾薑"]},"":["幹","乾","干"]},"姜":{"":["薑"]}}',
+                fh.read()
+            )
+
+    def test_format_other(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.txt',
+                        'mode': 'load',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.txt'), stsdict)
+        with open(stsdict, encoding='UTF-8') as fh:
+            self.assertEqual(
+                '干姜\t乾薑\n姜\t薑\n干\t幹 乾 干\n',
+                fh.read()
+            )
+
+    def test_mode_load1(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干你娘\t幹你娘
+                干姜\t乾薑
+                干娘\t乾娘
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                贵\t貴
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
         converter = StsConverter(stsdict)
-        return getattr(converter, method)(text)
+        self.assertEqual({
+            '干你娘': ['幹你娘'],
+            '干姜': ['乾薑'],
+            '干娘': ['乾娘'],
+            '姜': ['薑'],
+            '干': ['幹', '乾', '干'],
+            '贵': ['貴'],
+        }, dict(converter.table))
 
-    def check_case(self, subdir, name, config=None):
-        dir_ = os.path.join(root_dir, subdir)
+    def test_mode_load2(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'src': [
+                            'chars.txt',
+                            'phrases.txt',
+                        ],
+                    },
+                ],
+            }, fh)
 
-        with open(os.path.join(dir_, name + '.in'), 'r', encoding='UTF-8') as fh:
-            input = fh.read()
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                贵\t貴
+                """
+            ))
 
-        with open(os.path.join(dir_, name + '.ans'), 'r', encoding='UTF-8') as fh:
-            answer = fh.read()
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干你娘\t幹你娘
+                干姜\t乾薑
+                干娘\t乾娘
+                """
+            ))
 
-        result = self.convert_text(input, config or os.path.join(dir_, name + '.json'))
-        self.assertEqual(answer, result)
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '姜': ['薑'],
+            '干': ['幹', '乾', '干'],
+            '贵': ['貴'],
+            '干你娘': ['幹你娘'],
+            '干姜': ['乾薑'],
+            '干娘': ['乾娘'],
+        }, dict(converter.table))
 
-    def test_merge1(self):
-        self.check_case('test_make', 'merge1')
+    def test_mode_swap(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'swap',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
 
-    def test_merge2(self):
-        self.check_case('test_make', 'merge2')
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干你娘\t幹你娘
+                干姜\t乾薑
+                干娘\t乾娘
+                """
+            ))
 
-    def test_join1(self):
-        self.check_case('test_make', 'join1')
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                贵\t貴
+                """
+            ))
 
-    def test_join2(self):
-        self.check_case('test_make', 'join2')
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '幹你娘': ['干你娘'],
+            '乾薑': ['干姜'],
+            '乾娘': ['干娘'],
+            '薑': ['姜'],
+            '幹': ['干'],
+            '乾': ['干'],
+            '干': ['干'],
+            '貴': ['贵'],
+        }, dict(converter.table))
 
-    def test_join3(self):
-        self.check_case('test_make', 'join3')
+    def test_mode_join1(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'join',
+                        'src': [
+                            ['s2t.txt'],
+                            ['t2tw.txt'],
+                        ],
+                    },
+                ],
+            }, fh)
 
-    def test_join4(self):
-        self.check_case('test_make', 'join4')
+        with open(os.path.join(self.root, 's2t.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                开\t開
+                碱\t鹼
+                胆\t膽
+                驰\t馳
+                锿\t鎄
+                """
+            ))
+
+        with open(os.path.join(self.root, 't2tw.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                奔馳\t賓士
+                酰\t醯
+                鎄\t鑀
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '开': ['開'],
+            '碱': ['鹼'],
+            '胆': ['膽'],
+            '驰': ['馳'],
+            '锿': ['鑀'],
+            '奔馳': ['賓士'],
+            '酰': ['醯'],
+            '鎄': ['鑀'],
+            '奔驰': ['賓士'],
+        }, dict(converter.table))
+
+    def test_mode_join2(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'join',
+                        'src': [
+                            ['s2t.txt'],
+                            ['t2tw.txt'],
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 's2t.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                表\t表 錶
+                规\t規
+                则\t則
+                达\t達
+                运\t運
+                表达\t表達
+                表达式\t表達式
+                """
+            ))
+
+        with open(os.path.join(self.root, 't2tw.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                表達式\t表示式 運算式
+                正則表達式\t正規表示式
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '表': ['表', '錶'],
+            '规': ['規'],
+            '则': ['則'],
+            '达': ['達'],
+            '运': ['運'],
+            '表达': ['表達'],
+            '表达式': ['表示式', '運算式'],
+            '表達式': ['表示式', '運算式'],
+            '正則表達式': ['正規表示式'],
+            '正则表达式': ['正規表示式'],
+            '正则表達式': ['正規表示式'],
+            '正則表达式': ['正規表示式'],
+        }, dict(converter.table))
+
+    def test_mode_join3(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'join',
+                        'src': [
+                            ['tw2t.txt'],
+                            ['t2s.txt'],
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'tw2t.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                表示式\t表達式
+                運算式\t表達式
+                正規表示式\t正則表達式
+                """
+            ))
+
+        with open(os.path.join(self.root, 't2s.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                規\t规
+                則\t则
+                達\t达
+                運\t运
+                表達\t表达
+                表達式\t表达式
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '表示式': ['表达式'],
+            '運算式': ['表达式'],
+            '正規表示式': ['正则表达式'],
+            '規': ['规'],
+            '則': ['则'],
+            '達': ['达'],
+            '運': ['运'],
+            '表達': ['表达'],
+            '表達式': ['表达式'],
+        }, dict(converter.table))
+
+    def test_mode_join4(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'join',
+                        'src': [
+                            ['s2t.txt'],
+                            ['t2tw.txt'],
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 's2t.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                采\t採
+                采信\t採信
+                """
+            ))
+
+        with open(os.path.join(self.root, 't2tw.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                信息\t資訊
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '采': ['採'],
+            '采信': ['採信'],
+            '信息': ['資訊'],
+        }, dict(converter.table))
+
+    def test_sort(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                        'sort': True,
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                姜\t薑
+                干\t幹 乾 干
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
+        with open(stsdict, encoding='UTF-8') as fh:
+            self.assertEqual(
+                '姜\t薑\n干\t幹 乾 干\n干姜\t乾薑\n',
+                fh.read()
+            )
 
 
 class TestClassStsConverter(unittest.TestCase):
@@ -654,11 +1152,13 @@ class TestClassStsConverter(unittest.TestCase):
         self.root = tempfile.mkdtemp(dir=tmpdir)
 
     def test_init(self):
+        # file as str (.list)
         tempfile = os.path.join(self.root, 'test.list')
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
         converter = StsConverter(tempfile)
         self.assertEqual({'干': ['幹', '乾', '干'], '干姜': ['乾薑']}, converter.table)
+        self.assertIs(Table, type(converter.table))
 
         # file as str (.jlist)
         tempfile = os.path.join(self.root, 'test.jlist')
@@ -666,6 +1166,7 @@ class TestClassStsConverter(unittest.TestCase):
             fh.write("""{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}""")
         converter = StsConverter(tempfile)
         self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, converter.table)
+        self.assertIs(Table, type(converter.table))
 
         # file as str (.tlist)
         tempfile = os.path.join(self.root, 'test.tlist')
@@ -673,6 +1174,7 @@ class TestClassStsConverter(unittest.TestCase):
             fh.write("""{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}""")
         converter = StsConverter(tempfile)
         self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, converter.table)
+        self.assertIs(Trie, type(converter.table))
 
         # file as os.PathLike object
         tempfile = Path(os.path.join(self.root, 'test-path-like.list'))
@@ -680,48 +1182,50 @@ class TestClassStsConverter(unittest.TestCase):
             fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
         converter = StsConverter(tempfile)
         self.assertEqual({'干': ['幹', '乾', '干'], '干姜': ['乾薑']}, converter.table)
+        self.assertIs(Table, type(converter.table))
 
         # StsDict
         stsdict = Trie({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
         converter = StsConverter(stsdict)
         self.assertEqual({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, converter.table)
+        self.assertIs(stsdict, converter.table)
 
     def test_convert(self):
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
-        input = """干了 干涉
-⿰虫风需要简转繁
-⿱艹⿰虫风不需要简转繁
-沙⿰虫风也简转繁"""
-        expected = [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), '\n',
-                    '⿰虫风', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
-                    '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁', '\n',
-                    '沙', '⿰虫风', '也', (['简'], ['簡']), (['转'], ['轉']), '繁']
-        self.assertEqual(expected, list(converter.convert(input)))
+        input = """干了 干涉 ⿱艹⿰虫风不需要简转繁"""
+        expected = [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), ' ',
+                    '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁']
+        output = list(converter.convert(input))
+        self.assertEqual(expected, output)
 
     def test_convert_exclude(self):
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
+        input = """-{尸}-廿山女田卜"""
         expected = ['尸', '廿', '山', '女', '田', (['卜'], ['卜', '蔔'])]
-        output = list(converter.convert(r"""-{尸}-廿山女田卜""", re.compile(r'-{(?P<return>.*?)}-')))
+        output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-')))
         self.assertEqual(expected, output)
 
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
+        input = """发财了<!-->财<--><!-->干<-->"""
         expected = [(['发', '财'], ['發財']), (['了'], ['了', '瞭']), '财', '干']
-        output = list(converter.convert(r"""发财了<!-->财<--><!-->干<-->""", re.compile(r'<!-->(?P<return>.*?)<-->')))
+        output = list(converter.convert(input, re.compile(r'<!-->(?P<return>.*?)<-->')))
         self.assertEqual(expected, output)
 
         stsdict = StsMaker().make('s2twp', quiet=True)
         converter = StsConverter(stsdict)
+        input = """「奔馳」不是奔馳"""
         expected = ['「奔馳」', '不', '是', (['奔', '馳'], ['賓士'])]
-        output = list(converter.convert(r"""「奔馳」不是奔馳""", re.compile(r'「.*?」')))
+        output = list(converter.convert(input, re.compile(r'「.*?」')))
         self.assertEqual(expected, output)
 
         stsdict = StsMaker().make('s2twp', quiet=True)
         converter = StsConverter(stsdict)
+        input = """奔-{}-驰"""  # noqa: P103
         expected = ['奔', (['驰'], ['馳'])]
-        output = list(converter.convert(r"""奔-{}-驰""", re.compile(r'-{(?P<return>.*?)}-')))  # noqa: P103
+        output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-')))  # noqa: P103
         self.assertEqual(expected, output)
 
     def test_convert_formatted(self):
@@ -738,37 +1242,63 @@ class TestClassStsConverter(unittest.TestCase):
             '风': ['風'],
         })
         converter = StsConverter(stsdict)
-        input = r"""干了 干涉
-⿰虫风需要简转繁
-⿱艹⿰虫风不需要简转繁
-沙⿰虫风也简转繁"""
+        input = dedent(
+            """\
+            干了 干涉
+            ⿰虫风需要简转繁
+            ⿱艹⿰虫风不需要简转繁
+            沙⿰虫风也简转繁
+            """
+        )
 
-        expected = r"""幹了 干涉
-𧍯需要簡轉繁
-⿱艹⿰虫风不需要簡轉繁
-沙虱也簡轉繁"""
+        # txt
+        expected = dedent(
+            """\
+            幹了 干涉
+            𧍯需要簡轉繁
+            ⿱艹⿰虫风不需要簡轉繁
+            沙虱也簡轉繁
+            """
+        )
         output = ''.join(converter.convert_formatted(input, 'txt'))
         self.assertEqual(expected, output)
 
-        expected = r"""{{干->幹|乾|干}}了 {{干涉}}
-{{⿰虫风->𧍯}}需要{{简->簡}}{{转->轉}}繁
-⿱艹⿰虫风不需要{{简->簡}}{{转->轉}}繁
-{{沙⿰虫风->沙虱}}也{{简->簡}}{{转->轉}}繁"""
+        # txtm
+        expected = dedent(
+            """\
+            {{干->幹|乾|干}}了 {{干涉}}
+            {{⿰虫风->𧍯}}需要{{简->簡}}{{转->轉}}繁
+            ⿱艹⿰虫风不需要{{简->簡}}{{转->轉}}繁
+            {{沙⿰虫风->沙虱}}也{{简->簡}}{{转->轉}}繁
+            """
+        )
         output = ''.join(converter.convert_formatted(input, 'txtm'))
         self.assertEqual(expected, output)
 
-        expected = r"""<a><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
-<a><del hidden>⿰虫风</del><ins>𧍯</ins></a>需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
-⿱艹⿰虫风不需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
-<a><del hidden>沙⿰虫风</del><ins>沙虱</ins></a>也<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁"""  # noqa: E501
+        # html
+        expected = dedent(
+            """\
+            <a><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
+            <a><del hidden>⿰虫风</del><ins>𧍯</ins></a>需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
+            ⿱艹⿰虫风不需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
+            <a><del hidden>沙⿰虫风</del><ins>沙虱</ins></a>也<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
+            """
+        )
         output = ''.join(converter.convert_formatted(input, 'html'))
         self.assertEqual(expected, output)
 
+        # htmlpage
         output = ''.join(converter.convert_formatted(input, 'htmlpage'))
         self.assertNotEqual(expected, output)
         self.assertIn(expected, output)
 
-        expected = r"""[[["干"],["幹","乾","干"]],"了"," ",[["干","涉"],["干涉"]],"\n",[["⿰虫风"],["𧍯"]],"需","要",[["简"],["簡"]],[["转"],["轉"]],"繁","\n","⿱艹⿰虫风","不","需","要",[["简"],["簡"]],[["转"],["轉"]],"繁","\n",[["沙","⿰虫风"],["沙虱"]],"也",[["简"],["簡"]],[["转"],["轉"]],"繁"]"""  # noqa: E501
+        # json
+        expected = (
+            r"""[[["干"],["幹","乾","干"]],"了"," ",[["干","涉"],["干涉"]],"\n","""
+            r"""[["⿰虫风"],["𧍯"]],"需","要",[["简"],["簡"]],[["转"],["轉"]],"繁","\n","""
+            r""""⿱艹⿰虫风","不","需","要",[["简"],["簡"]],[["转"],["轉"]],"繁","\n","""
+            r"""[["沙","⿰虫风"],["沙虱"]],"也",[["简"],["簡"]],[["转"],["轉"]],"繁","\n"]"""
+        )
         output = ''.join(converter.convert_formatted(input, 'json'))
         self.assertEqual(expected, output)
 
@@ -783,14 +1313,8 @@ class TestClassStsConverter(unittest.TestCase):
     def test_convert_text(self):
         stsdict = StsMaker().make('s2t', quiet=True)
         converter = StsConverter(stsdict)
-        input = """干了 干涉
-⿰虫风需要简转繁
-⿱艹⿰虫风不需要简转繁
-沙⿰虫风也简转繁"""
-        expected = r"""幹了 干涉
-⿰虫风需要簡轉繁
-⿱艹⿰虫风不需要簡轉繁
-沙⿰虫风也簡轉繁"""
+        input = """干了 干涉 ⿱艹⿰虫风不需要简转繁"""
+        expected = r"""幹了 干涉 ⿱艹⿰虫风不需要簡轉繁"""
         self.assertEqual(expected, converter.convert_text(input))
 
     def test_convert_text_options(self):
