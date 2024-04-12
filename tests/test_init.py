@@ -439,7 +439,7 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict = class_({'註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['注', '註']})
                 stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual({'註冊表': ['登錄檔'], '注冊表': ['注冊表', '登錄檔']}, stsdict)
+                self.assertEqual({'注冊表': ['注冊表', '登錄檔'], '註冊表': ['登錄檔']}, dict(stsdict))
 
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):

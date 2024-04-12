@@ -50,10 +50,13 @@ def lazyprop(fn):
 
 
 class StreamList(list):
-    """A wrapper to make an iterable JSON serializable as a list.
+    """Convert an iterable into a serializable "list".
+
+    This turns an iterable into an iterator that can be serialized as a JSON
+    Array incrementally (i.e. without read into the memory as a whole).
 
     - Must be an instance of list (to make JSON encoder treat as a list).
-    - Must be truthy when non-empty and falsy when empty.
+    - Must be truthy if and only if non-empty.
     """
     def __init__(self, iterable):
         self._iterator = iter(iterable)
