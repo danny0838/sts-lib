@@ -1146,6 +1146,169 @@ class TestClassStsMaker(unittest.TestCase):
                 fh.read()
             )
 
+    def test_include_basic(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'include': r'^[\u0000-\uFFFF]*$',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                㑮陣\t𫝈阵
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                陣\t阵
+                㑮\t𫝈
+                噹\t当 𰁸
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '陣': ['阵'],
+            '噹': ['当'],
+        }, dict(converter.table))
+
+    def test_include_bad_regex(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'include': r'???',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with self.assertRaises(ValueError):
+            StsMaker().make(config_file, quiet=True)
+
+    def test_exclude_basic(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'exclude': r'[\U00010000-\U0010FFFF]',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                㑮陣\t𫝈阵
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                陣\t阵
+                㑮\t𫝈
+                噹\t当 𰁸
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '陣': ['阵'],
+            '噹': ['当'],
+        }, dict(converter.table))
+
+    def test_exclude_bad_regex(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'exclude': r'???',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with self.assertRaises(ValueError):
+            StsMaker().make(config_file, quiet=True)
+
+    def test_include_and_exclude(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'include': r'^[\u0000-\uFFFF]*$',
+                        'exclude': r'当',
+                        'src': [
+                            'phrases.txt',
+                            'chars.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                㑮陣\t𫝈阵
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                陣\t阵
+                㑮\t𫝈
+                噹\t当 𰁸
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '陣': ['阵'],
+        }, dict(converter.table))
+
 
 class TestClassStsConverter(unittest.TestCase):
     def setUp(self):

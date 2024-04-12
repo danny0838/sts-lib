@@ -89,11 +89,15 @@ converter.convert_file(input=None, output=None
  *     dictionary (i.e. use the values as keys and the keys as values); "join"
  *     to build from a chain of dictionaries (in which case src must be an
  *     array of subarrays of strings)
- * @property {boolean} [sort] - true to sort the keys of the output dictionary
  * @property {Array.<(string|string[])>} src - the source files. Each as an
  *     absolute path, or a path relative to the directory of this config file,
  *     or the basename of a built-in dictionary file. Each should be a .txt or
  *     .list dictionary file.
+ * @property {boolean} [sort] - true to sort the keys of the output dictionary.
+ * @property {string} [include] - a regex filter that discards non-matched
+ *     conversion values.
+ * @property {string} [exclude] - a regex filter that discards matched
+ *     conversion values.
  */
 ```
 

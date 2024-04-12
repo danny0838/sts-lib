@@ -928,11 +928,25 @@ class StsMaker():
             dest = os.path.join(output_dir or config_dir, dict_['file'])
             format = os.path.splitext(dest)[1][1:].lower()
             mode = dict_['mode']
-            sort = dict_.get('sort', False)
             files = [self.get_stsdict_file(f, base_dir=config_dir)
                      if isinstance(f, str)
                      else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
                      for f in dict_['src']]
+            sort = dict_.get('sort', False)
+            include = dict_.get('include', None)
+            exclude = dict_.get('exclude', None)
+
+            if include is not None:
+                try:
+                    include = re.compile(include)
+                except re.error as exc:
+                    raise ValueError(f'regex syntax error of the include filter: {exc}')
+
+            if exclude is not None:
+                try:
+                    exclude = re.compile(exclude)
+                except re.error as exc:
+                    raise ValueError(f'regex syntax error of the exclude filter: {exc}')
 
             if not skip_check and not self.check_update(dest, files):
                 if not quiet:
@@ -950,6 +964,16 @@ class StsMaker():
                 table = Table().load_filegroups(files)
             else:
                 raise ValueError(f'Specified mode "{mode}" is not supported.')
+
+            if include is not None or exclude is not None:
+                _table = table
+                table = Table()
+                for key, values in _table.items():
+                    values = [v for v in values
+                              if (include is None or include.search(v))
+                              and (exclude is None or not exclude.search(v))]
+                    if values:
+                        table.add(key, values)
 
             os.makedirs(os.path.dirname(dest), exist_ok=True)
 
