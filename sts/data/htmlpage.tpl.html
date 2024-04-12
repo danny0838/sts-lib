@@ -153,6 +153,7 @@ function markChecked(anchor) {
 function markPicked(anchor) {
   // do not mark picked for a single-candidate with original converted value
   if (anchor.classList.contains('single') && anchor.querySelector('ins:not([hidden])')) {
+    anchor.classList.remove('picked');
     return;
   }
   anchor.classList.add('picked');
