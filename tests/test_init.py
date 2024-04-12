@@ -966,7 +966,7 @@ class TestConfigs(unittest.TestCase):
                     if pattern.search(file.path):
                         os.remove(file)
 
-        config_dir = StsMaker.DEFAULT_CONFIG_DIR
+        config_dir = StsMaker.default_config_dir
         maker = StsMaker()
         pattern = re.compile(r'\.json$', re.I)
         for file in os.listdir(config_dir):
