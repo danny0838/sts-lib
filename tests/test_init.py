@@ -633,6 +633,12 @@ class TestClassStsConverter(unittest.TestCase):
         output = list(converter.convert(r"""「奔馳」不是奔馳""", re.compile(r'「.*?」')))
         self.assertEqual(expected, output)
 
+        stsdict = StsMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict)
+        expected = ['奔', (['驰'], ['馳'])]
+        output = list(converter.convert(r"""奔-{}-驰""", re.compile(r'-{(?P<return>.*?)}-')))  # noqa: P103
+        self.assertEqual(expected, output)
+
     def test_convert_formatted(self):
         stsdict = Trie({
             '⿰虫风': ['𧍯'],

@@ -1057,18 +1057,18 @@ class StsConverter():
         def convert_with_regex(text, regex):
             index = 0
             for m in regex.finditer(text):
-                start, end = m.start(0), m.end(0)
+                start, end = m.span(0)
 
                 t = text[index:start]
                 if t:
                     yield from self.table.apply(t)
 
-                t = text[start:end]
+                try:
+                    t = m.group('return')
+                except IndexError:
+                    t = m.group(0)
                 if t:
-                    try:
-                        yield m.group('return')
-                    except IndexError:
-                        yield t
+                    yield t
 
                 index = end
 
