@@ -443,6 +443,13 @@ class TestClassStsDict(unittest.TestCase):
 
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
+                stsdict = class_({'注冊表': [], '註冊表': ['登錄檔']})
+                stsdict2 = Table({'注': ['注', '註']})
+                stsdict = stsdict._join_prefix(stsdict2)
+                self.assertEqual({'注冊表': ['注冊表', '登錄檔'], '註冊表': ['登錄檔']}, stsdict)
+
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
                 stsdict = class_({'註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['注', '註'], '册': ['冊'], '注册': ['註冊']})
                 stsdict = stsdict._join_prefix(stsdict2)
@@ -504,6 +511,18 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertEqual({
                     '彙編': ['組譯'], '彙编': ['組譯'], '汇': ['匯', '彙'],
                     '汇編': ['汇編', '組譯'], '汇编': ['組譯'], '编': ['編'],
+                }, stsdict)
+
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_({'干': ['幹', '乾', '干'], '白干': ['白幹', '白干']})
+                stsdict2 = Table({'白干': ['白干酒'], '白幹': ['白做'], '白乾': ['白乾杯']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({
+                    '干': ['幹', '乾', '干'],
+                    '白乾': ['白乾杯'],
+                    '白干': ['白做', '白干酒', '白乾杯'],
+                    '白幹': ['白做']
                 }, stsdict)
 
 

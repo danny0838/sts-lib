@@ -486,7 +486,10 @@ class StsDict():
             for newkey in converter_minor.apply_enum(key, include_short=True, include_self=True):
                 if newkey == key:
                     continue
-                dict_.add(newkey, newkey)
+                try:
+                    assert dict_[newkey]
+                except (KeyError, AssertionError):
+                    dict_.add(newkey, newkey)
                 dict_.add(newkey, values)
         return dict_
 
