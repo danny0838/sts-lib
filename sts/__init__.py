@@ -234,17 +234,20 @@ class StsDict():
         """
         if not isinstance(other, (dict, StsDict)):
             return False
+
+        # faster check for the same type
+        if type(self) is type(other):
+            return self._dict == other._dict
+
+        keys = set()
         for key, value in self.items():
             try:
-                if value != other[key]:
-                    return False
-            except KeyError:
+                assert value == other[key]
+            except (KeyError, AssertionError):
                 return False
-        for key, value in other.items():
-            try:
-                if value != self[key]:
-                    return False
-            except KeyError:
+            keys.add(key)
+        for key in other:
+            if key not in keys:
                 return False
         return True
 

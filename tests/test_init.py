@@ -219,6 +219,57 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertFalse(stsdict != dict_)
                 self.assertFalse(dict_ != stsdict)
 
+        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
+        dict2 = {'干姜': ['乾薑'], '干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_(dict_)
+                self.assertTrue(stsdict == dict2)
+                self.assertTrue(dict2 == stsdict)
+                self.assertFalse(stsdict != dict2)
+                self.assertFalse(dict2 != stsdict)
+
+        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
+        dict2 = {'干姜': ['乾薑'], '干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_(dict_)
+                stsdict2 = class_(dict2)
+                self.assertTrue(stsdict == stsdict2)
+                self.assertTrue(stsdict2 == stsdict)
+                self.assertFalse(stsdict != stsdict2)
+                self.assertFalse(stsdict2 != stsdict)
+
+        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
+        dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_(dict_)
+                self.assertFalse(stsdict == dict2)
+                self.assertFalse(dict2 == stsdict)
+                self.assertTrue(stsdict != dict2)
+                self.assertTrue(dict2 != stsdict)
+
+        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
+        dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_(dict_)
+                self.assertFalse(stsdict == dict2)
+                self.assertFalse(dict2 == stsdict)
+                self.assertTrue(stsdict != dict2)
+                self.assertTrue(dict2 != stsdict)
+
+        dict_ = {'干': ['幹', '乾', '干', '𠏉'], '姜': ['姜', '薑']}
+        dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_(dict_)
+                self.assertFalse(stsdict == dict2)
+                self.assertFalse(dict2 == stsdict)
+                self.assertTrue(stsdict != dict2)
+                self.assertTrue(dict2 != stsdict)
+
     def test_keys(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
