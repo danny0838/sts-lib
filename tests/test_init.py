@@ -577,6 +577,40 @@ class TestClassStsDict(unittest.TestCase):
                 }, stsdict)
 
 
+class TestClassTable(unittest.TestCase):
+    def test_key_maxlen(self):
+        # basic
+        stsdict = Table({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
+        self.assertEqual(2, stsdict.key_maxlen)
+        self.assertEqual(2, stsdict.key_maxlen)
+
+        # setter
+        stsdict.key_maxlen = 10
+        self.assertEqual(10, stsdict.key_maxlen)
+
+        # deleter
+        stsdict.add('了', ['了', '瞭'])
+        stsdict.add('不了解', ['不瞭解'])
+        del stsdict.key_maxlen
+        self.assertEqual(3, stsdict.key_maxlen)
+
+    def test_key_headchars(self):
+        # basic
+        stsdict = Table({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
+        self.assertEqual({'干', '姜'}, stsdict.key_headchars)
+        self.assertEqual({'干', '姜'}, stsdict.key_headchars)
+
+        # setter
+        stsdict.key_headchars = {'干', '姜', '了', '不', '于'}
+        self.assertEqual({'干', '姜', '了', '不', '于'}, stsdict.key_headchars)
+
+        # deleter
+        stsdict.add('了', ['了', '瞭'])
+        stsdict.add('不了解', ['不瞭解'])
+        del stsdict.key_headchars
+        self.assertEqual({'干', '姜', '了', '不'}, stsdict.key_headchars)
+
+
 class TestClassStsMaker(unittest.TestCase):
     def convert_text(self, text, config, method='convert_text'):
         stsdict = StsMaker().make(config, quiet=True)

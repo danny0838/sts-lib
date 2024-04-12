@@ -10,43 +10,47 @@ import sys
 from collections import OrderedDict, namedtuple
 from contextlib import nullcontext
 
+try:
+    from functools import cached_property
+except ImportError:
+    # polyfill for Python < 3.8
+    def cached_property(fn):
+        """Lazy property decorator
+
+        Defines a lazy property that is evaluated only for the first time,
+        and can be modified (set) or invalidated (del).
+
+        Modified from: https://github.com/sorin/lazyprop
+        """
+        attr_name = '_lazy_' + fn.__name__
+
+        @property
+        def _lazyprop(self):
+            try:
+                return getattr(self, attr_name)
+            except AttributeError:
+                value = fn(self)
+                setattr(self, attr_name, value)
+                return value
+
+        @_lazyprop.deleter
+        def _lazyprop(self):
+            try:
+                delattr(self, attr_name)
+            except AttributeError:
+                pass
+
+        @_lazyprop.setter
+        def _lazyprop(self, value):
+            setattr(self, attr_name, value)
+
+        return _lazyprop
+
+
 __version__ = '0.21.0'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
-
-
-def lazyprop(fn):
-    """Lazy property decorator
-
-    Defines a lazy property that is evaluated only for the first time,
-    and can be modified (set) or invalidated (del).
-
-    Modified from: https://github.com/sorin/lazyprop
-    """
-    attr_name = '_lazy_' + fn.__name__
-
-    @property
-    def _lazyprop(self):
-        try:
-            return getattr(self, attr_name)
-        except AttributeError:
-            value = fn(self)
-            setattr(self, attr_name, value)
-            return value
-
-    @_lazyprop.deleter
-    def _lazyprop(self):
-        try:
-            delattr(self, attr_name)
-        except AttributeError:
-            pass
-
-    @_lazyprop.setter
-    def _lazyprop(self, value):
-        setattr(self, attr_name, value)
-
-    return _lazyprop
 
 
 class StreamList(list):
@@ -686,13 +690,13 @@ class Table(StsDict):
     conversion (match, apply, apply_enum, etc.) to avoid an unexpected
     behavior.
     """
-    @lazyprop
+    @cached_property
     def key_maxlen(self):
         """Get the maximal length of the keys.
         """
         return max(len(Unicode.split(key)) for key in self._dict)
 
-    @lazyprop
+    @cached_property
     def key_headchars(self):
         """Get a set of the first char of the keys.
         """
