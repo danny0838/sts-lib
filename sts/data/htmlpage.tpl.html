@@ -246,6 +246,14 @@ function moveToSame(anchor, offset) {
   anchorNew.focus();
 }
 
+function moveToAny(anchor, offset) {
+  const anchorNew = moveAnchor(anchor, offset);
+  if (!anchorNew) {
+    return;
+  }
+  anchorNew.focus();
+}
+
 function toggleCandidate(anchor, offset) {
   const idxNew = moveCandidate(anchor, offset);
   if (idxNew === -1) { return; }
@@ -329,6 +337,8 @@ function runCommand(anchor, cmd) {
     "moveToCheckworthyForward": "移至下一個待校字",
     "moveToSameBackward": "移至上一個相同字",
     "moveToSameForward": "移至下一個相同字",
+    "moveToAnyBackward": "移至上一個字",
+    "moveToAnyForward": "移至下一個字",
 
     "applyBackwardUnchecked": "將目前選字套用至前面所有未審的相同字",
     "applyForwardUnchecked": "將目前選字套用至後面所有未審的相同字",
@@ -376,6 +386,12 @@ function runCommand(anchor, cmd) {
       break;
     case "moveToSameForward":
       moveToSame(anchor, 1);
+      break;
+    case "moveToAnyBackward":
+      moveToAny(anchor, -1);
+      break;
+    case "moveToAnyForward":
+      moveToAny(anchor, 1);
       break;
     case "applyBackwardUnchecked":
     case "applyForwardUnchecked":
