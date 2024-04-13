@@ -181,6 +181,13 @@ function markPicked(anchor) {
     anchor.classList.remove('picked');
     return;
   }
+
+  // do not mark picked for an unmatched with original value
+  if (anchor.classList.contains('unmatched') && anchor.querySelector('del:not([hidden])')) {
+    anchor.classList.remove('picked');
+    return;
+  }
+
   anchor.classList.add('picked');
 
   // picked implies checked
@@ -219,6 +226,27 @@ function toggleEditing(anchor, willEdit) {
   }
 }
 
+function editContext(anchor) {
+  function convertTextNodeToAnchor(textNode) {
+    const newElem = document.createElement('a');
+    newElem.tabIndex = 0;
+    newElem.classList.add('unmatched');
+    const del = newElem.appendChild(document.createElement('del'));
+    anchor.parentNode.insertBefore(newElem, textNode);
+    del.appendChild(textNode);
+  }
+
+  const prev = anchor.previousSibling;
+  if (prev && prev.nodeType === 3) {
+    convertTextNodeToAnchor(prev);
+  }
+
+  const next = anchor.nextSibling;
+  if (next && next.nodeType === 3) {
+    convertTextNodeToAnchor(next);
+  }
+}
+
 function moveToUnchecked(anchor, offset) {
   const anchorNew = moveAnchor(anchor, offset, a => {
     return a.matches('.unchecked');
@@ -231,7 +259,7 @@ function moveToUnchecked(anchor, offset) {
 
 function moveToCheckworthy(anchor, offset) {
   const anchorNew = moveAnchor(anchor, offset, a => {
-    return a.matches(':not(.single)');
+    return a.matches(':not(.single):not(.unmatched)');
   });
   if (!anchorNew) {
     return;
@@ -300,7 +328,7 @@ function autoPick(anchor, mode) {
   })();
 
   const viewer = document.querySelector('#viewer');
-  const anchors = viewer.querySelectorAll('a');
+  const anchors = viewer.querySelectorAll('a:not(.unmatched)');
   const charCur = anchor.querySelector('del').textContent;
 
   let start, end;
@@ -355,6 +383,7 @@ async function runCommand(anchor, cmd) {
     "unmarkPicked": "取消標記已選字",
 
     "toggleEditing": "編輯文字",
+    "editContext": "編輯前後文字",
   };
 
   if (typeof cmd === 'undefined') {
@@ -453,6 +482,9 @@ async function runCommand(anchor, cmd) {
       break;
     case "toggleEditing":
       toggleEditing(anchor);
+      break;
+    case "editContext":
+      editContext(anchor);
       break;
   }
 
