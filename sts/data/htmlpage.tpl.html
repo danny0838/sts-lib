@@ -149,8 +149,26 @@ function markChecked(anchor) {
   if (!anchor.classList.contains('unchecked')) {
     return;
   }
+  if ('skipCheck' in anchor.dataset) {
+    return;
+  }
   anchor.classList.add('checked');
   anchor.classList.remove('unchecked');
+}
+
+function unmarkChecked(anchor) {
+  if (!anchor.classList.contains('checked')) {
+    return;
+  }
+  anchor.classList.add('unchecked');
+  anchor.classList.remove('checked');
+
+  // Add a temporary skipCheck mark to prevent being immediately re-checked
+  // when re-focused.
+  anchor.dataset.skipCheck = '';
+  setTimeout(() => {
+    delete anchor.dataset.skipCheck;
+  }, 200);
 }
 
 function markPicked(anchor) {
@@ -163,6 +181,10 @@ function markPicked(anchor) {
 
   // picked implies checked
   markChecked(anchor);
+}
+
+function unmarkPicked(anchor) {
+  anchor.classList.remove('picked');
 }
 
 function toggleEditing(anchor, willEdit) {
@@ -299,6 +321,82 @@ function autoPick(anchor, mode) {
   anchor.focus();
 }
 
+function runCommand(anchor, cmd) {
+  const cmds = {
+    "moveToUncheckedBackward": "移至上一個未審字",
+    "moveToUncheckedForward": "移至下一個未審字",
+    "moveToCheckworthyBackward": "移至上一個待校字",
+    "moveToCheckworthyForward": "移至下一個待校字",
+    "moveToSameBackward": "移至上一個相同字",
+    "moveToSameForward": "移至下一個相同字",
+
+    "applyBackwardUnchecked": "將目前選字套用至前面所有未審的相同字",
+    "applyForwardUnchecked": "將目前選字套用至後面所有未審的相同字",
+    "applyAllUnchecked": "將目前選字套用至全文所有未審的相同字",
+    "applyBackward": "將目前選字套用至前面所有相同字",
+    "applyForward": "將目前選字套用至後面所有相同字",
+    "applyAll": "將目前選字套用至全文所有相同字",
+
+    "unmarkChecked": "取消標記已審字",
+    "unmarkPicked": "取消標記已選字",
+
+    "toggleEditing": "編輯文字",
+  };
+
+  if (typeof cmd === 'undefined') {
+    const idxMap = Array.from(Object.keys(cmds));
+    const options = idxMap.reduce((acc, cmd, i) => {
+      acc.push(`${i + 1}.${cmds[cmd]}`);
+      return acc;
+    }, []);
+    const msg = "請輸入要執行的指令：\n" + options.join('\n');
+    const idx = parseInt(prompt(msg), 10);
+    cmd = idxMap[idx - 1];
+  }
+
+  if (!cmds[cmd]) {
+    return;
+  }
+
+  switch (cmd) {
+    case "moveToUncheckedBackward":
+      moveToUnchecked(anchor, -1);
+      break;
+    case "moveToUncheckedForward":
+      moveToUnchecked(anchor, 1);
+      break;
+    case "moveToCheckworthyBackward":
+      moveToCheckworthy(anchor, -1);
+      break;
+    case "moveToCheckworthyForward":
+      moveToCheckworthy(anchor, 1);
+      break;
+    case "moveToSameBackward":
+      moveToSame(anchor, -1);
+      break;
+    case "moveToSameForward":
+      moveToSame(anchor, 1);
+      break;
+    case "applyBackwardUnchecked":
+    case "applyForwardUnchecked":
+    case "applyAllUnchecked":
+    case "applyBackward":
+    case "applyForward":
+    case "applyAll":
+      autoPick(anchor, cmd);
+      break;
+    case "unmarkChecked":
+      unmarkChecked(anchor);
+      break;
+    case "unmarkPicked":
+      unmarkPicked(anchor);
+      break;
+    case "toggleEditing":
+      toggleEditing(anchor);
+      break;
+  }
+}
+
 function showPopup(anchor) {
   const popup = document.createElement('aside');
 
@@ -326,7 +424,16 @@ function showPopup(anchor) {
     a.addEventListener('mousedown', onMouseDown);
   }
 
-  popup.appendChild(document.createTextNode('→'));
+  // command
+  {
+    const a = popup.appendChild(document.createElement('a'));
+    a.textContent = '→';
+    a.tabIndex = 0;
+    a.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      runCommand(anchor);
+    });
+  }
 
   // ins
   {
@@ -424,7 +531,7 @@ function onKeyDown(event) {
     }
     case "Enter": {
       event.preventDefault();
-      autoPick(target);
+      runCommand(target);
       break;
     }
     case "Escape": {
@@ -492,8 +599,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   <li><kbd>Z</kbd>／<kbd>C</kbd>：移至上／下一個相同字。</li>
   <li><kbd>W</kbd>／<kbd>S</kbd>：套用前／後一個候選字。</li>
   <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
-  <li><kbd>Enter</kbd>：將目前的選字自動套用至其他相同字。</li>
   <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，編輯模式下本鍵以外的操作鍵將無效。</li>
+  <li><kbd>Enter</kbd>：執行進階指令。</li>
 </ul>
 </details>
 </body>
