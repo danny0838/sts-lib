@@ -180,6 +180,10 @@ function toggleEditing(anchor, willEdit) {
     }
     elem.contentEditable = true;
     elem.focus();
+    const onBlur = elem.addEventListener('blur', (event) => {
+      elem.removeEventListener('blur', onBlur);
+      toggleEditing(anchor, false);
+    });
   } else {
     anchor.classList.remove('editing');
     const elem = anchor.querySelector('span');
