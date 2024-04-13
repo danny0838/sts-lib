@@ -21,9 +21,12 @@ kbd { border: 1px solid #999; border-radius: 2px; padding: 2px 4px; background-c
   margin: 1.5em 0.5em 0.5em 0.5em;
   border: 1px solid #666;
   padding: 0.5em;
-  max-width: 50%;
+  max-width: 80%;
   background-color: #fff;
   box-shadow: 1px 1px 2px #000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }
 .popup a { padding: .3em; cursor: pointer; }
 .popup a:hover { background-color: #ccc; }
@@ -162,7 +165,6 @@ function markPicked(anchor) {
 
 function showPopup(anchor) {
   const popup = document.createElement('aside');
-  const subpopup = popup.appendChild(document.createElement('span'));
 
   const onMouseDown = (event) => {
     if (event.button !== 0) {
@@ -181,21 +183,21 @@ function showPopup(anchor) {
   // del
   {
     const cand = anchor.querySelector('del');
-    const b = subpopup.appendChild(document.createElement('b'));
+    const b = popup.appendChild(document.createElement('b'));
     const a = b.appendChild(document.createElement('a'));
     a.textContent = cand.textContent;
     a.tabIndex = 0;
     a.addEventListener('mousedown', onMouseDown);
   }
 
-  subpopup.appendChild(document.createTextNode('→'));
+  popup.appendChild(document.createTextNode('→'));
 
   // ins
   {
     const cands = anchor.querySelectorAll('ins');
     for (let i = 0, I = cands.length; i < I; i++) {
       const cand = cands[i];
-      const a = subpopup.appendChild(document.createElement('a'));
+      const a = popup.appendChild(document.createElement('a'));
       a.textContent = cand.textContent;
       a.tabIndex = i + 1;
       a.addEventListener('mousedown', onMouseDown);
@@ -206,9 +208,9 @@ function showPopup(anchor) {
   popup.style.top = getOffsetY(anchor) + 'px';
   const parent = anchor.offsetParent;
   parent.appendChild(popup);
-  let x = getOffsetX(anchor);
-  if (x + subpopup.scrollWidth < parent.scrollWidth) { popup.style.left = x + 'px'; }
-  else { popup.style.right = '0px'; }
+  const x_avail = Math.max(parent.offsetWidth - popup.offsetWidth - 5, 0);
+  let x = Math.min(getOffsetX(anchor), x_avail);
+  popup.style.left = x + 'px';
 }
 
 function removePopup() {
