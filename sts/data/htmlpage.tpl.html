@@ -434,6 +434,7 @@ function onKeyDown(event) {
 function onFocus(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
+  markChecked(target);
   removePopup();
   showPopup(target);
 }
@@ -441,7 +442,6 @@ function onFocus(event) {
 function onBlur(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
-  markChecked(target);
   removePopup();
 }
 
