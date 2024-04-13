@@ -269,10 +269,9 @@ function onKeyDown(event) {
       }
       break;
     }
-    case "PageUp": case "PageDown":
     case "q": case "e": {
       event.preventDefault();
-      const offset = ["PageDown", "e"].includes(event.key) ? 1 : -1;
+      const offset = event.key === "e" ? 1 : -1;
       const anchorNew = moveAnchor(target, offset, a => {
         return a.matches('.nonchecked');
       });
@@ -282,10 +281,9 @@ function onKeyDown(event) {
       anchorNew.focus();
       break;
     }
-    case "ArrowLeft": case "ArrowRight":
     case "a": case "d": {
       event.preventDefault();
-      const offset = ["ArrowRight", "d"].includes(event.key) ? 1 : -1;
+      const offset = event.key === "d" ? 1 : -1;
       const anchorNew = moveAnchor(target, offset, a => {
         return a.matches(':not(.single)');
       });
@@ -308,10 +306,9 @@ function onKeyDown(event) {
       anchorNew.focus();
       break;
     }
-    case "ArrowUp": case "ArrowDown":
     case "s": case "w": {
       event.preventDefault();
-      const offset = ["ArrowUp", "w"].includes(event.key) ? 1 : -1;
+      const offset = event.key === "w" ? 1 : -1;
       const idxNew = moveCandidate(target, offset);
       if (idxNew === -1) {
         return;
@@ -452,10 +449,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
 <h3>操作鍵</h3>
 <ul>
   <li><kbd>Shift</kbd>+<kbd>Tab</kbd>／<kbd>Tab</kbd>：移至上／下一個字或欄位。</li>
-  <li><kbd>Q</kbd>／<kbd>E</kbd>或<kbd>PgUp</kbd>／<kbd>PgDn</kbd>：移至上／下一個未審字。</li>
-  <li><kbd>A</kbd>／<kbd>D</kbd>或<kbd>←</kbd>／<kbd>→</kbd>：移至上／下一個待校字（非單選字）。</li>
+  <li><kbd>Q</kbd>／<kbd>E</kbd>：移至上／下一個未審字。</li>
+  <li><kbd>A</kbd>／<kbd>D</kbd>：移至上／下一個待校字（非單選字）。</li>
   <li><kbd>Z</kbd>／<kbd>C</kbd>：移至上／下一個相同字。</li>
-  <li><kbd>S</kbd>／<kbd>W</kbd>或<kbd>↓</kbd>／<kbd>↑</kbd>：套用前／後一個候選字。</li>
+  <li><kbd>S</kbd>／<kbd>W</kbd>：套用前／後一個候選字。</li>
   <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
   <li><kbd>Enter</kbd>：將目前的選字自動套用至其他相同字。</li>
   <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，編輯模式下本鍵以外的操作鍵將無效。</li>
