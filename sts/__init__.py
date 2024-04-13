@@ -7,7 +7,7 @@ import math
 import os
 import re
 import sys
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from contextlib import nullcontext
 
 try:
@@ -615,7 +615,7 @@ class StsDict():
 
         stack = [(parts, 0, 0)]
         substack = []
-        results = OrderedDict()
+        results = {}
         while stack:
             (parts, matched, nextindex) = data = stack.pop()
             if nextindex < len(parts):
