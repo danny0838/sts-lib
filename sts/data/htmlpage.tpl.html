@@ -403,7 +403,6 @@ function onKeyDown(event) {
 function onFocus(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
-  event.preventDefault();
   removePopup();
   showPopup(target);
 }
@@ -411,7 +410,6 @@ function onFocus(event) {
 function onBlur(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
-  event.preventDefault();
   markChecked(target);
   removePopup();
 }
