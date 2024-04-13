@@ -227,19 +227,24 @@ function toggleCandidate(anchor, offset) {
 }
 
 function autoPick(anchor, mode) {
+  const modes = {
+    "applyBackwardUnchecked": "將目前選字套用至前面所有未審的相同字",
+    "applyBackward": "將目前選字套用至前面所有相同字",
+    "applyForwardUnchecked": "將目前選字套用至後面所有未審的相同字",
+    "applyForward": "將目前選字套用至後面所有相同字",
+    "applyAllUnchecked": "將目前選字套用至全文所有未審的相同字",
+    "applyAll": "將目前選字套用至全文所有相同字",
+  };
+
   if (typeof mode === 'undefined') {
-    mode = prompt(`\
-請指定自動套用方式：
-1.將目前選字套用至前面所有未審的相同字
-2.將目前選字套用至前面所有相同字
-3.將目前選字套用至後面所有未審的相同字
-4.將目前選字套用至後面所有相同字
-5.將目前選字套用至全文所有未審的相同字
-6.將目前選字套用至全文所有相同字`);
-    mode = parseInt(mode, 10);
+    const idxMap = Array.from(Object.keys(modes));
+    const options = idxMap.map((mode, i) => `${i + 1}.${modes[mode]}`);
+    const msg = "請指定自動套用方式：\n" + options.join('\n');
+    const idx = parseInt(prompt(msg), 10);
+    mode = idxMap[idx - 1];
   }
 
-  if (!(1 <= mode && mode <= 6)) {
+  if (!modes[mode]) {
     return;
   }
 
@@ -261,13 +266,13 @@ function autoPick(anchor, mode) {
   const charCur = anchor.querySelector('del').textContent;
 
   let start, end;
-  if ([1, 2].includes(mode)) {
+  if (["applyBackwardUnchecked", "applyBackward"].includes(mode)) {
     start = 0;
     end = Array.prototype.indexOf.call(anchors, anchor);
-  } else if ([3, 4].includes(mode)) {
+  } else if (["applyForwardUnchecked", "applyForward"].includes(mode)) {
     start = Array.prototype.indexOf.call(anchors, anchor) + 1;
     end = anchors.length;
-  } else if ([5, 6].includes(mode)) {
+  } else if (["applyAllUnchecked", "applyAll"].includes(mode)) {
     start = 0;
     end = anchors.length;
   }
@@ -280,7 +285,8 @@ function autoPick(anchor, mode) {
     if (a.querySelector('del').textContent !== charCur) {
       continue;
     }
-    if ([1, 3, 5].includes(mode) && !a.matches('.unchecked')) {
+    if (["applyBackwardUnchecked", "applyForwardUnchecked", "applyAllUnchecked"].includes(mode) &&
+        !a.matches('.unchecked')) {
       continue;
     }
     func(a);
