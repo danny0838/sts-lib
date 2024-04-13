@@ -6,6 +6,10 @@
 <title>簡繁秘書 v%VERSION%</title>
 <style>
 kbd { border: 1px solid #999; border-radius: 2px; padding: 2px 4px; background-color: #f5f5f5; font-weight: bold; }
+dialog header { margin-bottom: .5em; font-style: bold; }
+dialog section label { display: block; }
+dialog footer { margin-top: 1em; display: flex; gap: .5em 1em; flex-direction: row; flex-wrap: wrap; }
+dialog footer input { flex-grow: 1; }
 #viewer { border: thin ridge #0066CC; padding: 0.5em; background-color: #f8f8ee; white-space: pre-wrap; }
 #viewer a { border: thin dotted #AAA; color: unset; text-decoration: none; }
 #viewer a:focus { outline: medium solid blue; }
@@ -329,7 +333,7 @@ function autoPick(anchor, mode) {
   anchor.focus();
 }
 
-function runCommand(anchor, cmd) {
+async function runCommand(anchor, cmd) {
   const cmds = {
     "moveToUncheckedBackward": "移至上一個未審字",
     "moveToUncheckedForward": "移至下一個未審字",
@@ -354,14 +358,54 @@ function runCommand(anchor, cmd) {
   };
 
   if (typeof cmd === 'undefined') {
-    const idxMap = Array.from(Object.keys(cmds));
-    const options = idxMap.reduce((acc, cmd, i) => {
-      acc.push(`${i + 1}.${cmds[cmd]}`);
-      return acc;
-    }, []);
-    const msg = "請輸入要執行的指令：\n" + options.join('\n');
-    const idx = parseInt(prompt(msg), 10);
-    cmd = idxMap[idx - 1];
+    if (typeof HTMLDialogElement !== 'undefined') {
+      const dialog = document.createElement('dialog');
+      const form = dialog.appendChild(document.createElement('form'));
+      form.method = 'dialog';
+      const header = form.appendChild(document.createElement('header'));
+      header.textContent = '請選擇要執行的指令：';
+      const section = form.appendChild(document.createElement('section'));
+      const footer = form.appendChild(document.createElement('footer'));
+      const submitBtn = footer.appendChild(document.createElement('input'));
+      submitBtn.type = 'submit';
+      submitBtn.value = '確認';
+      const cancelBtn = footer.appendChild(document.createElement('input'));
+      cancelBtn.type = 'button';
+      cancelBtn.value = '取消';
+      cancelBtn.addEventListener('click', (event) => {
+        dialog.close('');
+      });
+      for (const cmd in cmds) {
+        const label = section.appendChild(document.createElement('label'));
+        const input = label.appendChild(document.createElement('input'));
+        input.type = 'radio';
+        input.name = 'cmd';
+        input.value = cmd;
+        label.appendChild(document.createTextNode(cmds[cmd]));
+      }
+
+      const target = runCommand.lastCmd ?
+          section.querySelector(`input[value="${CSS.escape(runCommand.lastCmd)}"]`) :
+          section.querySelector('input');
+      target.checked = true;
+      target.autofocus = true;
+
+      cmd = await new Promise((resolve, reject) => {
+        dialog.addEventListener('close', (event) => {
+          const rv = dialog.returnValue ? dialog.querySelector('form').cmd.value : null;
+          resolve(rv);
+        });
+        document.body.appendChild(dialog);
+        dialog.showModal();
+      });
+      dialog.remove();
+    } else {
+      const idxMap = Array.from(Object.keys(cmds));
+      const options = idxMap.map((cmd, i) => `${i + 1}.${cmds[cmd]}`);
+      const msg = "請輸入要執行的指令：\n" + options.join('\n');
+      const idx = parseInt(prompt(msg), 10);
+      cmd = idxMap[idx - 1];
+    }
   }
 
   if (!cmds[cmd]) {
@@ -411,6 +455,8 @@ function runCommand(anchor, cmd) {
       toggleEditing(anchor);
       break;
   }
+
+  runCommand.lastCmd = cmd;
 }
 
 function showPopup(anchor) {
