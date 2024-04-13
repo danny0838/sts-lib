@@ -616,18 +616,18 @@ class StsDict():
         stack = [(parts, 0, 0)]
         substack = []
         results = OrderedDict()
-        while len(stack):
+        while stack:
             (parts, matched, nextindex) = data = stack.pop()
             if nextindex < len(parts):
                 self._apply_enum_sub(substack, data, include_short=include_short, include_self=include_self)
-                while len(substack):
+                while substack:
                     stack.append(substack.pop())
             elif matched > 0:
                 results[''.join(parts)] = True
 
         results = list(results)
 
-        if len(results) == 0:
+        if not results:
             results.append(text if isinstance(text, str) else ''.join(text))
 
         return results
