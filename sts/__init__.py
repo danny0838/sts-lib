@@ -1061,29 +1061,29 @@ class StsConverter():
             yield from self.table.apply(text)
             return
 
-        def convert_with_regex(text, regex):
-            index = 0
-            for m in regex.finditer(text):
-                start, end = m.span(0)
+        yield from self._convert_with_filter(text, exclude)
 
-                t = text[index:start]
-                if t:
-                    yield from self.table.apply(t)
+    def _convert_with_filter(self, text, exclude):
+        index = 0
+        for m in exclude.finditer(text):
+            start, end = m.span(0)
 
-                try:
-                    t = m.group('return')
-                except IndexError:
-                    t = m.group(0)
-                if t:
-                    yield t
-
-                index = end
-
-            t = text[index:]
+            t = text[index:start]
             if t:
                 yield from self.table.apply(t)
 
-        yield from convert_with_regex(text, exclude)
+            try:
+                t = m.group('return')
+            except IndexError:
+                t = m.group(0)
+            if t:
+                yield t
+
+            index = end
+
+        t = text[index:]
+        if t:
+            yield from self.table.apply(t)
 
     def convert_formatted(self, text, format=None, exclude=None):
         """Convert a text and yield each formatted part.
