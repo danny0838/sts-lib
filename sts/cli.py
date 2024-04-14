@@ -123,7 +123,8 @@ def parse_args(argv=None):
                                 choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
                                 help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
     parser_convert.add_argument('--exclude', type=regex,
-                                help="""exclude text matching given regex from conversion, and replace it with the "return" subgroup value if exists""")
+                                help="""exclude text matching given regex from conversion, and replace it with the
+"return" (or "return1", "return2", etc.) subgroup value if exists""")
     parser_convert.add_argument('--in-enc', default='UTF-8', metavar='ENCODING',
                                 help="""encoding for input (default: %(default)s)""")
     parser_convert.add_argument('--out-enc', default='UTF-8', metavar='ENCODING',

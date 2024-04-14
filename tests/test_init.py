@@ -1399,6 +1399,20 @@ class TestClassStsConverter(unittest.TestCase):
         output = list(converter.convert(input, re.compile(r'「.*?」|-{(?P<return>.*?)}-')))
         self.assertEqual(expected, output)
 
+        stsdict = StsMaker().make('s2t', quiet=True)
+        converter = StsConverter(stsdict)
+        input = """-{尸}-大口 <!-->财干<-->"""
+        expected = ['尸', '大', '口', ' ', '财干']
+        output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-|<!-->(?P<return2>.*?)<-->')))
+        self.assertEqual(expected, output)
+
+        stsdict = StsMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict)
+        input = """「奔馳」不是奔馳"""
+        expected = ['「奔馳」', '不', '是', (['奔', '馳'], ['賓士'])]
+        output = list(converter.convert(input, re.compile(r'「(?P<nomatter>.*?)」')))
+        self.assertEqual(expected, output)
+
     def test_convert_formatted(self):
         stsdict = Trie({
             '⿰虫风': ['𧍯'],

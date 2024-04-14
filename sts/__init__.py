@@ -1096,10 +1096,11 @@ class StsConverter():
             if t:
                 yield from self.table.apply(t)
 
-            try:
-                t = m.group('return')
-                assert t is not None
-            except (IndexError, AssertionError):
+            for k, v in m.groupdict().items():
+                if self.exclude_return_group_pattern.search(k) and v is not None:
+                    t = v
+                    break
+            else:
                 t = m.group(0)
             if t:
                 yield t
@@ -1225,5 +1226,6 @@ class StsConverter():
             for part in conv:
                 fh.write(part)
 
+    exclude_return_group_pattern = re.compile(r'^return\d*$')
     template_placeholder_pattern = re.compile(r'%(\w*)%')
     htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
