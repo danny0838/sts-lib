@@ -300,6 +300,8 @@ class StsDict():
             t = os.path.splitext(file)[1][1:].lower() if type is None else type
             if t in ('json', 'jlist'):
                 self._load_json(file)
+            elif t in ('yaml', 'yml'):
+                self._load_yaml(file)
             else:
                 self._load_plain(file)
         return self
@@ -317,6 +319,19 @@ class StsDict():
     def _load_json(self, file):
         with open(file, 'r', encoding='UTF-8') as fh:
             data = json.load(fh)
+            if not isinstance(data, dict):
+                data = dict(data)
+            for key, values in data.items():
+                self.add(key, values)
+
+    def _load_yaml(self, file):
+        try:
+            import yaml
+        except ModuleNotFoundError:
+            raise RuntimeError('install PyYAML module to support loading .yaml files')
+
+        with open(file, 'r', encoding='UTF-8') as fh:
+            data = yaml.safe_load(fh)
             if not isinstance(data, dict):
                 data = dict(data)
             for key, values in data.items():

@@ -9,6 +9,8 @@ from pathlib import Path
 from textwrap import dedent
 from unittest import mock
 
+import yaml
+
 from sts import (
     StreamList,
     StsConverter,
@@ -366,6 +368,35 @@ class TestClassStsDict(unittest.TestCase):
                 json.dump({'简': '簡', '干': ['幹', '乾']}, fh)
             with open(tempfile2, 'w', encoding='UTF-8') as fh:
                 json.dump([['干', ['干', '榦']], ['姜', ['姜', '薑']], ['体', '體']], fh)
+
+            for class_ in (StsDict, Table, Trie):
+                with self.subTest(type=class_, ext=ext):
+                    stsdict = class_()
+                    stsdict.load(tempfile, tempfile2)
+                    self.assertEqual({
+                        '简': ['簡'],
+                        '干': ['幹', '乾', '干', '榦'],
+                        '姜': ['姜', '薑'],
+                        '体': ['體'],
+                    }, stsdict)
+
+    def test_load_type_yaml(self):
+        for ext in ('yaml', 'yml'):
+            tempfile = os.path.join(self.root, f'test.{ext}')
+            tempfile2 = os.path.join(self.root, f'test2.{ext}')
+
+            # dict as {key1: values1, ...} or [[key1, values1], [key2, values2], ...]
+            # where values is a str or a list of strs
+            with open(tempfile, 'w', encoding='UTF-8') as fh:
+                yaml.dump(
+                    {'简': '簡', '干': ['幹', '乾']},
+                    fh, allow_unicode=True,
+                )
+            with open(tempfile2, 'w', encoding='UTF-8') as fh:
+                yaml.dump(
+                    [['干', ['干', '榦']], ['姜', ['姜', '薑']], ['体', '體']],
+                    fh, allow_unicode=True,
+                )
 
             for class_ in (StsDict, Table, Trie):
                 with self.subTest(type=class_, ext=ext):

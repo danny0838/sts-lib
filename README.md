@@ -92,7 +92,7 @@ converter.convert_file(input=None, output=None
  * @property {Array.<(string|string[])>} src - the source files. Each as an
  *     absolute path, or a path relative to the directory of this config file,
  *     or the basename of a built-in dictionary file. Each should be a .txt,
- *     .list, .json, or .jlist dictionary file.
+ *     .list, .json, .jlist, .yaml, or .yml dictionary file.
  * @property {boolean} [sort] - true to sort the keys of the output dictionary.
  * @property {string} [include] - a regex filter that discards non-matched
  *     conversion values.
@@ -101,8 +101,8 @@ converter.convert_file(input=None, output=None
  * @property {boolean} [check] - true to raise an exception if the output
  *     contains an invalid char which will be loaded incorrectly. Set this
  *     when the output is a plain text table file and the source files contain
- *     untrusted JSON data that may include a char like " ", "\t", "\n", etc.
- *     in the dictionary.
+ *     untrusted JSON or YAML data that may include a char like " ", "\t",
+ *     "\n", etc. in the dictionary.
  */
 ```
 
