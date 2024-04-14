@@ -91,8 +91,8 @@ converter.convert_file(input=None, output=None
  *     array of subarrays of strings)
  * @property {Array.<(string|string[])>} src - the source files. Each as an
  *     absolute path, or a path relative to the directory of this config file,
- *     or the basename of a built-in dictionary file. Each should be a .txt or
- *     .list dictionary file.
+ *     or the basename of a built-in dictionary file. Each should be a .txt,
+ *     .list, .json, or .jlist dictionary file.
  * @property {boolean} [sort] - true to sort the keys of the output dictionary.
  * @property {string} [include] - a regex filter that discards non-matched
  *     conversion values.

@@ -355,6 +355,50 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹', '乾', '干', '榦']}, stsdict)
 
+    def test_load_type_json(self):
+        for ext in ('json', 'jlist'):
+            tempfile = os.path.join(self.root, f'test.{ext}')
+            tempfile2 = os.path.join(self.root, f'test2.{ext}')
+
+            # dict as {key1: values1, ...} or [[key1, values1], [key2, values2], ...]
+            # where values is a str or a list of strs
+            with open(tempfile, 'w', encoding='UTF-8') as fh:
+                json.dump({'简': '簡', '干': ['幹', '乾']}, fh)
+            with open(tempfile2, 'w', encoding='UTF-8') as fh:
+                json.dump([['干', ['干', '榦']], ['姜', ['姜', '薑']], ['体', '體']], fh)
+
+            for class_ in (StsDict, Table, Trie):
+                with self.subTest(type=class_, ext=ext):
+                    stsdict = class_()
+                    stsdict.load(tempfile, tempfile2)
+                    self.assertEqual({
+                        '简': ['簡'],
+                        '干': ['幹', '乾', '干', '榦'],
+                        '姜': ['姜', '薑'],
+                        '体': ['體'],
+                    }, stsdict)
+
+    def test_load_type_force(self):
+        # .json load as plain
+        tempfile = os.path.join(self.root, 'test.json')
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹 乾""")
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_()
+                stsdict.load(tempfile, type='txt')
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
+
+        # .txt load as json
+        tempfile = os.path.join(self.root, 'test.txt')
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            json.dump({'干': ['幹', '乾']}, fh)
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_()
+                stsdict.load(tempfile, type='json')
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
+
     def test_dump(self):
         tempfile = os.path.join(self.root, 'test.tmp')
 

@@ -293,19 +293,34 @@ class StsDict():
             self.add(key, values, skip_check=skip_check)
         return self
 
-    def load(self, *files):
-        """Add all key-values pairs from plain-dict file(s).
+    def load(self, *files, type=None):
+        """Add all key-values pairs from dict file(s).
         """
         for file in files:
-            with open(file, 'r', encoding='UTF-8') as fh:
-                for line in fh:
-                    try:
-                        key, values, *_ = line.rstrip('\n').split('\t')
-                    except ValueError:
-                        pass
-                    else:
-                        self.add(key, values.split(' '))
+            t = os.path.splitext(file)[1][1:].lower() if type is None else type
+            if t in ('json', 'jlist'):
+                self._load_json(file)
+            else:
+                self._load_plain(file)
         return self
+
+    def _load_plain(self, file):
+        with open(file, 'r', encoding='UTF-8') as fh:
+            for line in fh:
+                try:
+                    key, values, *_ = line.rstrip('\n').split('\t')
+                except ValueError:
+                    pass
+                else:
+                    self.add(key, values.split(' '))
+
+    def _load_json(self, file):
+        with open(file, 'r', encoding='UTF-8') as fh:
+            data = json.load(fh)
+            if not isinstance(data, dict):
+                data = dict(data)
+            for key, values in data.items():
+                self.add(key, values)
 
     def dump(self, file=None, sort=False):
         """Dump key-values pairs to a plain-dict file.
