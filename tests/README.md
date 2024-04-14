@@ -2,7 +2,7 @@
 
 Enter this project directory and install it (adding `-e` is recommended):
 
-    pip install -e .
+    pip install -e .[dev]
 
 Perform the unit tests:
 
