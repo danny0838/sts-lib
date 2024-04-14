@@ -192,6 +192,9 @@ function toggleEditing(anchor, willEdit) {
   }
 
   if (willEdit) {
+    // edited implies picked
+    markPicked(anchor);
+
     anchor.classList.add('editing');
     let elem = anchor.querySelector('span');
     if (!elem) {
