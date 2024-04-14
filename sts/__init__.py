@@ -978,11 +978,11 @@ class StsMaker():
             return relative_config
 
         if os.path.basename(config) == config:
-            search_file = os.path.join(self.default_config_dir, config)
+            search_file = os.path.join(self.config_dir, config)
             if os.path.isfile(search_file):
                 return search_file
             if not config.lower().endswith('.json'):
-                search_file = os.path.join(self.default_config_dir, config + '.json')
+                search_file = os.path.join(self.config_dir, config + '.json')
                 if os.path.isfile(search_file):
                     return search_file
 
@@ -1004,7 +1004,7 @@ class StsMaker():
             return relative_stsdict
 
         if os.path.basename(stsdict) == stsdict:
-            search_file = os.path.join(self.default_dictionary_dir, stsdict)
+            search_file = os.path.join(self.dictionary_dir, stsdict)
             if os.path.isfile(search_file):
                 return search_file
 
@@ -1025,8 +1025,8 @@ class StsMaker():
 
         return False
 
-    default_config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
-    default_dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
+    config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
+    dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
 
 
 class StsConverter():
@@ -1130,12 +1130,12 @@ class StsConverter():
                 yield part
 
     def _convert_formatted_htmlpage(self, parts):
-        with open(self.default_htmlpage_template,
+        with open(self.htmlpage_template,
                   encoding='UTF-8', newline='') as fh:
             html = fh.read()
 
         pos = 0
-        for m in self.regex_template.finditer(html):
+        for m in self.template_placeholder_pattern.finditer(html):
             yield html[pos:m.start(0)]
 
             key = m.group(1)
@@ -1191,6 +1191,5 @@ class StsConverter():
             for part in conv:
                 fh.write(part)
 
-    default_htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
-
-    regex_template = re.compile(r'%(\w+)%')
+    template_placeholder_pattern = re.compile(r'%(\w+)%')
+    htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
