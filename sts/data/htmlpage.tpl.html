@@ -319,6 +319,8 @@ function autoPick(anchor, mode) {
   const anchors = viewer.querySelectorAll('a:not(.unmatched)');
   const charCur = anchor.querySelector('del').textContent;
 
+  func(anchor);
+
   let start, end;
   if (["applyBackwardUnchecked", "applyBackward"].includes(mode)) {
     start = 0;
