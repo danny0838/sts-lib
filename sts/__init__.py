@@ -888,10 +888,12 @@ class StsMaker():
                                         // file, relative to output_dir
                         "mode": "...",  // mode to handle the loaded sources:
                                         // load, swap, join
-                        "sort": true,   // truthy to sort the keys of the
-                                        // generated dictionary
                         "src": ["...", ...]  // list of the source file paths,
                                              // should be .txt or .list files
+                        "sort": true,   // truthy to sort the keys of the
+                                        // generated dictionary
+                        "include": "...",  // regex filter for output values
+                        "exclude": "...",  // regex filter for output values
                     },
                     ...
                 ]
