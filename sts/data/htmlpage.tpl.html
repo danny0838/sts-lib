@@ -306,9 +306,9 @@ function onKeyDown(event) {
       anchorNew.focus();
       break;
     }
-    case "s": case "w": {
+    case "w": case "s": {
       event.preventDefault();
-      const offset = event.key === "w" ? 1 : -1;
+      const offset = event.key === "s" ? 1 : -1;
       const idxNew = moveCandidate(target, offset);
       if (idxNew === -1) {
         return;
@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   <li><kbd>Q</kbd>／<kbd>E</kbd>：移至上／下一個未審字。</li>
   <li><kbd>A</kbd>／<kbd>D</kbd>：移至上／下一個待校字（非單選字）。</li>
   <li><kbd>Z</kbd>／<kbd>C</kbd>：移至上／下一個相同字。</li>
-  <li><kbd>S</kbd>／<kbd>W</kbd>：套用前／後一個候選字。</li>
+  <li><kbd>W</kbd>／<kbd>S</kbd>：套用前／後一個候選字。</li>
   <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
   <li><kbd>Enter</kbd>：將目前的選字自動套用至其他相同字。</li>
   <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，編輯模式下本鍵以外的操作鍵將無效。</li>
