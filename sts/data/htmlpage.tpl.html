@@ -176,18 +176,6 @@ function unmarkChecked(anchor) {
 }
 
 function markPicked(anchor) {
-  // do not mark picked for a single-candidate with original converted value
-  if (anchor.classList.contains('single') && anchor.querySelector('ins:not([hidden])')) {
-    anchor.classList.remove('picked');
-    return;
-  }
-
-  // do not mark picked for an unmatched with original value
-  if (anchor.classList.contains('unmatched') && anchor.querySelector('del:not([hidden])')) {
-    anchor.classList.remove('picked');
-    return;
-  }
-
   anchor.classList.add('picked');
 
   // picked implies checked
@@ -259,7 +247,7 @@ function moveToUnchecked(anchor, offset) {
 
 function moveToCheckworthy(anchor, offset) {
   const anchorNew = moveAnchor(anchor, offset, a => {
-    return a.matches(':not(.single):not(.unmatched)');
+    return a.matches('.unchecked, .checked, .picked');
   });
   if (!anchorNew) {
     return;
