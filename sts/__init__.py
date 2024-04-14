@@ -1129,9 +1129,16 @@ class StsConverter():
                 part = f"""<a>{content}</a>"""
                 yield part
 
-    def _convert_formatted_htmlpage(self, parts):
-        with open(self.htmlpage_template,
-                  encoding='UTF-8', newline='') as fh:
+    def _convert_formatted_htmlpage(self, parts, template=None):
+        if template is None:
+            template = self.htmlpage_template
+
+        try:
+            fh = open(template, encoding='UTF-8', newline='')
+        except TypeError:
+            fh = nullcontext(template)
+
+        with fh as fh:
             html = fh.read()
 
         pos = 0

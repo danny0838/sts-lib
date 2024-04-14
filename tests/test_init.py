@@ -18,6 +18,7 @@ from sts import (
     Trie,
     Unicode,
 )
+from sts import __version__ as sts_version
 
 from . import slow_test
 
@@ -1287,11 +1288,6 @@ class TestClassStsConverter(unittest.TestCase):
         output = ''.join(converter.convert_formatted(input, 'html'))
         self.assertEqual(expected, output)
 
-        # htmlpage
-        output = ''.join(converter.convert_formatted(input, 'htmlpage'))
-        self.assertNotEqual(expected, output)
-        self.assertIn(expected, output)
-
         # json
         expected = (
             r"""[[["干"],["幹","乾","干"]],"了"," ",[["干","涉"],["干涉"]],"\n","""
@@ -1301,6 +1297,40 @@ class TestClassStsConverter(unittest.TestCase):
         )
         output = ''.join(converter.convert_formatted(input, 'json'))
         self.assertEqual(expected, output)
+
+    def test_convert_formatted_htmlpage(self):
+        stsdict = Trie({
+            '⿰虫风': ['𧍯'],
+            '干': ['幹', '乾', '干'],
+            '干涉': ['干涉'],
+        })
+        converter = StsConverter(stsdict)
+        input = dedent(
+            """\
+            干了 干涉
+            ⿰虫风 ⿱艹⿰虫风
+            """
+        )
+        expected = dedent(
+            """\
+            <a><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
+            <a><del hidden>⿰虫风</del><ins>𧍯</ins></a> ⿱艹⿰虫风
+            """
+        )
+
+        # default template
+        output = ''.join(converter.convert_formatted(input, 'htmlpage'))
+        self.assertNotEqual(expected, output)
+        self.assertIn(expected, output)
+
+        # template placeholders
+        converter.htmlpage_template = io.StringIO('%CONTENT%')
+        output = ''.join(converter.convert_formatted(input, 'htmlpage'))
+        self.assertEqual(expected, output)
+
+        converter.htmlpage_template = io.StringIO('%VERSION%')
+        output = ''.join(converter.convert_formatted(input, 'htmlpage'))
+        self.assertEqual(sts_version, output)
 
     def test_convert_formatted_options(self):
         converter = StsConverter(Table())
