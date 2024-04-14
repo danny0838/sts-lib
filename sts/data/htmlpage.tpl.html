@@ -10,6 +10,7 @@ dialog header { margin-bottom: .5em; font-style: bold; }
 dialog section label { display: block; }
 dialog footer { margin-top: 1em; display: flex; gap: .5em 1em; flex-direction: row; flex-wrap: wrap; }
 dialog footer input { flex-grow: 1; }
+body > footer { margin-top: 1em; text-align: center; font-size: small; }
 #viewer { border: thin ridge #0066CC; padding: 0.5em; background-color: #f8f8ee; white-space: pre-wrap; }
 #viewer a { border: thin dotted #AAA; color: unset; text-decoration: none; }
 #viewer a:focus { outline: medium solid blue; }
@@ -690,5 +691,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
   <li><kbd>Enter</kbd>：執行進階指令。</li>
 </ul>
 </details>
+<footer>Generated with <a href="https://pypi.org/project/sts-lib/">STS (Simplified-Traditional Secretary)</a> v%VERSION%. Released under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</footer>
 </body>
 </html>
