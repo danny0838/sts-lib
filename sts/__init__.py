@@ -1098,7 +1098,8 @@ class StsConverter():
 
             try:
                 t = m.group('return')
-            except IndexError:
+                assert t is not None
+            except (IndexError, AssertionError):
                 t = m.group(0)
             if t:
                 yield t

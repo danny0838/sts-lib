@@ -1392,6 +1392,13 @@ class TestClassStsConverter(unittest.TestCase):
         output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-')))  # noqa: P103
         self.assertEqual(expected, output)
 
+        stsdict = StsMaker().make('s2twp', quiet=True)
+        converter = StsConverter(stsdict)
+        input = """-{尸}-大口「发财了」"""
+        expected = ['尸', '大', '口', '「发财了」']
+        output = list(converter.convert(input, re.compile(r'「.*?」|-{(?P<return>.*?)}-')))
+        self.assertEqual(expected, output)
+
     def test_convert_formatted(self):
         stsdict = Trie({
             '⿰虫风': ['𧍯'],
