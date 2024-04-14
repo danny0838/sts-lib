@@ -322,7 +322,7 @@ class StsDict():
             for key, values in data.items():
                 self.add(key, values)
 
-    def dump(self, file=None, sort=False):
+    def dump(self, file=None, sort=False, check=False):
         """Dump key-values pairs to a plain-dict file.
 
         Args:
@@ -338,6 +338,17 @@ class StsDict():
             else nullcontext(sys.stdout)
         ) as fh:
             for key, values in it:
+                if check:
+                    for badchar in '\t\n\r':
+                        if badchar in key:
+                            raise ValueError(
+                                f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
+                            )
+                    for badchar in ' \t\n\r':
+                        if any(badchar in v for v in values):
+                            raise ValueError(
+                                f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
+                            )
                 fh.write(f'{key}\t{" ".join(values)}\n')
 
     def loadjson(self, file):
@@ -924,6 +935,7 @@ class StsMaker():
                                         // generated dictionary
                         "include": "...",  // regex filter for output values
                         "exclude": "...",  // regex filter for output values
+                        "check": true,  // check for invalid output
                     },
                     ...
                 ]
@@ -967,6 +979,7 @@ class StsMaker():
             sort = dict_.get('sort', False)
             include = dict_.get('include', None)
             exclude = dict_.get('exclude', None)
+            check = dict_.get('check', False)
 
             if include is not None:
                 try:
@@ -1014,7 +1027,7 @@ class StsMaker():
             elif format == 'jlist':
                 table.dumpjson(dest, sort=sort)
             else:  # default: list
-                table.dump(dest, sort=sort)
+                table.dump(dest, sort=sort, check=check)
 
         return dest
 

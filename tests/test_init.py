@@ -424,6 +424,38 @@ class TestClassStsDict(unittest.TestCase):
                     stsdict.dump()
                 self.assertEqual('干\t干 榦\n姜\t姜 薑\n', fh.getvalue())
 
+    def test_dump_badchar(self):
+        tempfile = os.path.join(self.root, 'test.tmp')
+
+        for class_ in (StsDict, Table, Trie):
+            for badchar in '\t\n\r':
+                with self.subTest(type=class_, char=badchar, where='key'):
+                    stsdict = class_({f'干{badchar}姜': ['乾薑']})
+
+                    # check if an error is raised when check=True
+                    with self.assertRaises(ValueError):
+                        stsdict.dump(tempfile, check=True)
+
+                    # check if badchar really causes bad loading
+                    stsdict.dump(tempfile)
+                    stsdict2 = class_()
+                    stsdict2.load(tempfile)
+                    self.assertNotEqual(stsdict, stsdict2)
+
+            for badchar in ' \t\n\r':
+                with self.subTest(type=class_, char=badchar, where='value'):
+                    stsdict = class_({'干姜': [f'乾{badchar}薑']})
+
+                    # check if an error is raised when check=True
+                    with self.assertRaises(ValueError):
+                        stsdict.dump(tempfile, check=True)
+
+                    # check if badchar really causes bad loading
+                    stsdict.dump(tempfile)
+                    stsdict2 = class_()
+                    stsdict2.load(tempfile)
+                    self.assertNotEqual(stsdict, stsdict2)
+
     def test_loadjson(self):
         tempfile = os.path.join(self.root, 'test.tmp')
 
@@ -1361,6 +1393,29 @@ class TestClassStsMaker(unittest.TestCase):
         self.assertEqual({
             '陣': ['阵'],
         }, dict(converter.table))
+
+    def test_check(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'load',
+                        'src': [
+                            'chars.txt',
+                        ],
+                        'check': True,
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write('干\t幹 乾 干')
+
+        with mock.patch('sts.StsDict.dump') as mocker:
+            StsMaker().make(config_file, quiet=True)
+            mocker.assert_called_with(mock.ANY, sort=mock.ANY, check=True)
 
 
 class TestClassStsConverter(unittest.TestCase):

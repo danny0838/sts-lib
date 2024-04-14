@@ -98,6 +98,11 @@ converter.convert_file(input=None, output=None
  *     conversion values.
  * @property {string} [exclude] - a regex filter that discards matched
  *     conversion values.
+ * @property {boolean} [check] - true to raise an exception if the output
+ *     contains an invalid char which will be loaded incorrectly. Set this
+ *     when the output is a plain text table file and the source files contain
+ *     untrusted JSON data that may include a char like " ", "\t", "\n", etc.
+ *     in the dictionary.
  */
 ```
 
