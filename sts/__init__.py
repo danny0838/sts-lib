@@ -1146,7 +1146,9 @@ class StsConverter():
             yield html[pos:m.start(0)]
 
             key = m.group(1)
-            if key == 'CONTENT':
+            if key == '':
+                yield '%'
+            elif key == 'CONTENT':
                 yield from self._convert_formatted_html(parts)
             elif key == 'VERSION':
                 yield __version__
@@ -1198,5 +1200,5 @@ class StsConverter():
             for part in conv:
                 fh.write(part)
 
-    template_placeholder_pattern = re.compile(r'%(\w+)%')
+    template_placeholder_pattern = re.compile(r'%(\w*)%')
     htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')

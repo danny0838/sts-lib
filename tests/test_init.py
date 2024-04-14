@@ -1332,6 +1332,10 @@ class TestClassStsConverter(unittest.TestCase):
         output = ''.join(converter.convert_formatted(input, 'htmlpage'))
         self.assertEqual(sts_version, output)
 
+        converter.htmlpage_template = io.StringIO('%%')
+        output = ''.join(converter.convert_formatted(input, 'htmlpage'))
+        self.assertEqual('%', output)
+
     def test_convert_formatted_options(self):
         converter = StsConverter(Table())
 
