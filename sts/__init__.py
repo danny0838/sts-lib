@@ -313,15 +313,15 @@ class StsDict():
             file: path of file to save. Use stdout if None.
             sort: True to sort the output.
         """
-        iterator = self.items()
+        it = self.items()
         if sort:
-            iterator = sorted(iterator)
+            it = sorted(it)
         with (
             open(file, 'w', encoding='UTF-8', newline='')
             if file
             else nullcontext(sys.stdout)
         ) as fh:
-            for key, values in iterator:
+            for key, values in it:
                 fh.write(f'{key}\t{" ".join(values)}\n')
 
     def loadjson(self, file):
@@ -364,10 +364,10 @@ class StsDict():
         Args:
             sort: True to sort the output.
         """
-        iterator = self.items()
+        it = self.items()
         if sort:
-            iterator = sorted(iterator)
-        for key, values in iterator:
+            it = sorted(it)
+        for key, values in it:
             print(f'{key} => {" ".join(values)}')
 
     def find(self, keyword, from_keys=True, from_values=True, exact=False):
