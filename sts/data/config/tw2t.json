@@ -4,7 +4,7 @@
     "_default"
   ],
   "dicts": [{
-    "file": "tw2t.tlist",
+    "file": "../dictionary/tw2t.tlist",
     "mode": "load",
     "src": [
       "TWVariantsRevPhrases.txt",

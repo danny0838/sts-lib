@@ -1,7 +1,7 @@
 {
   "name": "Built-in dictionaries",
   "dicts": [{
-    "file": "TWPhrases.list",
+    "file": "../dictionary/TWPhrases.list",
     "mode": "load",
     "src": [
       "TWPhrasesIT.txt",
@@ -9,25 +9,25 @@
       "TWPhrasesOther.txt"
     ]
   }, {
-    "file": "TWPhrasesRev.list",
+    "file": "../dictionary/TWPhrasesRev.list",
     "mode": "swap",
     "src": [
       "TWPhrases.list"
     ]
   }, {
-    "file": "TWVariantsRev.list",
+    "file": "../dictionary/TWVariantsRev.list",
     "mode": "swap",
     "src": [
       "TWVariants.txt"
     ]
   }, {
-    "file": "HKVariantsRev.list",
+    "file": "../dictionary/HKVariantsRev.list",
     "mode": "swap",
     "src": [
       "HKVariants.txt"
     ]
   }, {
-    "file": "JPVariantsRev.list",
+    "file": "../dictionary/JPVariantsRev.list",
     "mode": "swap",
     "src": [
       "JPVariants.txt"

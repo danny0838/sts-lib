@@ -4,7 +4,7 @@
     "_default"
   ],
   "dicts": [{
-    "file": "s2twp.tlist",
+    "file": "../dictionary/s2twp.list",
     "mode": "join",
     "src": [
       [

@@ -4,7 +4,7 @@
     "_default"
   ],
   "dicts": [{
-    "file": "hk2s.tlist",
+    "file": "../dictionary/hk2s.tlist",
     "mode": "join",
     "src": [
       [

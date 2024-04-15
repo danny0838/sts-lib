@@ -1702,20 +1702,20 @@ class TestConfigs(unittest.TestCase):
     @slow_test()
     def test_make(self):
         def clear_lists():
-            pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
-            with os.scandir(config_dir) as it:
+            with os.scandir(dict_dir) as it:
                 for file in it:
-                    if pattern.search(file.path):
+                    if dict_pattern.search(file.path):
                         os.remove(file)
 
         config_dir = StsMaker.config_dir
-        maker = StsMaker()
-        pattern = re.compile(r'\.json$', re.I)
+        dict_dir = StsMaker.dictionary_dir
+        config_pattern = re.compile(r'\.json$', re.I)
+        dict_pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
         for file in os.listdir(config_dir):
-            if pattern.search(file):
+            if config_pattern.search(file):
                 with self.subTest(config=file):
                     clear_lists()
-                    maker.make(file, quiet=True)
+                    StsMaker().make(file, quiet=True)
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@
     "_default"
   ],
   "dicts": [{
-    "file": "tw2sp.tlist",
+    "file": "../dictionary/tw2sp.list",
     "mode": "join",
     "src": [
       [

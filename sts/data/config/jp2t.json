@@ -4,7 +4,7 @@
     "_default"
   ],
   "dicts": [{
-    "file": "jp2t.tlist",
+    "file": "../dictionary/jp2t.tlist",
     "mode": "load",
     "src": [
       "JPShinjitaiPhrases.txt",

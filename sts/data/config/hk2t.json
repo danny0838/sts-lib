@@ -4,7 +4,7 @@
     "_default"
   ],
   "dicts": [{
-    "file": "hk2t.tlist",
+    "file": "../dictionary/hk2t.tlist",
     "mode": "load",
     "src": [
       "HKVariantsRevPhrases.txt",

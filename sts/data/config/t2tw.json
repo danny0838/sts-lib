@@ -1,7 +1,7 @@
 {
   "name": "Traditional Chinese to Traditional Chinese (Taiwan standard)",
   "dicts": [{
-    "file": "t2tw.tlist",
+    "file": "../dictionary/t2tw.tlist",
     "mode": "load",
     "src": [
       "TWVariants.txt"
