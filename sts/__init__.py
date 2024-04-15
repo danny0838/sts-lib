@@ -2,6 +2,7 @@
 """An open library for flexible simplified-traditional Chinese text conversion.
 """
 import html
+import itertools
 import json
 import math
 import os
@@ -647,15 +648,15 @@ class StsDict():
             if match.end - index == 1:
                 has_atomic_match = True
 
-            for value in match.conv.values:
-                result = parts[:index] + [value] + parts[match.end:]
-                stack.append((result, matched + 1, index + 1))
-
+            values = match.conv.values
             if include_self:
                 value = ''.join(match.conv.key)
-                if value not in match.conv.values:
-                    result = parts[:index] + [value] + parts[match.end:]
-                    stack.append((result, matched + 1, index + 1))
+                if value not in values:
+                    values = itertools.chain(values, (value,))
+
+            for value in values:
+                result = parts[:index] + [value] + parts[match.end:]
+                stack.append((result, matched + 1, index + 1))
 
             if not include_short:
                 return
