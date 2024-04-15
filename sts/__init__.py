@@ -536,7 +536,7 @@ class StsDict():
         else:
             return list(parts)
 
-    def match(self, parts, pos, maxlen=math.inf):
+    def match(self, parts, pos, maxpos=math.inf):
         """Match a unicode composite at pos.
 
         Args:
@@ -547,7 +547,7 @@ class StsDict():
         """
         parts = self._split(parts)
         i = max(len(Unicode.split(key)) for key in self._dict)
-        i = min(i, min(len(parts), maxlen) - pos)
+        i = min(i, min(len(parts), maxpos) - pos)
         while i >= 1:
             end = pos + i
             current_parts = parts[pos:end]
@@ -639,7 +639,7 @@ class StsDict():
         has_atomic_match = False
         i = math.inf
         while i > index:
-            match = self.match(parts, index, maxlen=i)
+            match = self.match(parts, index, i)
 
             if match is None:
                 break
@@ -702,7 +702,7 @@ class Table(StsDict):
         """
         return {key[0] for key in self._dict}
 
-    def match(self, parts, pos, maxlen=math.inf):
+    def match(self, parts, pos, maxpos=math.inf):
         """Match a unicode composite at pos.
 
         Args:
@@ -714,7 +714,7 @@ class Table(StsDict):
         parts = self._split(parts)
         if parts[pos][0] in self.key_headchars:
             i = self.key_maxlen
-            i = min(i, min(len(parts), maxlen) - pos)
+            i = min(i, min(len(parts), maxpos) - pos)
             while i >= 1:
                 end = pos + i
                 current_parts = parts[pos:end]
@@ -836,7 +836,7 @@ class Trie(StsDict):
         list_ += values if skip_check else [x for x in values if x not in list_]
         return self
 
-    def match(self, parts, pos, maxlen=math.inf):
+    def match(self, parts, pos, maxpos=math.inf):
         """Match a unicode composite at pos.
 
         Args:
@@ -848,7 +848,7 @@ class Trie(StsDict):
         parts = self._split(parts)
         trie = self._dict
         i = pos
-        total = min(len(parts), maxlen)
+        total = min(len(parts), maxpos)
         match = None
         match_end = None
         while i < total:
