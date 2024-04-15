@@ -872,6 +872,9 @@ class Trie(StsDict):
 class StsMaker():
     """A class for making dictionary file(s).
     """
+    config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
+    dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
+
     def make(self, config_name, base_dir=None, output_dir=None,
              skip_check=False, skip_requires=False, quiet=False):
         """Make dictionary file(s) according to a config.
@@ -1051,13 +1054,14 @@ class StsMaker():
 
         return False
 
-    config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
-    dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
-
 
 class StsConverter():
     """Convert a text using an stsdict.
     """
+    exclude_return_group_pattern = re.compile(r'^return\d*$')
+    template_placeholder_pattern = re.compile(r'%(\w*)%')
+    htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
+
     def __init__(self, stsdict):
         """Initialize a converter.
 
@@ -1227,7 +1231,3 @@ class StsConverter():
         ) as fh:
             for part in conv:
                 fh.write(part)
-
-    exclude_return_group_pattern = re.compile(r'^return\d*$')
-    template_placeholder_pattern = re.compile(r'%(\w*)%')
-    htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
