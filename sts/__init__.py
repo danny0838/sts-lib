@@ -691,17 +691,26 @@ class Table(StsDict):
     conversion (match, apply, apply_enum, etc.) to avoid an unexpected
     behavior.
     """
-    @cached_property
-    def key_maxlen(self):
-        """Get the maximal length of the keys.
-        """
-        return max(len(Unicode.split(key)) for key in self._dict)
+    key_head_length = 2
 
     @cached_property
-    def key_headchars(self):
-        """Get a set of the first char of the keys.
-        """
-        return {key[0] for key in self._dict}
+    def key_map(self):
+        """Get a dict of the first N parts to max length."""
+        dict_ = {}
+        for key in self._dict:
+            parts = Unicode.split(key)
+            length = len(parts)
+            if length < self.key_head_length:
+                continue
+            head = ''.join(parts[:self.key_head_length])
+            try:
+                length_last = dict_[head]
+            except KeyError:
+                dict_[head] = length
+            else:
+                if length > length_last:
+                    dict_[head] = length
+        return dict_
 
     def match(self, parts, pos, maxpos=math.inf):
         """Match a unicode composite at pos.
@@ -713,20 +722,22 @@ class Table(StsDict):
             an StsDictMatch or None if no match.
         """
         parts = self._split(parts)
-        if parts[pos][0] in self.key_headchars:
-            i = self.key_maxlen
-            i = min(i, min(len(parts), maxpos) - pos)
-            while i >= 1:
-                end = pos + i
-                current_parts = parts[pos:end]
-                current = ''.join(current_parts)
-                try:
-                    conv = StsDictConv(current_parts, self._dict[current])
-                except KeyError:
-                    pass
-                else:
-                    return StsDictMatch(conv, pos, end)
-                i -= 1
+        try:
+            i = self.key_map[''.join(parts[pos:pos + self.key_head_length])]
+        except KeyError:
+            i = self.key_head_length - 1
+        i = min(i, min(len(parts), maxpos) - pos)
+        while i >= 1:
+            end = pos + i
+            current_parts = parts[pos:end]
+            current = ''.join(current_parts)
+            try:
+                conv = StsDictConv(current_parts, self._dict[current])
+            except KeyError:
+                pass
+            else:
+                return StsDictMatch(conv, pos, end)
+            i -= 1
         return None
 
 

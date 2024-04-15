@@ -580,37 +580,46 @@ class TestClassStsDict(unittest.TestCase):
 
 
 class TestClassTable(unittest.TestCase):
-    def test_key_maxlen(self):
+    def test_key_map_basic(self):
         # basic
+        stsdict = Table({
+            '干': ['幹', '乾'],
+            '干姜': ['乾薑'],
+            '干不下': ['幹不下'],
+            '干不了': ['幹不了'],
+            '姜': ['姜', '薑'],
+        })
+        self.assertEqual({'干姜': 2, '干不': 3}, stsdict.key_map)
+
+        stsdict = Table({
+            '干不干净': ['乾不乾淨'],
+            '干': ['幹', '乾'],
+            '干姜': ['乾薑'],
+            '干不下': ['幹不下'],
+            '干不了': ['幹不了'],
+        })
+        self.assertEqual({'干不': 4, '干姜': 2}, stsdict.key_map)
+
+        # IDS
+        stsdict = Table({'⿰虫风': ['𧍯'], '沙⿰虫风': ['沙虱']})
+        self.assertEqual({'沙⿰虫风': 2}, stsdict.key_map)
+
+    def test_key_map_cache(self):
+        # getter
         stsdict = Table({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-        self.assertEqual(2, stsdict.key_maxlen)
-        self.assertEqual(2, stsdict.key_maxlen)
+        dict_ = stsdict.key_map
+        self.assertEqual({'干姜': 2}, dict_)
+        self.assertIs(dict_, stsdict.key_map)
 
         # setter
-        stsdict.key_maxlen = 10
-        self.assertEqual(10, stsdict.key_maxlen)
+        stsdict.key_map = {'干不': 3}
+        self.assertEqual({'干不': 3}, stsdict.key_map)
 
         # deleter
         stsdict.add('了', ['了', '瞭'])
         stsdict.add('不了解', ['不瞭解'])
-        del stsdict.key_maxlen
-        self.assertEqual(3, stsdict.key_maxlen)
-
-    def test_key_headchars(self):
-        # basic
-        stsdict = Table({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-        self.assertEqual({'干', '姜'}, stsdict.key_headchars)
-        self.assertEqual({'干', '姜'}, stsdict.key_headchars)
-
-        # setter
-        stsdict.key_headchars = {'干', '姜', '了', '不', '于'}
-        self.assertEqual({'干', '姜', '了', '不', '于'}, stsdict.key_headchars)
-
-        # deleter
-        stsdict.add('了', ['了', '瞭'])
-        stsdict.add('不了解', ['不瞭解'])
-        del stsdict.key_headchars
-        self.assertEqual({'干', '姜', '了', '不'}, stsdict.key_headchars)
+        del stsdict.key_map
+        self.assertEqual({'干姜': 2, '不了': 3}, stsdict.key_map)
 
 
 class TestClassStsMaker(unittest.TestCase):
