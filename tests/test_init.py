@@ -333,7 +333,7 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.update(dict_)
                 self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
-    def test_load(self):
+    def test_load_plain(self):
         tempfile = os.path.join(self.root, 'test.tmp')
         tempfile2 = os.path.join(self.root, 'test2.tmp')
 
@@ -357,7 +357,7 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹', '乾', '干', '榦']}, stsdict)
 
-    def test_load_type_json(self):
+    def test_load_json(self):
         for ext in ('json', 'jlist'):
             tempfile = os.path.join(self.root, f'test.{ext}')
             tempfile2 = os.path.join(self.root, f'test2.{ext}')
@@ -380,7 +380,7 @@ class TestClassStsDict(unittest.TestCase):
                         '体': ['體'],
                     }, stsdict)
 
-    def test_load_type_yaml(self):
+    def test_load_yaml(self):
         for ext in ('yaml', 'yml'):
             tempfile = os.path.join(self.root, f'test.{ext}')
             tempfile2 = os.path.join(self.root, f'test2.{ext}')
@@ -409,7 +409,8 @@ class TestClassStsDict(unittest.TestCase):
                         '体': ['體'],
                     }, stsdict)
 
-    def test_load_type_force(self):
+    def test_load_type(self):
+        """Forced with type parameter"""
         # .json load as plain
         tempfile = os.path.join(self.root, 'test.json')
         with open(tempfile, 'w', encoding='UTF-8') as fh:
