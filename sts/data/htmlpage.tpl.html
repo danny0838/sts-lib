@@ -14,9 +14,9 @@ body > footer { margin-top: 1em; text-align: center; font-size: small; }
 #viewer { border: thin ridge #0066CC; padding: 0.5em; background-color: #f8f8ee; white-space: pre-wrap; }
 #viewer a { border: thin dotted #AAA; color: unset; text-decoration: none; }
 #viewer a:focus { outline: medium solid blue; }
+#viewer a.single, .single { background-color: #DDDDDD; }  /* 單選字 */
 #viewer a.unchecked, .unchecked { background-color: #FFFF99; }  /* 未審字 */
 #viewer a.checked, .checked { background-color: #CCFFFF; }  /* 已審字 */
-#viewer a.single, .single { background-color: #DDDDFF; }  /* 單選字 */
 #viewer a.picked, .picked { background-color: #CCFFCC; }  /* 選定字 */
 #viewer a.editing, .editing { background-color: #FFDDDD; }  /* 編輯中 */
 #viewer a ins, #viewer a del { text-decoration: none; }
@@ -652,8 +652,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   for (const elem of viewer.querySelectorAll('a')) {
     elem.tabIndex = 0;
-    const insElems = elem.querySelectorAll('ins');
-    const cls = (insElems.length > 1) ? 'unchecked' : 'single';
+    const atomic = elem.hasAttribute('atomic');
+    if (atomic) {
+      elem.removeAttribute('atomic');
+      elem.classList.add('atomic');
+    }
+    const cls = (atomic && elem.querySelectorAll('ins').length <= 1) ? 'single' : 'unchecked';
     elem.classList.add(cls);
   }
 
@@ -672,7 +676,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 <h3>上色標示說明</h3>
 <ul>
-  <li><span class="single">紫色</span>：單選字。只有單一選項的字。</li>
+  <li><span class="single">灰色</span>：單選字。只有單一選項的字。</li>
   <li><span class="unchecked">黃色</span>：未審字。未檢查的字。</li>
   <li><span class="checked">藍色</span>：已審字。已檢查的字（未修改）。</li>
   <li><span class="picked">綠色</span>：已選字。已修改的字。</li>

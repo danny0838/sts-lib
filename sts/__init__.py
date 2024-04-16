@@ -1213,7 +1213,7 @@ class StsConverter():
                     hidden = '' if i == 0 else ' hidden'
                     content += f'<ins{hidden}>{html.escape(v)}</ins>'
 
-                part = f"""<a>{content}</a>"""
+                part = f'<a{" atomic" if len(olds) == 1 else ""}>{content}</a>'
                 yield part
 
     def _convert_formatted_htmlpage(self, parts, template=None):

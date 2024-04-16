@@ -1601,12 +1601,13 @@ class TestClassStsConverter(unittest.TestCase):
         self.assertEqual(expected, output)
 
         # html
+        self.maxDiff = None
         expected = dedent(
             """\
-            <a><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
-            <a><del hidden>⿰虫风</del><ins>𧍯</ins></a>需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
-            ⿱艹⿰虫风不需要<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
-            <a><del hidden>沙⿰虫风</del><ins>沙虱</ins></a>也<a><del hidden>简</del><ins>簡</ins></a><a><del hidden>转</del><ins>轉</ins></a>繁
+            <a atomic><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
+            <a atomic><del hidden>⿰虫风</del><ins>𧍯</ins></a>需要<a atomic><del hidden>简</del><ins>簡</ins></a><a atomic><del hidden>转</del><ins>轉</ins></a>繁
+            ⿱艹⿰虫风不需要<a atomic><del hidden>简</del><ins>簡</ins></a><a atomic><del hidden>转</del><ins>轉</ins></a>繁
+            <a><del hidden>沙⿰虫风</del><ins>沙虱</ins></a>也<a atomic><del hidden>简</del><ins>簡</ins></a><a atomic><del hidden>转</del><ins>轉</ins></a>繁
             """
         )
         output = ''.join(converter.convert_formatted(input, 'html'))
@@ -1637,8 +1638,8 @@ class TestClassStsConverter(unittest.TestCase):
         )
         expected = dedent(
             """\
-            <a><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
-            <a><del hidden>⿰虫风</del><ins>𧍯</ins></a> ⿱艹⿰虫风
+            <a atomic><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
+            <a atomic><del hidden>⿰虫风</del><ins>𧍯</ins></a> ⿱艹⿰虫风
             """
         )
 
