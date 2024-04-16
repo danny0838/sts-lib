@@ -449,26 +449,6 @@ class StsDict():
                 stsdict.add(value, key)
         return stsdict
 
-    def load_filegroups(self, filegroups):
-        """Load key-values pairs from a list of plain-dict files.
-
-        Args:
-            filegroups: a list of plain-dict files.
-            [
-                [file1-1, file1-2, ...]
-                [file2-1, file2-2, file2-3, ...]
-                [file3-1, file3-2, file3-3, ...]
-            ]
-
-        Returns:
-            a new object with the same class.
-        """
-        stsdicts = [self.__class__().load(*files) for files in filegroups]
-        newstsdict = self
-        for stsdict in stsdicts:
-            newstsdict = newstsdict.join(stsdict)
-        return newstsdict
-
     def join(self, stsdict):
         """Join another dictionary.
 
@@ -1021,7 +1001,9 @@ class StsMaker():
             elif mode == 'swap':
                 table = Table().load(*files).swap()
             elif mode == 'join':
-                table = Table().load_filegroups(files)
+                table = Table()
+                for dict_ in (Table().load(*fg) for fg in files):
+                    table = table.join(dict_)
             else:
                 raise ValueError(f'Specified mode "{mode}" is not supported.')
 
