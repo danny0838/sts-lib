@@ -966,8 +966,8 @@ class StsMaker():
         for dict_ in config['dicts']:
             dest = os.path.normpath(os.path.join(output_dir or config_dir, dict_['file']))
             format = os.path.splitext(dest)[1][1:].lower()
-            mode = dict_['mode']
-            src = dict_['src']
+            mode = dict_.get('mode', 'load')
+            src = dict_.get('src', [])
             sort = dict_.get('sort', False)
             include = dict_.get('include', None)
             exclude = dict_.get('exclude', None)
@@ -987,6 +987,14 @@ class StsMaker():
                 except re.error as exc:
                     raise ValueError(f'regex syntax error of the exclude filter: {exc}')
 
+            if not files:
+                if os.path.isfile(dest):
+                    if not quiet:
+                        print(f'skip making (no src): {dest}')
+                    continue
+                else:
+                    raise RuntimeError(f'Specified flie does not exist: {dest}')
+
             if not skip_check and not self.check_update(dest, files):
                 if not quiet:
                     print(f'skip making (up-to-date): {dest}')
@@ -1004,7 +1012,7 @@ class StsMaker():
                 for dict_ in (Table().load(*fg) for fg in files):
                     table = table.join(dict_)
             else:
-                raise ValueError(f'Specified mode "{mode}" is not supported.')
+                raise ValueError(f'Specified mode is not supported: {mode}')
 
             if include is not None or exclude is not None:
                 _table = table

@@ -735,6 +735,41 @@ class TestClassStsMaker(unittest.TestCase):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
 
+    def test_src_none(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.txt',
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.txt'), stsdict)
+
+    def test_src_none_missing_file(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.txt',
+                    },
+                ],
+            }, fh)
+
+        with self.assertRaises(RuntimeError):
+            StsMaker().make(config_file, quiet=True)
+
     def test_format_list(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
