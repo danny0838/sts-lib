@@ -984,7 +984,7 @@ class StsMaker():
 
         # make the requested dicts
         for dict_ in config['dicts']:
-            dest = os.path.join(output_dir or config_dir, dict_['file'])
+            dest = os.path.normpath(os.path.join(output_dir or config_dir, dict_['file']))
             format = os.path.splitext(dest)[1][1:].lower()
             mode = dict_['mode']
             files = [self.get_stsdict_file(f, base_dir=config_dir)
@@ -1055,22 +1055,22 @@ class StsMaker():
         4. If not found, return 2.
         """
         if os.path.isabs(config):
-            return config
+            return os.path.normpath(config)
 
         relative_config = os.path.join(base_dir, config) if base_dir is not None else config
         if os.path.isfile(relative_config):
-            return relative_config
+            return os.path.normpath(relative_config)
 
         if os.path.basename(config) == config:
             search_file = os.path.join(self.config_dir, config)
             if os.path.isfile(search_file):
-                return search_file
+                return os.path.normpath(search_file)
             if not config.lower().endswith('.json'):
                 search_file = os.path.join(self.config_dir, config + '.json')
                 if os.path.isfile(search_file):
-                    return search_file
+                    return os.path.normpath(search_file)
 
-        return relative_config
+        return os.path.normpath(relative_config)
 
     def get_stsdict_file(self, stsdict, base_dir=None):
         """Calculate the path of a dictionary file.
@@ -1081,18 +1081,18 @@ class StsMaker():
         4. If not found, return 2.
         """
         if os.path.isabs(stsdict):
-            return stsdict
+            return os.path.normpath(stsdict)
 
         relative_stsdict = os.path.join(base_dir, stsdict) if base_dir is not None else stsdict
         if os.path.isfile(relative_stsdict):
-            return relative_stsdict
+            return os.path.normpath(relative_stsdict)
 
         if os.path.basename(stsdict) == stsdict:
             search_file = os.path.join(self.dictionary_dir, stsdict)
             if os.path.isfile(search_file):
-                return search_file
+                return os.path.normpath(search_file)
 
-        return relative_stsdict
+        return os.path.normpath(relative_stsdict)
 
     def check_update(self, output, filegroups):
         """Check if the output file needs update.
