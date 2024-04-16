@@ -967,14 +967,13 @@ class StsMaker():
             dest = os.path.normpath(os.path.join(output_dir or config_dir, dict_['file']))
             format = os.path.splitext(dest)[1][1:].lower()
             mode = dict_['mode']
-            files = [self.get_stsdict_file(f, base_dir=config_dir)
-                     if isinstance(f, str)
-                     else [self.get_stsdict_file(i, base_dir=config_dir) for i in f]
-                     for f in dict_['src']]
+            src = dict_['src']
             sort = dict_.get('sort', False)
             include = dict_.get('include', None)
             exclude = dict_.get('exclude', None)
             check = dict_.get('check', False)
+
+            files = self.resolve_src_files(src, config_dir)
 
             if include is not None:
                 try:
@@ -1075,6 +1074,12 @@ class StsMaker():
                 return os.path.normpath(search_file)
 
         return os.path.normpath(relative_stsdict)
+
+    def resolve_src_files(self, files, base_dir):
+        return [self.get_stsdict_file(f, base_dir=base_dir)
+                if isinstance(f, str)
+                else self.resolve_src_files(f, base_dir=base_dir)
+                for f in files]
 
     def check_update(self, output, filegroups):
         """Check if the output file needs update.
