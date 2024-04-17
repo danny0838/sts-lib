@@ -908,7 +908,7 @@ class StsMaker():
     config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
     dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
 
-    def make(self, config_name, base_dir=None, output_dir=None,
+    def make(self, config_name, base_dir=None,
              skip_check=False, skip_requires=False, quiet=False):
         """Make dictionary file(s) according to a config.
 
@@ -921,7 +921,7 @@ class StsMaker():
                 "dicts": [  // dictionaries to generate
                     {
                         "file": "...",  // path of the generated dictionary
-                                        // file, relative to output_dir
+                                        // file, relative to config dir
                         "mode": "...",  // mode to handle the loaded sources:
                                         // load, swap, join
                         "src": ["...", ...]  // list of the source file paths,
@@ -940,8 +940,6 @@ class StsMaker():
             config_name: a str for the config file or name
             base_dir: a str for the base directory to parse the config path
                 from config_name, or None for CWD
-            output_dir: a str for the output directory, or None for
-                the directory of the config file
             skip_check: truthy to generate every dictionary no matter that it's
                 already up-to-date
             skip_requires: truthy to skip making from required configs
@@ -960,11 +958,11 @@ class StsMaker():
         # handle required configs
         if not skip_requires:
             for cf in config.get('requires', []):
-                self.make(cf, base_dir=config_dir, output_dir=output_dir, skip_requires=skip_requires, quiet=quiet)
+                self.make(cf, base_dir=config_dir, skip_requires=skip_requires, quiet=quiet)
 
         # make the requested dicts
         for dict_ in config['dicts']:
-            dest = os.path.normpath(os.path.join(output_dir or config_dir, dict_['file']))
+            dest = os.path.normpath(os.path.join(config_dir, dict_['file']))
             format = os.path.splitext(dest)[1][1:].lower()
             mode = dict_.get('mode', 'load')
             src = dict_.get('src', [])

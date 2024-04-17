@@ -55,12 +55,11 @@ def make(args):
     """Generate conversion dictionary(ies).
     """
     configs = args['config']
-    dir = args['dir']
     skip_check = args['force']
     quiet = args['quiet']
 
     for config in configs:
-        StsMaker().make(config, output_dir=dir, skip_check=skip_check, quiet=quiet)
+        StsMaker().make(config, skip_check=skip_check, quiet=quiet)
 
 
 def convert(args):
@@ -173,8 +172,6 @@ def parse_args(argv=None):
                              help="""the config(s) to generate""")
     parser_make.add_argument('--force', default=False, action='store_true',
                              help="""bypass update check and generate dicitonary(ies) anyway""")
-    parser_make.add_argument('-d', '--dir', default=None,
-                             help="""the directory to save the output (default: relative to config)""")
     parser_make.add_argument('-q', '--quiet', default=False, action='store_true',
                              help="""do not show process information""")
 

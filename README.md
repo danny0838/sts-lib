@@ -81,9 +81,9 @@ converter.convert_file(input=None, output=None
 /**
  * @typedef {Object} dictScheme
  * @property {string} file - path of the dictionary file to generate, as an
- *     absolute path, or a path relative to the specified output directory
- *     (or the directory of this config file). It should be a .tlist (compiled
- *     trie), .jlist (compiled table), or .list (plain text table).
+ *     absolute path, or a path relative to the directory of this config file.
+ *     It should be a .tlist (compiled trie), .jlist (compiled table), or .list
+ *     (plain text table).
  * @property {string} [mode=load] - the mode to handle the loaded source files:
  *     "load" to simply merge the loaded keys and values; "swap" to reverse the
  *     dictionary (i.e. use the values as keys and the keys as values); "join"
