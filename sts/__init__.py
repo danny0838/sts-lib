@@ -175,15 +175,15 @@ class Unicode():
 
         return i - pos
 
-    @staticmethod
-    def split(text):
+    @classmethod
+    def split(cls, text):
         """Split a text into a list of Unicode composites.
         """
         i = 0
         total = len(text)
         result = []
         while i < total:
-            length = Unicode.composite_length(text, i)
+            length = cls.composite_length(text, i)
             result.append(text[i:i + length])
             i += length
         return result
