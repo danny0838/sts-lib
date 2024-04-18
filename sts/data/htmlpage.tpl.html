@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<title>簡繁秘書 v%VERSION%</title>
+<title>簡繁祕書 v%VERSION%</title>
 <style>
 kbd { border: 1px solid #999; border-radius: 2px; padding: 2px 4px; background-color: #f5f5f5; font-weight: bold; }
-dialog header { margin-bottom: .5em; font-style: bold; }
+dialog header { margin-bottom: .5em; font-weight: bold; }
+dialog section { margin: .5em 0; }
 dialog section label { display: block; }
 dialog footer { margin-top: 1em; display: flex; gap: .5em 1em; flex-direction: row; flex-wrap: wrap; }
 dialog footer input { flex-grow: 1; }
@@ -692,7 +693,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   <li><kbd>W</kbd>／<kbd>S</kbd>：套用前／後一個候選字。</li>
   <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
   <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，編輯模式下本鍵以外的操作鍵將無效。</li>
-  <li><kbd>Enter</kbd>：執行進階指令。</li>
+  <li><kbd>Enter</kbd>：開啟選單執行指令。</li>
 </ul>
 </details>
 <footer>Generated with <a href="https://pypi.org/project/sts-lib/">STS (Simplified-Traditional Secretary)</a> v%VERSION%. Released under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</footer>
