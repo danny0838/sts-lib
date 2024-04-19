@@ -2,14 +2,44 @@
 """Build htmlpage"""
 import glob
 import os
+import re
 import shutil
+import tempfile
 
 import jinja2
+import requests
 
-from sts import StsMaker
+from sts import StsMaker, Table, Trie
 
 
 PUBLIC_DIR = '_public'
+
+MW_REF = 'master'
+MW_URL = f'https://raw.githubusercontent.com/wikimedia/mediawiki/{MW_REF}/includes/languages/data/ZhConversion.php'
+MW_DICTS = {
+    'zh2Hant': ['zh2Hant'],
+    'zh2Hans': ['zh2Hans'],
+    'zh2TW': ['zh2TW', 'zh2Hant'],
+    'zh2HK': ['zh2HK', 'zh2Hant'],
+    'zh2CN': ['zh2CN', 'zh2Hans'],
+}
+MW_DICT_PATTERN = re.compile(r'public static \$(\w+) = \[(.*?)\];', re.M + re.S)
+MW_DICT_SUBPATTERN = re.compile(r"'([^']*)' => '([^']*)',")
+
+NTW_REF = 'latest'
+NTW_URL_PREFIX = f'https://www.unpkg.com/tongwen-dict@{NTW_REF}/dist/'
+NTW_SRCS = [
+    's2t-char.min.json',
+    's2t-phrase.min.json',
+    't2s-char.min.json',
+    't2s-phrase.min.json',
+]
+NTW_DICTS = {
+    's2t': ['s2t-char'],
+    's2tp': ['s2t-char', 's2t-phrase'],
+    't2s': ['t2s-char'],
+    't2sp': ['t2s-char', 't2s-phrase'],
+}
 
 
 def check_update(file, tpl):
@@ -49,7 +79,7 @@ def main():
         tpl = env.get_template(fn)
         render_on_demand(file, tpl)
 
-    # -- compile *.tlist
+    # -- compile *.tlist for opencc
     maker = StsMaker()
 
     dicts_dir = os.path.join(www_dir, 'dicts', 'opencc')
@@ -63,6 +93,61 @@ def main():
         if not os.path.isfile(dest) or os.path.getmtime(file) > os.path.getmtime(dest):
             print(f'updating: {dest}')
             shutil.copyfile(file, dest)
+
+    # -- compile *.tlist for MediaWiki
+    print(f'fetching: {MW_URL}')
+    response = requests.get(MW_URL)
+    if not response.ok:
+        raise RuntimeError(f'failed to fetch: {MW_URL}')
+    text = response.text
+
+    dicts_dir = os.path.join(www_dir, 'dicts', 'mw')
+    os.makedirs(dicts_dir, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        for match in MW_DICT_PATTERN.finditer(text):
+            name, data = match.group(1), match.group(2)
+            table = Table()
+            for m in MW_DICT_SUBPATTERN.finditer(data):
+                table.add(m.group(1), m.group(2), skip_check=True)
+            file = os.path.join(tmp_dir, f'{name}.list')
+            table.dump(file)
+
+        for dst, srcs in MW_DICTS.items():
+            srcs = (os.path.join(tmp_dir, f'{src}.list') for src in srcs)
+            dest = os.path.join(dicts_dir, f'{dst}.tlist')
+            print(f'building: {dest}')
+            table = Trie().load(*srcs)
+            table.dumpjson(dest)
+
+    # -- compile *.tlist for tongwen-dict
+    dicts_dir = os.path.join(www_dir, 'dicts', 'tongwen')
+    os.makedirs(dicts_dir, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        for src in NTW_SRCS:
+            url = f'{NTW_URL_PREFIX}{src}'
+            print(f'fetching: {url}')
+            response = requests.get(url)
+            if not response.ok:
+                raise RuntimeError(f'failed to fetch: {url}')
+
+            dict_ = response.json()
+            table = Table()
+            for k, v in dict_.items():
+                table.add(k, v, skip_check=True)
+
+            # remove .min.json
+            fn, _ = os.path.splitext(src)
+            fn, _ = os.path.splitext(fn)
+
+            file = os.path.join(tmp_dir, f'{fn}.list')
+            table.dump(file)
+
+        for dst, srcs in NTW_DICTS.items():
+            srcs = (os.path.join(tmp_dir, f'{src}.list') for src in srcs)
+            dest = os.path.join(dicts_dir, f'{dst}.tlist')
+            print(f'building: {dest}')
+            table = Trie().load(*srcs)
+            table.dumpjson(dest)
 
 
 if __name__ == '__main__':

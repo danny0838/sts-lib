@@ -36,29 +36,42 @@
   </section>
   <section>
     <select name="method">
-      <optgroup label="正體">
+      <optgroup label="OpenCC/正體">
         <option value="opencc/s2t">簡體轉正體</option>
         <option value="opencc/tw2t">臺灣繁體轉正體</option>
         <option value="opencc/hk2t">香港繁體轉正體</option>
         <option value="opencc/jp2t">日本新字體轉正體</option>
       </optgroup>
-      <optgroup label="臺灣">
+      <optgroup label="OpenCC/臺灣">
         <option value="opencc/s2tw">簡體轉臺灣繁體</option>
-        <option value="opencc/s2twp" selected>簡體轉臺灣繁體（含用詞）</option>
+        <option value="opencc/s2twp" selected>簡體轉臺灣繁體（含詞）</option>
         <option value="opencc/t2tw">正體轉臺灣繁體</option>
       </optgroup>
-      <optgroup label="香港">
+      <optgroup label="OpenCC/香港">
         <option value="opencc/s2hk">簡體轉香港繁體</option>
         <option value="opencc/t2hk">正體轉香港繁體</option>
       </optgroup>
-      <optgroup label="簡體（中國）">
+      <optgroup label="OpenCC/簡體（中國）">
         <option value="opencc/t2s">正體轉簡體</option>
         <option value="opencc/tw2s">臺灣繁體轉簡體</option>
-        <option value="opencc/tw2sp">臺灣繁體轉簡體（含用詞）</option>
+        <option value="opencc/tw2sp">臺灣繁體轉簡體（含詞）</option>
         <option value="opencc/hk2s">香港繁體轉簡體</option>
       </optgroup>
-      <optgroup label="日本">
+      <optgroup label="OpenCC/日本">
         <option value="opencc/t2jp">正體轉日本新字體</option>
+      </optgroup>
+      <optgroup label="MediaWiki">
+        <option value="mw/zh2Hant">轉繁體</option>
+        <option value="mw/zh2Hans">轉簡體</option>
+        <option value="mw/zh2TW">轉臺灣繁體</option>
+        <option value="mw/zh2HK">轉香港繁體</option>
+        <option value="mw/zh2CN">轉中國簡體</option>
+      </optgroup>
+      <optgroup label="新同文堂">
+        <option value="tongwen/s2t">簡轉繁</option>
+        <option value="tongwen/s2tp">簡轉繁（含詞）</option>
+        <option value="tongwen/t2s">繁轉簡</option>
+        <option value="tongwen/t2sp">繁轉簡（含詞）</option>
       </optgroup>
     </select>
     <input type="submit" value="📝轉換文字">
