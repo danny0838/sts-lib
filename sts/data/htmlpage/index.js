@@ -215,6 +215,62 @@ function editContext(anchor) {
   }
 }
 
+{%- if not single_page %}
+
+async function dismissPhrase(anchor) {
+  const origTextNode = anchor.querySelector('del').firstChild;
+  const origComps = sts.Unicode.split(origTextNode.nodeValue);
+  if (!(origComps.length >= 2)) { return; }
+
+  removePopup();
+  const {dict} = convertHtml.lastOptions;
+  const prevNode = anchor.previousSibling;
+  const parent = anchor.parentNode;
+
+  // split current anchor as shorter nodes and re-convert
+  parent.replaceChild(origTextNode, anchor);
+  origComps.pop();
+  const nextTextNode = origTextNode.splitText(origComps.join('').length);
+
+  const html = _convertHtml(dict, origTextNode.nodeValue);
+  const ph = document.createElement('span');
+  parent.replaceChild(ph, origTextNode);
+  ph.insertAdjacentHTML('beforebegin', html);
+
+  // merge following sibling anchors
+  const nextAnchors = (() => {
+    const evaluator = document.evaluate('following-sibling::a', nextTextNode, null, 0);
+    const rv = [];
+    let a;
+    while (a = evaluator.iterateNext()) {
+      if (!a.matches('[tabindex]')) { break; }
+      rv.push(a);
+    }
+    return rv;
+  })();
+  for (const anchor of nextAnchors) {
+    anchor.replaceWith(anchor.querySelector('del').firstChild);
+  }
+  parent.normalize();
+
+  // re-convert next text
+  const nextNode = ph.nextSibling;
+  if (nextNode.nodeType === 3) {
+    const html = _convertHtml(dict, nextNode.nodeValue);
+    ph.insertAdjacentHTML('afterend', html);
+    parent.removeChild(nextNode);
+  }
+  ph.remove();
+
+  evaluator = prevNode ?
+    document.evaluate('following-sibling::a[@tabindex]', prevNode, null, 0) :
+    document.evaluate('./a[@tabindex]', parent, null, 0);
+  const anchorNext = evaluator.iterateNext();
+  if (anchorNext) { anchorNext.focus(); }
+}
+
+{%- endif %}
+
 function moveToUnchecked(anchor, offset) {
   const anchorNew = moveAnchor(anchor, offset, a => {
     return a.matches('.unchecked');
@@ -366,6 +422,12 @@ async function runCommand(anchor, cmd) {
 
     "toggleEditing": "編輯文字",
     "editContext": "編輯前後文字",
+
+{%- if not single_page %}
+
+    "dismissPhrase": "重新分割為較短詞語",
+
+{%- endif %}
   };
 
   if (typeof cmd === 'undefined') {
@@ -465,6 +527,11 @@ async function runCommand(anchor, cmd) {
     case "editContext":
       editContext(anchor);
       break;
+{%- if not single_page %}
+    case "dismissPhrase":
+      dismissPhrase(anchor);
+      break;
+{%- endif %}
   }
 }
 
@@ -757,8 +824,22 @@ function escapeHtml(...args) {
 }
 
 function convertHtml(dict, text, exclude) {
+	convertHtml.lastOptions = {dict, exclude};
   const timeStart = performance.now();
-  let result = [];
+  const result = _convertHtml(dict, text, exclude);
+  console.log(`convertHtml(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
+
+  const wrapper = document.getElementById('viewer');
+  wrapper.innerHTML = result;
+  wrapper.hidden = false;
+  wrapper.scrollIntoView();
+
+  let a = wrapper.querySelector('a.unchecked');
+  if (a) { a.focus(); return; }
+}
+
+function _convertHtml(dict, text, exclude) {
+  const result = [];
   for (const part of dict.convert(text, parseExcludePattern(exclude))) {
     if (typeof part === 'string') {
       result.push(escapeHtml(part));
@@ -783,16 +864,7 @@ function convertHtml(dict, text, exclude) {
     }
     result.push(`</a>`);
   }
-  result = result.join('');
-  console.log(`convertHtml(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
-
-  const wrapper = document.getElementById('viewer');
-  wrapper.innerHTML = result;
-  wrapper.hidden = false;
-  wrapper.scrollIntoView();
-
-  let a = wrapper.querySelector('a.unchecked');
-  if (a) { a.focus(); return; }
+  return result.join('');
 }
 
 async function convertFile(dict, file, charset, exclude) {
