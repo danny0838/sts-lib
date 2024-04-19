@@ -10,6 +10,7 @@ body > footer { margin-top: 1em; text-align: center; font-size: small; }
 #viewer a { border: thin dotted #AAA; color: unset; text-decoration: none; }
 #viewer a:focus { outline: medium solid blue; }
 #viewer a.single, .single { background-color: #DDDDDD; }  /* 單選字 */
+#viewer a.changed, .changed { background-color: #DDDDFF; }  /* 異動字 */
 #viewer a.unchecked, .unchecked { background-color: #FFFF99; }  /* 未審字 */
 #viewer a.checked, .checked { background-color: #CCFFFF; }  /* 已審字 */
 #viewer a.picked, .picked { background-color: #CCFFCC; }  /* 選定字 */

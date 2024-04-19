@@ -17,6 +17,7 @@ body > footer { margin-top: 1em; text-align: center; font-size: small; }
 #viewer a { border: thin dotted #AAA; color: unset; text-decoration: none; }
 #viewer a:focus { outline: medium solid blue; }
 #viewer a.single, .single { background-color: #DDDDDD; }  /* 單選字 */
+#viewer a.changed, .changed { background-color: #DDDDFF; }  /* 異動字 */
 #viewer a.unchecked, .unchecked { background-color: #FFFF99; }  /* 未審字 */
 #viewer a.checked, .checked { background-color: #CCFFFF; }  /* 已審字 */
 #viewer a.picked, .picked { background-color: #CCFFCC; }  /* 選定字 */
@@ -272,6 +273,16 @@ function moveToSame(anchor, offset) {
   anchorNew.focus();
 }
 
+function moveToChanged(anchor, offset) {
+  const anchorNew = moveAnchor(anchor, offset, a => {
+    return a.matches('.changed');
+  });
+  if (!anchorNew) {
+    return;
+  }
+  anchorNew.focus();
+}
+
 function moveToAny(anchor, offset) {
   const anchorNew = moveAnchor(anchor, offset);
   if (!anchorNew) {
@@ -365,6 +376,8 @@ async function runCommand(anchor, cmd) {
     "moveToCheckworthyForward": "移至下一個待校字",
     "moveToSameBackward": "移至上一個相同字",
     "moveToSameForward": "移至下一個相同字",
+    "moveToChangedBackward": "移至上一個異動字",
+    "moveToChangedForward": "移至下一個異動字",
     "moveToAnyBackward": "移至上一個字",
     "moveToAnyForward": "移至下一個字",
 
@@ -446,6 +459,12 @@ async function runCommand(anchor, cmd) {
       break;
     case "moveToSameForward":
       moveToSame(anchor, 1);
+      break;
+    case "moveToChangedBackward":
+      moveToChanged(anchor, -1);
+      break;
+    case "moveToChangedForward":
+      moveToChanged(anchor, 1);
       break;
     case "moveToAnyBackward":
       moveToAny(anchor, -1);
@@ -648,8 +667,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
       elem.removeAttribute('atomic');
       elem.classList.add('atomic');
     }
-    const cls = (atomic && elem.querySelectorAll('ins').length <= 1) ? 'single' : 'unchecked';
+    const insElems = elem.querySelectorAll('ins');
+    const cls = (atomic && insElems.length <= 1) ? 'single' : 'unchecked';
     elem.classList.add(cls);
+    if (insElems[0] && elem.querySelector('del').textContent !== insElems[0].textContent) {
+      elem.classList.add('changed');
+    }
   }
 
   const target = viewer.querySelector('a.unchecked');
@@ -678,6 +701,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 <h3>上色標示說明</h3>
 <ul>
   <li><span class="single">灰色</span>：單選字。只有單一選項的字。</li>
+  <li><span class="changed">紫色</span>：異動字。轉換後與轉換前不同的字。</li>
   <li><span class="unchecked">黃色</span>：未審字。未檢查的字。</li>
   <li><span class="checked">藍色</span>：已審字。已檢查的字（未修改）。</li>
   <li><span class="picked">綠色</span>：已選字。已修改的字。</li>

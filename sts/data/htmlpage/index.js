@@ -230,6 +230,16 @@ function moveToSame(anchor, offset) {
   anchorNew.focus();
 }
 
+function moveToChanged(anchor, offset) {
+  const anchorNew = moveAnchor(anchor, offset, a => {
+    return a.matches('.changed');
+  });
+  if (!anchorNew) {
+    return;
+  }
+  anchorNew.focus();
+}
+
 function moveToAny(anchor, offset) {
   const anchorNew = moveAnchor(anchor, offset);
   if (!anchorNew) {
@@ -323,6 +333,8 @@ async function runCommand(anchor, cmd) {
     "moveToCheckworthyForward": "移至下一個待校字",
     "moveToSameBackward": "移至上一個相同字",
     "moveToSameForward": "移至下一個相同字",
+    "moveToChangedBackward": "移至上一個異動字",
+    "moveToChangedForward": "移至下一個異動字",
     "moveToAnyBackward": "移至上一個字",
     "moveToAnyForward": "移至下一個字",
 
@@ -404,6 +416,12 @@ async function runCommand(anchor, cmd) {
       break;
     case "moveToSameForward":
       moveToSame(anchor, 1);
+      break;
+    case "moveToChangedBackward":
+      moveToChanged(anchor, -1);
+      break;
+    case "moveToChangedForward":
+      moveToChanged(anchor, 1);
       break;
     case "moveToAnyBackward":
       moveToAny(anchor, -1);
@@ -606,8 +624,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
       elem.removeAttribute('atomic');
       elem.classList.add('atomic');
     }
-    const cls = (atomic && elem.querySelectorAll('ins').length <= 1) ? 'single' : 'unchecked';
+    const insElems = elem.querySelectorAll('ins');
+    const cls = (atomic && insElems.length <= 1) ? 'single' : 'unchecked';
     elem.classList.add(cls);
+    if (insElems[0] && elem.querySelector('del').textContent !== insElems[0].textContent) {
+      elem.classList.add('changed');
+    }
   }
 
   const target = viewer.querySelector('a.unchecked');
@@ -706,12 +728,15 @@ function convertHtml(dict, text, exclude) {
     }
 
     const atomic = part.key.length === 1;
-    const cls = (atomic && part.values.length <= 1) ? 'single' : 'unchecked';
+    const cls = [(atomic && part.values.length <= 1) ? 'single' : 'unchecked'];
+    const key = part.key.join('');
+    const values = part.values;
+    if (values.length && key !== values[0]) { cls.push('changed'); }
 
-    result.push(`<a tabindex=0 class=${cls}>`);
-    result.push(`<del hidden>${escapeHtml(part.key.join(''))}</del>`);
-    for (let i = 0, I = part.values.length; i < I; i++) {
-      const value = part.values[i];
+    result.push(`<a tabindex=0 class="${cls.join(' ')}">`);
+    result.push(`<del hidden>${escapeHtml(key)}</del>`);
+    for (let i = 0, I = values.length; i < I; i++) {
+      const value = values[i];
       result.push(`<ins${i === 0 ? '' : ' hidden'}>${escapeHtml(value)}</ins>`);
     }
     result.push(`</a>`);
