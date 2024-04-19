@@ -1,0 +1,21 @@
+{%- extends 'index.html' %}
+{%- block title %}簡繁祕書 v%VERSION%{%- endblock title %}
+{%- block styles %}
+<style>
+{% include 'index.css' %}
+</style>
+{%- endblock styles %}
+{%- block scripts %}
+<script>
+{% include 'index.js' %}
+</script>
+{%- endblock scripts %}
+{%- block viewer %}
+<pre id="viewer">
+%CONTENT%</pre>
+{%- endblock viewer %}
+{%- block panel %}
+{%- endblock panel %}
+{%- block footer %}
+Generated with <a href="https://pypi.org/project/sts-lib/">STS (Simplified-Traditional Secretary)</a> v%VERSION%. Released under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
+{%- endblock footer %}
