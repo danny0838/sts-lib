@@ -342,46 +342,37 @@ async function runCommand(anchor, cmd) {
 
   if (typeof cmd === 'undefined') {
     if (typeof HTMLDialogElement !== 'undefined') {
-      const dialog = document.createElement('dialog');
-      const form = dialog.appendChild(document.createElement('form'));
-      form.method = 'dialog';
-      const header = form.appendChild(document.createElement('header'));
-      header.textContent = '請選擇要執行的指令：';
-      const section = form.appendChild(document.createElement('section'));
-      const footer = form.appendChild(document.createElement('footer'));
-      const submitBtn = footer.appendChild(document.createElement('input'));
-      submitBtn.type = 'submit';
-      submitBtn.value = '確認';
-      const cancelBtn = footer.appendChild(document.createElement('input'));
-      cancelBtn.type = 'button';
-      cancelBtn.value = '取消';
-      cancelBtn.addEventListener('click', (event) => {
-        dialog.close('');
-      });
-      for (const cmd in cmds) {
-        const label = section.appendChild(document.createElement('label'));
-        const input = label.appendChild(document.createElement('input'));
-        input.type = 'radio';
-        input.name = 'cmd';
-        input.value = cmd;
-        label.appendChild(document.createTextNode(cmds[cmd]));
+      const dialog = document.getElementById('viewer-options');
+      const section = dialog.querySelector('form section');
+
+      // init options for commands for the first time
+      if (!section.children.length) {
+        for (const cmd in cmds) {
+          const label = section.appendChild(document.createElement('label'));
+          const input = label.appendChild(document.createElement('input'));
+          input.type = 'radio';
+          input.name = 'cmd';
+          input.value = cmd;
+          label.appendChild(document.createTextNode(cmds[cmd]));
+        }
+        section.querySelector('input').checked = true;
       }
 
-      const target = runCommand.lastCmd ?
-          section.querySelector(`input[value="${CSS.escape(runCommand.lastCmd)}"]`) :
-          section.querySelector('input');
-      target.checked = true;
-      target.autofocus = true;
+      // reset autofocus to the currently checked element
+      for (const elem of section.querySelectorAll('[autofocus]')) {
+        elem.autofocus = false;
+      }
+      section.querySelector(':checked').autofocus = true;
 
       cmd = await new Promise((resolve, reject) => {
-        dialog.addEventListener('close', (event) => {
+        function onClose(event) {
+          dialog.removeEventListener('close', onClose);
           const rv = dialog.returnValue ? dialog.querySelector('form').cmd.value : null;
           resolve(rv);
-        });
-        document.body.appendChild(dialog);
+        }
+        dialog.addEventListener('close', onClose);
         dialog.showModal();
       });
-      dialog.remove();
     } else {
       const idxMap = Array.from(Object.keys(cmds));
       const options = idxMap.map((cmd, i) => `${i + 1}.${cmds[cmd]}`);
@@ -441,8 +432,6 @@ async function runCommand(anchor, cmd) {
       editContext(anchor);
       break;
   }
-
-  runCommand.lastCmd = cmd;
 }
 
 function showPopup(anchor) {
@@ -624,3 +613,279 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const target = viewer.querySelector('a.unchecked');
   if (target) { target.focus(); }
 });
+
+{%- if not single_page %}
+
+const excludeRegexPattern = /^\/(.*)\/([a-z]*)$/;
+
+function parseExcludePattern(exclude) {
+  if (!exclude) { return null; }
+  let source = exclude, flags = 'g';
+  const m = excludeRegexPattern.exec(exclude);
+  if (m) {
+    source = m[1];
+    flags = new Set(m[2]);
+    flags.add('g');
+    flags.delete('y');
+    flags = [...flags.values()].join('');
+  }
+  return new RegExp(source, flags);
+}
+
+const dictInfo = new WeakMap();
+
+async function loadDict(mode, customDict) {
+  // check cache
+  const cached = dictInfo.get(loadDict.lastDict);
+  if (cached && cached.mode === mode && cached.customDict === customDict) {
+    return loadDict.lastDict;
+  }
+
+  const url = `dicts/${mode}.tlist`;
+  const dict = await sts.StsDict.load(url);
+  const regexLine = /\n|\r\n?/;
+  const regexSep = /[ \t]+/;
+  if (customDict) {
+    for (const line of customDict.split(regexLine)) {
+      const [key, ...values] = line.split(regexSep);
+      if (!key) { continue; }
+      if (values.length) {
+        dict.add(key, values, true);
+      } else {
+        dict.remove(key);
+      }
+    }
+  }
+
+  // save cache
+  loadDict.lastDict = dict;
+  dictInfo.set(dict, {mode, customDict});
+
+  return dict;
+}
+
+function convertText(dict, text, exclude) {
+  const timeStart = performance.now();
+  let result = [];
+  for (const part of dict.convert(text, parseExcludePattern(exclude))) {
+    if (typeof part === 'string') {
+      result.push(part);
+      continue;
+    }
+
+    result.push(part.values[0]);
+  }
+  result = result.join('');
+  console.log(`convertText(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
+  return result;
+}
+
+function escapeHtml(...args) {
+  const regex = /[&<"]/g;
+  const func = m => map[m];
+  const map = {
+    "&": "&amp;",
+    "<": "&lt;",
+    '"': "&quot;",
+  };
+
+  escapeHtml = function escapeHtml(str) {
+    return str.replace(regex, func);
+  }
+
+  return escapeHtml(...args);
+}
+
+function convertHtml(dict, text, exclude) {
+  const timeStart = performance.now();
+  let result = [];
+  for (const part of dict.convert(text, parseExcludePattern(exclude))) {
+    if (typeof part === 'string') {
+      result.push(escapeHtml(part));
+      continue;
+    }
+
+    const atomic = part.key.length === 1;
+    const cls = (atomic && part.values.length <= 1) ? 'single' : 'unchecked';
+
+    result.push(`<a tabindex=0 class=${cls}>`);
+    result.push(`<del hidden>${escapeHtml(part.key.join(''))}</del>`);
+    for (let i = 0, I = part.values.length; i < I; i++) {
+      const value = part.values[i];
+      result.push(`<ins${i === 0 ? '' : ' hidden'}>${escapeHtml(value)}</ins>`);
+    }
+    result.push(`</a>`);
+  }
+  result = result.join('');
+  console.log(`convertHtml(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
+
+  const wrapper = document.getElementById('viewer');
+  wrapper.innerHTML = result;
+  wrapper.hidden = false;
+  wrapper.scrollIntoView();
+
+  let a = wrapper.querySelector('a.unchecked');
+  if (a) { a.focus(); return; }
+}
+
+async function convertFile(dict, file, charset, exclude) {
+  const text = await readFileAsText(file, charset);
+  const result = convertText(dict, text, exclude);
+  const fileNew = new File([result], file.name, {type: 'text/plain'});
+  downloadFile(fileNew);
+}
+
+async function readFileAsText(blob, charset = 'utf-8') {
+  const event = await new Promise((resolve, reject) => {
+    let reader = new FileReader();
+    reader.onload = resolve;
+    reader.onerror = reject;
+    reader.readAsText(blob, charset);
+  });
+  return event.target.result;
+}
+
+function downloadFile(file) {
+  const a = document.createElement('a');
+  a.download = file.name;
+  a.href = URL.createObjectURL(file);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+async function showAdvancedOptions(formElem) {
+  if (typeof HTMLDialogElement === 'undefined') {
+    alert('瀏覽器不支援 <dialog> 對話方塊元素');
+    return;
+  }
+
+  const dialog = document.getElementById('panel-options');
+  const form = dialog.querySelector('form');
+
+  for (const option of ['exclude-pattern', 'convert-file-charset']) {
+    form[option].value = formElem[option].value;
+  }
+
+  const result = await new Promise((resolve, reject) => {
+    function onClose(event) {
+      dialog.removeEventListener('close', onClose);
+      resolve(dialog.returnValue);
+    }
+    dialog.addEventListener('close', onClose);
+    dialog.showModal();
+  });
+
+  if (!result) { return; }
+  for (const elem of dialog.querySelectorAll('[name]')) {
+    formElem[elem.name].value = elem.value;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function (event) {
+  const panel = document.getElementById('panel');
+  const form = panel.querySelector('form');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const dict = await loadDict(form.method.value, form['custom-dict'].value);
+    convertHtml(dict, form.input.value, form['exclude-pattern'].value);
+  });
+
+  form['input'].addEventListener('dragover', (event) => {
+    event.preventDefault();  // required to allow drop
+    event.dataTransfer.dropEffect = 'copy';
+  });
+
+  form['input'].addEventListener('drop', async (event) => {
+    async function handleEntry(entry) {
+      if (entry.isFile) {
+        let file = await new Promise((resolve, reject) => {
+          entry.file(resolve, reject);
+        });
+        const {type, lastModified} = file;
+        file = new File([file], entry.fullPath.slice(1) || file.name, {type, lastModified});
+        await convertFile(dict, file, charset, exclude);
+        return;
+      }
+
+      // load all subentries into entries
+      let entries = [];
+      {
+        const reader = entry.createReader();
+        let subentries;
+        do {
+          subentries = await new Promise((resolve, reject) => {
+            reader.readEntries(resolve, reject);
+          });
+          entries = entries.concat(subentries);
+        } while (subentries.length)
+      }
+
+      // handle loaded entries
+      for (const entry of entries) {
+        await handleEntry(entry);
+      }
+    }
+
+    event.preventDefault();
+    const entries = Array.prototype.map.call(
+      event.dataTransfer.items,
+      x => x.webkitGetAsEntry && x.webkitGetAsEntry()
+    );
+    const mode = form.method.value;
+    const exclude = form['exclude-pattern'].value;
+    const customDict = form['custom-dict'].value;
+    const charset = form['convert-file-charset'].value;
+    const dict = await loadDict(mode, customDict);
+    for (const entry of entries) {
+      await handleEntry(entry);
+    }
+  });
+
+  form['copy-text'].addEventListener('click', async (event) => {
+    event.preventDefault();
+    const text = document.getElementById('viewer').innerText;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (ex) {
+      console.error(ex);
+    }
+  });
+
+  form['convert-file'].addEventListener('click', (event) => {
+    event.preventDefault();
+    form['convert-file-input'].value = null;
+    form['convert-file-input'].click();
+  });
+
+  form['convert-file-input'].addEventListener('change', async (event) => {
+    event.preventDefault();
+    const files = Array.from(event.target.files);
+    if (!(files && files.length)) { return; }
+    const dict = await loadDict(form.method.value, form['custom-dict'].value);
+    await convertFile(dict, files[0], form['convert-file-charset'].value, form['exclude-pattern'].value);
+  });
+
+  form.advanced.addEventListener('click', (event) => {
+    event.preventDefault();
+    showAdvancedOptions(form);
+  });
+
+  const dialog = document.getElementById('panel-options');
+  {
+    const elem = dialog.querySelector('[name="exclude-pattern"]');
+    elem.addEventListener('change', (event) => {
+      try {
+        parseExcludePattern(elem.value);
+      } catch(ex) {
+        elem.setCustomValidity(ex);
+        return;
+      }
+      elem.setCustomValidity('');
+    });
+  }
+  
+});
+
+{%- endif %}

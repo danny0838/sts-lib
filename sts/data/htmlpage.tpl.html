@@ -6,6 +6,7 @@
 <title>簡繁祕書 v%VERSION%</title>
 <style>
 kbd { border: 1px solid #999; border-radius: 2px; padding: 2px 4px; background-color: #f5f5f5; font-weight: bold; }
+dialog:not([open]) { display: none; }
 dialog header { margin-bottom: .5em; font-weight: bold; }
 dialog section { margin: .5em 0; }
 dialog section label { display: block; }
@@ -383,46 +384,37 @@ async function runCommand(anchor, cmd) {
 
   if (typeof cmd === 'undefined') {
     if (typeof HTMLDialogElement !== 'undefined') {
-      const dialog = document.createElement('dialog');
-      const form = dialog.appendChild(document.createElement('form'));
-      form.method = 'dialog';
-      const header = form.appendChild(document.createElement('header'));
-      header.textContent = '請選擇要執行的指令：';
-      const section = form.appendChild(document.createElement('section'));
-      const footer = form.appendChild(document.createElement('footer'));
-      const submitBtn = footer.appendChild(document.createElement('input'));
-      submitBtn.type = 'submit';
-      submitBtn.value = '確認';
-      const cancelBtn = footer.appendChild(document.createElement('input'));
-      cancelBtn.type = 'button';
-      cancelBtn.value = '取消';
-      cancelBtn.addEventListener('click', (event) => {
-        dialog.close('');
-      });
-      for (const cmd in cmds) {
-        const label = section.appendChild(document.createElement('label'));
-        const input = label.appendChild(document.createElement('input'));
-        input.type = 'radio';
-        input.name = 'cmd';
-        input.value = cmd;
-        label.appendChild(document.createTextNode(cmds[cmd]));
+      const dialog = document.getElementById('viewer-options');
+      const section = dialog.querySelector('form section');
+
+      // init options for commands for the first time
+      if (!section.children.length) {
+        for (const cmd in cmds) {
+          const label = section.appendChild(document.createElement('label'));
+          const input = label.appendChild(document.createElement('input'));
+          input.type = 'radio';
+          input.name = 'cmd';
+          input.value = cmd;
+          label.appendChild(document.createTextNode(cmds[cmd]));
+        }
+        section.querySelector('input').checked = true;
       }
 
-      const target = runCommand.lastCmd ?
-          section.querySelector(`input[value="${CSS.escape(runCommand.lastCmd)}"]`) :
-          section.querySelector('input');
-      target.checked = true;
-      target.autofocus = true;
+      // reset autofocus to the currently checked element
+      for (const elem of section.querySelectorAll('[autofocus]')) {
+        elem.autofocus = false;
+      }
+      section.querySelector(':checked').autofocus = true;
 
       cmd = await new Promise((resolve, reject) => {
-        dialog.addEventListener('close', (event) => {
+        function onClose(event) {
+          dialog.removeEventListener('close', onClose);
           const rv = dialog.returnValue ? dialog.querySelector('form').cmd.value : null;
           resolve(rv);
-        });
-        document.body.appendChild(dialog);
+        }
+        dialog.addEventListener('close', onClose);
         dialog.showModal();
       });
-      dialog.remove();
     } else {
       const idxMap = Array.from(Object.keys(cmds));
       const options = idxMap.map((cmd, i) => `${i + 1}.${cmds[cmd]}`);
@@ -482,8 +474,6 @@ async function runCommand(anchor, cmd) {
       editContext(anchor);
       break;
   }
-
-  runCommand.lastCmd = cmd;
 }
 
 function showPopup(anchor) {
@@ -670,10 +660,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
 <body>
 <pre id="viewer">
 %CONTENT%</pre>
+<dialog id="viewer-options">
+<form method="dialog">
+  <header>請選擇要執行的指令：</header>
+  <section></section>
+  <footer>
+    <input type="submit" value="確認">
+    <input type="button" value="取消" onclick="this.closest('dialog').close('');">
+  </footer>
+</form>
+</dialog>
 <details>
 <summary>操作說明</summary>
 <p>使用滑鼠或以下操作鍵校對及處理文本，完成後可直接複製文本至他處使用。</p>
-<p>如果游標跑掉、操作鍵按了沒有反應，請點擊或用 <kbd>Tab</kbd> 鍵選擇任意上色標示的字，即可繼續用操作鍵操作。</p>
+<p>如果游標跑掉、操作鍵按了沒有反應，請用滑鼠或 <kbd>Tab</kbd> 鍵選擇任意上色標示的字，即可繼續用操作鍵操作。</p>
 
 <h3>上色標示說明</h3>
 <ul>
@@ -692,7 +692,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   <li><kbd>Z</kbd>／<kbd>C</kbd>：移至上／下一個相同字。</li>
   <li><kbd>W</kbd>／<kbd>S</kbd>：套用前／後一個候選字。</li>
   <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
-  <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，編輯模式下本鍵以外的操作鍵將無效。</li>
+  <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，可自由編輯。編輯模式下本鍵以外的操作鍵將無效。</li>
   <li><kbd>Enter</kbd>：開啟選單執行指令。</li>
 </ul>
 </details>

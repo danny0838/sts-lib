@@ -4,21 +4,118 @@
 {%- block head %}
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<title>{% block title %}{% endblock title %}</title>
+<title>{% block title %}簡繁祕書線上版 v2.0.0{% endblock title %}</title>
 {%- block styles %}
+<link rel="stylesheet" href="index.css">
 {%- endblock styles %}
 {%- block scripts %}
+<script src="sts.js"></script>
+<script src="index.js"></script>
 {%- endblock scripts %}
 {%- endblock head %}
 </head>
 <body>
 {%- block viewer %}
+<pre id="viewer" hidden></pre>
 {%- endblock viewer %}
+<dialog id="viewer-options">
+<form method="dialog">
+  <header>請選擇要執行的指令：</header>
+  <section></section>
+  <footer>
+    <input type="submit" value="確認">
+    <input type="button" value="取消" onclick="this.closest('dialog').close('');">
+  </footer>
+</form>
+</dialog>
+{%- block panel %}
+<section id="panel">
+<form>
+  <section>
+    <textarea name="input" placeholder="輸入文字後點選 [轉換文字]，或點選 [轉換檔案] 選擇欲轉換的檔案，或拖放檔案與資料夾至此"></textarea>
+  </section>
+  <section>
+    <select name="method">
+      <optgroup label="正體">
+        <option value="opencc/s2t">簡體轉正體</option>
+        <option value="opencc/tw2t">臺灣繁體轉正體</option>
+        <option value="opencc/hk2t">香港繁體轉正體</option>
+        <option value="opencc/jp2t">日本新字體轉正體</option>
+      </optgroup>
+      <optgroup label="臺灣">
+        <option value="opencc/s2tw">簡體轉臺灣繁體</option>
+        <option value="opencc/s2twp" selected>簡體轉臺灣繁體（含用詞）</option>
+        <option value="opencc/t2tw">正體轉臺灣繁體</option>
+      </optgroup>
+      <optgroup label="香港">
+        <option value="opencc/s2hk">簡體轉香港繁體</option>
+        <option value="opencc/t2hk">正體轉香港繁體</option>
+      </optgroup>
+      <optgroup label="簡體（中國）">
+        <option value="opencc/t2s">正體轉簡體</option>
+        <option value="opencc/tw2s">臺灣繁體轉簡體</option>
+        <option value="opencc/tw2sp">臺灣繁體轉簡體（含用詞）</option>
+        <option value="opencc/hk2s">香港繁體轉簡體</option>
+      </optgroup>
+      <optgroup label="日本">
+        <option value="opencc/t2jp">正體轉日本新字體</option>
+      </optgroup>
+    </select>
+    <input type="submit" value="📝轉換文字">
+    <input name="copy-text" type="button" value="📋複製">
+    <input name="convert-file" type="button" value="📁轉換檔案">
+    <input name="convert-file-input" type="file" hidden>
+    <input name="convert-file-charset" type="hidden" value="UTF-8">
+    <input name="advanced" type="button" value="⚙️選項">
+    <input name="custom-dict" type="hidden">
+    <input name="exclude-pattern" type="hidden">
+  </section>
+</form>
+</section>
+<dialog id="panel-options">
+<form method="dialog">
+  <header>進階設定</header>
+  <section>
+    <label>自訂轉換詞典：</label>
+    <textarea name="custom-dict" placeholder="如「干 乾 幹 干」，每行一筆，以半形空格或TAB字元分隔輸入詞與輸出詞（可多項），自訂轉換詞優先於詞典轉換詞，無輸出詞時移除詞典轉換詞。"></textarea>
+  </section>
+  <section>
+    <label>略過轉換的正規表示式：</label>
+    <input name="exclude-pattern" type="text"
+           placeholder="pattern 或 /pattern/flags。匹配時傳回匹配值或子群組 return, return1, ... 的值。"
+           list="exclude-pattern-list">
+    <datalist id="exclude-pattern-list">
+      <option value="-{([\s\S]*?)}-">MediaWiki 不轉換標記</option>
+      <option value="-{(?<return>[\s\S]*?)}-">MediaWiki 不轉換標記（移除標記）</option>
+      <option value="<[^<>&quot;']+(?:(?:&quot;[^&quot;]*&quot;|'[^']*')[^<>&quot;']*)*>">HTML/XML 標記</option>
+      <option value="<!\[CDATA\[([\s\S]*?)\]\]>">CDATA 標記</option>
+      <option value="<!\[CDATA\[(?<return>[\s\S]*?)\]\]>">CDATA 標記（移除標記）</option>
+    </datalist>
+  </section>
+  <section>
+    <label>轉換檔案輸入編碼：</label>
+    <input name="convert-file-charset" type="text" placeholder="UTF-8" list="convert-file-charset-list">
+    <datalist id="convert-file-charset-list">
+      <option value="Big5"></option>
+      <option value="GBK"></option>
+      <option value="Shift-JIS"></option>
+      <option value="UTF-8"></option>
+      <option value="UTF-16BE"></option>
+      <option value="UTF-16LE"></option>
+    </datalist>
+  </section>
+  <footer>
+    <input type="submit" value="確認">
+    <input type="button" value="取消" onclick="this.closest('dialog').close('');">
+  </footer>
+</form>
+</dialog>
+{%- endblock panel %}
 {%- block help %}
 <details>
 <summary>操作說明</summary>
 <p>使用滑鼠或以下操作鍵校對及處理文本，完成後可直接複製文本至他處使用。</p>
-<p>如果游標跑掉、操作鍵按了沒有反應，請點擊或用 <kbd>Tab</kbd> 鍵選擇任意上色標示的字，即可繼續用操作鍵操作。</p>
+<p>如果游標跑掉、操作鍵按了沒有反應，請用滑鼠或 <kbd>Tab</kbd> 鍵選擇任意上色標示的字，即可繼續用操作鍵操作。</p>
 
 <h3>上色標示說明</h3>
 <ul>
@@ -37,13 +134,15 @@
   <li><kbd>Z</kbd>／<kbd>C</kbd>：移至上／下一個相同字。</li>
   <li><kbd>W</kbd>／<kbd>S</kbd>：套用前／後一個候選字。</li>
   <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
-  <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，編輯模式下本鍵以外的操作鍵將無效。</li>
+  <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，可自由編輯。編輯模式下本鍵以外的操作鍵將無效。</li>
   <li><kbd>Enter</kbd>：開啟選單執行指令。</li>
 </ul>
 </details>
 {%- endblock help %}
 <footer>
 {%- block footer %}
+<a rel="external" href="https://github.com/danny0838/sts-lib">STS (Simplified-Traditional Secretary)</a>.
+Released under <a rel="external license" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
 {%- endblock footer %}
 </footer>
 </body>
