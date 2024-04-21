@@ -8,14 +8,20 @@
       "file": "../dictionary/hk2s.tlist",
       "mode": "join",
       "src": [
-        [
-          "../dictionary/HKVariantsRevPhrases.txt",
-          "../dictionary/HKVariantsRev.list"
-        ],
-        [
-          "../dictionary/TSPhrases.txt",
-          "../dictionary/TSCharacters.txt"
-        ]
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/HKVariantsRevPhrases.txt",
+            "../dictionary/HKVariantsRev.list"
+          ]
+        },
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/TSPhrases.txt",
+            "../dictionary/TSCharacters.txt"
+          ]
+        }
       ]
     }
   ]

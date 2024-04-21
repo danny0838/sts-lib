@@ -779,6 +779,30 @@ class TestClassStsMaker(unittest.TestCase):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
 
+    def test_file_none(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'mode': 'load',
+                        'src': [
+                            'dict.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        with self.assertRaises(RuntimeError):
+            StsMaker().make(config_file, quiet=True)
+
     def test_src_none(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
@@ -813,6 +837,50 @@ class TestClassStsMaker(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             StsMaker().make(config_file, quiet=True)
+
+    def test_src_nested(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.txt',
+                        'mode': 'swap',
+                        'src': [
+                            {
+                                'mode': 'load',
+                                'src': [
+                                    'phrases.txt',
+                                    'chars.txt',
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干你娘\t幹你娘
+                """
+            ))
+
+        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干\t幹 乾 干
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '幹你娘': ['干你娘'],
+            '幹': ['干'],
+            '乾': ['干'],
+            '干': ['干'],
+        }, dict(converter.table))
 
     def test_format_list(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1116,8 +1184,8 @@ class TestClassStsMaker(unittest.TestCase):
                         'file': 'dict.list',
                         'mode': 'join',
                         'src': [
-                            ['s2t.txt'],
-                            ['t2tw.txt'],
+                            's2t.txt',
+                            't2tw.txt',
                         ],
                     },
                 ],
@@ -1166,8 +1234,8 @@ class TestClassStsMaker(unittest.TestCase):
                         'file': 'dict.list',
                         'mode': 'join',
                         'src': [
-                            ['s2t.txt'],
-                            ['t2tw.txt'],
+                            's2t.txt',
+                            't2tw.txt',
                         ],
                     },
                 ],
@@ -1221,8 +1289,8 @@ class TestClassStsMaker(unittest.TestCase):
                         'file': 'dict.list',
                         'mode': 'join',
                         'src': [
-                            ['tw2t.txt'],
-                            ['t2s.txt'],
+                            'tw2t.txt',
+                            't2s.txt',
                         ],
                     },
                 ],
@@ -1272,8 +1340,8 @@ class TestClassStsMaker(unittest.TestCase):
                         'file': 'dict.list',
                         'mode': 'join',
                         'src': [
-                            ['s2t.txt'],
-                            ['t2tw.txt'],
+                            's2t.txt',
+                            't2tw.txt',
                         ],
                     },
                 ],
@@ -1617,6 +1685,213 @@ class TestClassStsMaker(unittest.TestCase):
             )
         finally:
             os.remove(tmpfile)
+
+    def test_check_update_dict_scheme_file_src(self):
+        # missing file
+        file = os.path.join(self.root, 'conf.json')
+
+        src1 = os.path.join(self.root, 'phrases.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        src2 = os.path.join(self.root, 'chars.txt')
+        with open(src2, 'w'):
+            pass
+        os.utime(src2, (30000, 30000))
+
+        scheme = {
+            'file': file,
+            'src': [src1, src2],
+        }
+
+        self.assertTrue(StsMaker().check_update(scheme))
+        self.assertTrue(scheme['_updated'])
+
+        # mtime(file) > mtime(src)
+        file = os.path.join(self.root, 'conf.json')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (40000, 40000))
+
+        src1 = os.path.join(self.root, 'phrases.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        src2 = os.path.join(self.root, 'chars.txt')
+        with open(src2, 'w'):
+            pass
+        os.utime(src2, (30000, 30000))
+
+        scheme = {
+            'file': file,
+            'src': [src1, src2],
+        }
+
+        self.assertFalse(StsMaker().check_update(scheme))
+        self.assertNotIn('_updated', scheme)
+
+        # mtime(file) < mtime(src)
+        file = os.path.join(self.root, 'conf.json')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (10000, 10000))
+
+        src1 = os.path.join(self.root, 'phrases.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        src2 = os.path.join(self.root, 'chars.txt')
+        with open(src2, 'w'):
+            pass
+        os.utime(src2, (30000, 30000))
+
+        scheme = {
+            'file': file,
+            'src': [src1, src2],
+        }
+
+        self.assertTrue(StsMaker().check_update(scheme))
+        self.assertTrue(scheme['_updated'])
+
+        # nested src update
+        file = os.path.join(self.root, 'conf.json')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (40000, 40000))
+
+        file1 = os.path.join(self.root, 'conf1.json')
+        with open(file1, 'w'):
+            pass
+        os.utime(file1, (10000, 10000))
+
+        src1 = os.path.join(self.root, 'phrases.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        scheme = {
+            'file': file,
+            'src': [
+                {
+                    'file': file1,
+                    'mode': 'load',
+                    'src': [src1],
+                }
+            ],
+        }
+
+        self.assertTrue(StsMaker().check_update(scheme))
+        self.assertTrue(scheme['_updated'])
+
+    def test_check_update_dict_scheme_file(self):
+        # mtime(file) and unspecified mtime
+        file = os.path.join(self.root, 'conf.json')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (20000, 20000))
+
+        scheme = {
+            'file': file,
+        }
+
+        self.assertFalse(StsMaker().check_update(scheme))
+        self.assertNotIn('_updated', scheme)
+
+        # mtime(file) > mtime
+        file = os.path.join(self.root, 'conf.json')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (20000, 20000))
+
+        scheme = {
+            'file': file,
+        }
+
+        self.assertTrue(StsMaker().check_update(scheme, 10000))
+        self.assertNotIn('_updated', scheme)
+
+        # mtime(file) < mtime
+        file = os.path.join(self.root, 'conf.json')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (20000, 20000))
+
+        scheme = {
+            'file': file,
+        }
+
+        self.assertFalse(StsMaker().check_update(scheme, 30000))
+        self.assertNotIn('_updated', scheme)
+
+    def test_check_update_dict_scheme_src(self):
+        # mtime(src) and unspecified mtime
+        src1 = os.path.join(self.root, 'phrases.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        src2 = os.path.join(self.root, 'chars.txt')
+        with open(src2, 'w'):
+            pass
+        os.utime(src2, (30000, 30000))
+
+        scheme = {
+            'src': [src1, src2],
+        }
+
+        self.assertFalse(StsMaker().check_update(scheme))
+        self.assertNotIn('_updated', scheme)
+
+        # mtime(src) > mtime
+        src1 = os.path.join(self.root, 'phrases.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        src2 = os.path.join(self.root, 'chars.txt')
+        with open(src2, 'w'):
+            pass
+        os.utime(src2, (30000, 30000))
+
+        scheme = {
+            'src': [src1, src2],
+        }
+
+        self.assertTrue(StsMaker().check_update(scheme, 25000))
+        self.assertTrue(scheme['_updated'])
+
+        # mtime(src) < mtime
+        src1 = os.path.join(self.root, 'phrases.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        src2 = os.path.join(self.root, 'chars.txt')
+        with open(src2, 'w'):
+            pass
+        os.utime(src2, (30000, 30000))
+
+        scheme = {
+            'src': [src1, src2],
+        }
+
+        self.assertFalse(StsMaker().check_update(scheme, 40000))
+        self.assertNotIn('_updated', scheme)
+
+    def test_check_update_str(self):
+        file = os.path.join(self.root, 'conf.json')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (20000, 20000))
+
+        scheme = file
+
+        self.assertFalse(StsMaker().check_update(scheme))
+        self.assertFalse(StsMaker().check_update(scheme, mtime=30000))
+        self.assertTrue(StsMaker().check_update(scheme, mtime=10000))
 
 
 class TestClassStsConverter(unittest.TestCase):

@@ -5,13 +5,14 @@
       "file": "../dictionary/s2hk.tlist",
       "mode": "join",
       "src": [
-        [
-          "../dictionary/STPhrases.txt",
-          "../dictionary/STCharacters.txt"
-        ],
-        [
-          "../dictionary/HKVariants.txt"
-        ]
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/STPhrases.txt",
+            "../dictionary/STCharacters.txt"
+          ]
+        },
+        "../dictionary/HKVariants.txt"
       ]
     }
   ]

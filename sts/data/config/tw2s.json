@@ -8,14 +8,20 @@
       "file": "../dictionary/tw2s.tlist",
       "mode": "join",
       "src": [
-        [
-          "../dictionary/TWVariantsRevPhrases.txt",
-          "../dictionary/TWVariantsRev.list"
-        ],
-        [
-          "../dictionary/TSPhrases.txt",
-          "../dictionary/TSCharacters.txt"
-        ]
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/TWVariantsRevPhrases.txt",
+            "../dictionary/TWVariantsRev.list"
+          ]
+        },
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/TSPhrases.txt",
+            "../dictionary/TSCharacters.txt"
+          ]
+        }
       ]
     }
   ]

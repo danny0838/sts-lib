@@ -924,8 +924,11 @@ class StsMaker():
                                         // file, relative to config dir
                         "mode": "...",  // mode to handle the loaded sources:
                                         // load, swap, join
-                        "src": ["...", ...]  // list of the source file paths,
-                                             // should be .txt or .list files
+                        "src": [        // list of the source file paths,
+                            src1,       // should be .txt or .list files
+                            src2,
+                            ...
+                        ],
                         "sort": true,   // truthy to sort the keys of the
                                         // generated dictionary
                         "include": "...",  // regex filter for output values
@@ -963,19 +966,20 @@ class StsMaker():
         # make the requested dicts
         for dict_scheme in config['dicts']:
             dict_scheme = self.resolve_dict_scheme(dict_scheme, config_dir)
-            if not skip_check:
-                self.check_update(dict_scheme)
-            dest = self.make_dict(dict_scheme, config_dir=config_dir,
-                                  skip_check=skip_check, quiet=quiet)
+            try:
+                dest = dict_scheme['file']
+            except KeyError:
+                raise RuntimeError('file is not defined')
+            if not skip_check and not self.check_update(dict_scheme):
+                if not quiet:
+                    print(f'skip making (up-to-date): {dest}')
+                continue
+            self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check, quiet=quiet)
 
         return dest
 
     def resolve_dict_scheme(self, dict_scheme, config_dir):
         """Recursively resolve file paths for dict_scheme."""
-        # @deprecated
-        if isinstance(dict_scheme, list):
-            return [self.resolve_dict_scheme(src, config_dir) for src in dict_scheme]
-
         if isinstance(dict_scheme, str):
             return self.get_stsdict_file(dict_scheme, config_dir)
 
@@ -994,16 +998,34 @@ class StsMaker():
         return dict_
 
     def make_dict(self, dict_scheme, config_dir, skip_check=False, quiet=False):
-        dest = dict_scheme['file']
-        format = os.path.splitext(dest)[1][1:].lower()
+        """Make a dict.
+
+        Returns:
+            A StsDict or str (for str scheme or when up-to-date).
+        """
+        if isinstance(dict_scheme, str):
+            return dict_scheme
+
+        dest = dict_scheme.get('file')
+        if dest:
+            if not dict_scheme.get('_updated'):
+                return dest
+
+            format = os.path.splitext(dest)[1][1:].lower()
+        else:
+            format = '.list'
+
         mode = dict_scheme.get('mode', 'load')
-        src = dict_scheme.get('src', [])
+        srcs = dict_scheme.get('src', [])
         sort = dict_scheme.get('sort', False)
         include = dict_scheme.get('include', None)
         exclude = dict_scheme.get('exclude', None)
         check = dict_scheme.get('check', False)
 
-        files = src
+        if not srcs:
+            if not os.path.isfile(dest):
+                raise RuntimeError(f'Specified flie does not exist: {dest}')
+            return dest
 
         if include is not None:
             try:
@@ -1017,29 +1039,26 @@ class StsMaker():
             except re.error as exc:
                 raise ValueError(f'regex syntax error of the exclude filter: {exc}')
 
-        if not files:
-            if os.path.isfile(dest):
-                if not quiet:
-                    print(f'skip making (no src): {dest}')
-                return dest
-            else:
-                raise RuntimeError(f'Specified flie does not exist: {dest}')
-
-        if not skip_check and not dict_scheme.get('_updated'):
-            if not quiet:
-                print(f'skip making (up-to-date): {dest}')
-            return dest
-
-        if not quiet:
+        if dest and not quiet:
             print(f'making: {dest}')
 
-        if mode == 'load':
-            table = Table().load(*files)
-        elif mode == 'swap':
-            table = Table().load(*files).swap()
+        for i, src in enumerate(srcs):
+            srcs[i] = self.make_dict(src, config_dir, skip_check, quiet)
+
+        if mode in ('load', 'swap'):
+            table = Table()
+            for src in srcs:
+                if isinstance(src, str):
+                    table.load(src)
+                else:
+                    for key, values in src.items():
+                        table.add(key, values)
+            if mode == 'swap':
+                table = table.swap()
         elif mode == 'join':
             table = Table()
-            for dict_ in (Table().load(*fg) for fg in files):
+            for src in srcs:
+                dict_ = Table().load(src) if isinstance(src, str) else src
                 table = table.join(dict_)
         else:
             raise ValueError(f'Specified mode is not supported: {mode}')
@@ -1054,16 +1073,16 @@ class StsMaker():
                 if values:
                     table.add(key, values)
 
-        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        if dest:
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            if format == 'tlist':
+                Trie(table).dumpjson(dest, sort=sort)
+            elif format == 'jlist':
+                table.dumpjson(dest, sort=sort)
+            else:  # default: list
+                table.dump(dest, sort=sort, check=check)
 
-        if format == 'tlist':
-            Trie(table).dumpjson(dest, sort=sort)
-        elif format == 'jlist':
-            table.dumpjson(dest, sort=sort)
-        else:  # default: list
-            table.dump(dest, sort=sort, check=check)
-
-        return dest
+        return table
 
     def get_config_file(self, config, base_dir=None):
         """Calculate the path of a config file.
@@ -1122,10 +1141,6 @@ class StsMaker():
         Returns:
             bool: True if needs update and False otherwise.
         """
-        # @deprecated
-        if isinstance(dict_scheme, list):
-            return any(self.check_update(src, mtime) for src in dict_scheme)
-
         if isinstance(dict_scheme, str):
             dict_scheme = {'file': dict_scheme}
 

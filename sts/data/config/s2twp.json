@@ -8,14 +8,20 @@
       "file": "../dictionary/s2twp.tlist",
       "mode": "join",
       "src": [
-        [
-          "../dictionary/STPhrases.txt",
-          "../dictionary/STCharacters.txt"
-        ],
-        [
-          "../dictionary/TWPhrases.list",
-          "../dictionary/TWVariants.txt"
-        ]
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/STPhrases.txt",
+            "../dictionary/STCharacters.txt"
+          ]
+        },
+        {
+          "mode": "load",
+          "src": [ 
+            "../dictionary/TWPhrases.list",
+            "../dictionary/TWVariants.txt"
+          ]
+        }
       ]
     }
   ]

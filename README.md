@@ -79,21 +79,30 @@ converter.convert_file(input=None, output=None
  */
 
 /**
+ * A dictScheme or string for a dict.
+ *
+ * The string should be an absolute path, or a path relative to the directory
+ * of the config file, or the basename of a built-in dictionary file, with a
+ * file extension of .txt, .list, .json, .jlist, .yaml, or .yml.
+ *
+ * @typedef {(string|dictScheme)} srcDictScheme
+ */
+
+/**
  * @typedef {Object} dictScheme
- * @property {string} file - path of the dictionary file to generate, as an
+ * @property {string} [file] - path of the dictionary file to generate, as an
  *     absolute path, or a path relative to the directory of this config file.
  *     It should be a .tlist (compiled trie), .jlist (compiled table), or .list
- *     (plain text table).
- * @property {string} [mode=load] - the mode to handle the loaded source files:
- *     "load" to simply merge the loaded keys and values; "swap" to reverse the
- *     dictionary (i.e. use the values as keys and the keys as values); "join"
- *     to build from a chain of dictionaries (in which case src must be an
- *     array of subarrays of strings)
- * @property {Array.<(string|string[])>} [src] - the source files. Each as an
- *     absolute path, or a path relative to the directory of this config file,
- *     or the basename of a built-in dictionary file. Each should be a .txt,
- *     .list, .json, .jlist, .yaml, or .yml dictionary file. File must exist
- *     when this is omitted.
+ *     (plain text table). An unknown file extension is treated as .list. `src`
+ *     must exist when omitted.
+ * @property {string} [mode=load] - the mode to handle the loaded dicts: "load"
+ *     to simply merge the loaded keys and values; "swap" to reverse the dict
+ *     (i.e. use the values as keys and the keys as values); "join" to chain
+ *     dicts (a conversion using a dict joining dict1 and dict2 works like a
+ *     conversion using dict1 and then dict2, but takes care of word
+ *     segmentation).
+ * @property {srcDictScheme[]} [src] - the source dicts. `file` must exist when
+ *     omitted.
  * @property {boolean} [sort] - true to sort the keys of the output dictionary.
  * @property {string} [include] - a regex filter that discards non-matched
  *     conversion values.
