@@ -3,18 +3,20 @@
   "requires": [
     "_default"
   ],
-  "dicts": [{
-    "file": "../dictionary/hk2s.tlist",
-    "mode": "join",
-    "src": [
-      [
-        "HKVariantsRevPhrases.txt",
-        "HKVariantsRev.list"
-      ],
-      [
-        "TSPhrases.txt",
-        "TSCharacters.txt"
+  "dicts": [
+    {
+      "file": "../dictionary/hk2s.tlist",
+      "mode": "join",
+      "src": [
+        [
+          "HKVariantsRevPhrases.txt",
+          "HKVariantsRev.list"
+        ],
+        [
+          "TSPhrases.txt",
+          "TSCharacters.txt"
+        ]
       ]
-    ]
-  }]
+    }
+  ]
 }

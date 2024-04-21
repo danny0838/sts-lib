@@ -3,12 +3,14 @@
   "requires": [
     "_default"
   ],
-  "dicts": [{
-    "file": "../dictionary/tw2t.tlist",
-    "mode": "load",
-    "src": [
-      "TWVariantsRevPhrases.txt",
-      "TWVariantsRev.list"
-    ]
-  }]
+  "dicts": [
+    {
+      "file": "../dictionary/tw2t.tlist",
+      "mode": "load",
+      "src": [
+        "TWVariantsRevPhrases.txt",
+        "TWVariantsRev.list"
+      ]
+    }
+  ]
 }

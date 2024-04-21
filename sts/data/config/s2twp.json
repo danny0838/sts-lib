@@ -3,18 +3,20 @@
   "requires": [
     "_default"
   ],
-  "dicts": [{
-    "file": "../dictionary/s2twp.tlist",
-    "mode": "join",
-    "src": [
-      [
-        "STPhrases.txt",
-        "STCharacters.txt"
-      ],
-      [
-        "TWPhrases.list",
-        "TWVariants.txt"
+  "dicts": [
+    {
+      "file": "../dictionary/s2twp.tlist",
+      "mode": "join",
+      "src": [
+        [
+          "STPhrases.txt",
+          "STCharacters.txt"
+        ],
+        [
+          "TWPhrases.list",
+          "TWVariants.txt"
+        ]
       ]
-    ]
-  }]
+    }
+  ]
 }

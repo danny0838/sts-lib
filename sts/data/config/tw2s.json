@@ -3,18 +3,20 @@
   "requires": [
     "_default"
   ],
-  "dicts": [{
-    "file": "../dictionary/tw2s.tlist",
-    "mode": "join",
-    "src": [
-      [
-        "TWVariantsRevPhrases.txt",
-        "TWVariantsRev.list"
-      ],
-      [
-        "TSPhrases.txt",
-        "TSCharacters.txt"
+  "dicts": [
+    {
+      "file": "../dictionary/tw2s.tlist",
+      "mode": "join",
+      "src": [
+        [
+          "TWVariantsRevPhrases.txt",
+          "TWVariantsRev.list"
+        ],
+        [
+          "TSPhrases.txt",
+          "TSCharacters.txt"
+        ]
       ]
-    ]
-  }]
+    }
+  ]
 }

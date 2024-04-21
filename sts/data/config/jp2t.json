@@ -3,13 +3,15 @@
   "requires": [
     "_default"
   ],
-  "dicts": [{
-    "file": "../dictionary/jp2t.tlist",
-    "mode": "load",
-    "src": [
-      "JPShinjitaiPhrases.txt",
-      "JPShinjitaiCharacters.txt",
-      "JPVariantsRev.list"
-    ]
-  }]
+  "dicts": [
+    {
+      "file": "../dictionary/jp2t.tlist",
+      "mode": "load",
+      "src": [
+        "JPShinjitaiPhrases.txt",
+        "JPShinjitaiCharacters.txt",
+        "JPVariantsRev.list"
+      ]
+    }
+  ]
 }

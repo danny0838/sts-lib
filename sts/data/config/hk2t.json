@@ -3,12 +3,14 @@
   "requires": [
     "_default"
   ],
-  "dicts": [{
-    "file": "../dictionary/hk2t.tlist",
-    "mode": "load",
-    "src": [
-      "HKVariantsRevPhrases.txt",
-      "HKVariantsRev.list"
-    ]
-  }]
+  "dicts": [
+    {
+      "file": "../dictionary/hk2t.tlist",
+      "mode": "load",
+      "src": [
+        "HKVariantsRevPhrases.txt",
+        "HKVariantsRev.list"
+      ]
+    }
+  ]
 }
