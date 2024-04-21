@@ -961,75 +961,81 @@ class StsMaker():
                 self.make(cf, base_dir=config_dir, skip_requires=skip_requires, quiet=quiet)
 
         # make the requested dicts
-        for dict_ in config['dicts']:
-            dest = os.path.normpath(os.path.join(config_dir, dict_['file']))
-            format = os.path.splitext(dest)[1][1:].lower()
-            mode = dict_.get('mode', 'load')
-            src = dict_.get('src', [])
-            sort = dict_.get('sort', False)
-            include = dict_.get('include', None)
-            exclude = dict_.get('exclude', None)
-            check = dict_.get('check', False)
+        for dict_scheme in config['dicts']:
+            dest = self.make_dict(dict_scheme, config_dir=config_dir,
+                                  skip_check=skip_check, quiet=quiet)
 
-            files = self.resolve_src_files(src, config_dir)
+        return dest
 
-            if include is not None:
-                try:
-                    include = re.compile(include)
-                except re.error as exc:
-                    raise ValueError(f'regex syntax error of the include filter: {exc}')
+    def make_dict(self, dict_scheme, config_dir, skip_check=False, quiet=False):
+        dest = os.path.normpath(os.path.join(config_dir, dict_scheme['file']))
+        format = os.path.splitext(dest)[1][1:].lower()
+        mode = dict_scheme.get('mode', 'load')
+        src = dict_scheme.get('src', [])
+        sort = dict_scheme.get('sort', False)
+        include = dict_scheme.get('include', None)
+        exclude = dict_scheme.get('exclude', None)
+        check = dict_scheme.get('check', False)
 
-            if exclude is not None:
-                try:
-                    exclude = re.compile(exclude)
-                except re.error as exc:
-                    raise ValueError(f'regex syntax error of the exclude filter: {exc}')
+        files = self.resolve_src_files(src, config_dir)
 
-            if not files:
-                if os.path.isfile(dest):
-                    if not quiet:
-                        print(f'skip making (no src): {dest}')
-                    continue
-                else:
-                    raise RuntimeError(f'Specified flie does not exist: {dest}')
+        if include is not None:
+            try:
+                include = re.compile(include)
+            except re.error as exc:
+                raise ValueError(f'regex syntax error of the include filter: {exc}')
 
-            if not skip_check and not self.check_update(dest, files):
+        if exclude is not None:
+            try:
+                exclude = re.compile(exclude)
+            except re.error as exc:
+                raise ValueError(f'regex syntax error of the exclude filter: {exc}')
+
+        if not files:
+            if os.path.isfile(dest):
                 if not quiet:
-                    print(f'skip making (up-to-date): {dest}')
-                continue
-
-            if not quiet:
-                print(f'making: {dest}')
-
-            if mode == 'load':
-                table = Table().load(*files)
-            elif mode == 'swap':
-                table = Table().load(*files).swap()
-            elif mode == 'join':
-                table = Table()
-                for dict_ in (Table().load(*fg) for fg in files):
-                    table = table.join(dict_)
+                    print(f'skip making (no src): {dest}')
+                return dest
             else:
-                raise ValueError(f'Specified mode is not supported: {mode}')
+                raise RuntimeError(f'Specified flie does not exist: {dest}')
 
-            if include is not None or exclude is not None:
-                _table = table
-                table = Table()
-                for key, values in _table.items():
-                    values = [v for v in values
-                              if (include is None or include.search(v))
-                              and (exclude is None or not exclude.search(v))]
-                    if values:
-                        table.add(key, values)
+        if not skip_check and not self.check_update(dest, files):
+            if not quiet:
+                print(f'skip making (up-to-date): {dest}')
+            return dest
 
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
+        if not quiet:
+            print(f'making: {dest}')
 
-            if format == 'tlist':
-                Trie(table).dumpjson(dest, sort=sort)
-            elif format == 'jlist':
-                table.dumpjson(dest, sort=sort)
-            else:  # default: list
-                table.dump(dest, sort=sort, check=check)
+        if mode == 'load':
+            table = Table().load(*files)
+        elif mode == 'swap':
+            table = Table().load(*files).swap()
+        elif mode == 'join':
+            table = Table()
+            for dict_ in (Table().load(*fg) for fg in files):
+                table = table.join(dict_)
+        else:
+            raise ValueError(f'Specified mode is not supported: {mode}')
+
+        if include is not None or exclude is not None:
+            _table = table
+            table = Table()
+            for key, values in _table.items():
+                values = [v for v in values
+                          if (include is None or include.search(v))
+                          and (exclude is None or not exclude.search(v))]
+                if values:
+                    table.add(key, values)
+
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+
+        if format == 'tlist':
+            Trie(table).dumpjson(dest, sort=sort)
+        elif format == 'jlist':
+            table.dumpjson(dest, sort=sort)
+        else:  # default: list
+            table.dump(dest, sort=sort, check=check)
 
         return dest
 
