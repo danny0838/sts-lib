@@ -659,6 +659,13 @@ function onKeyDown(event) {
 function onFocus(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
+
+  // remove popup when editing
+  if (target.matches('.editing')) {
+    removePopup();
+    return;
+  }
+
   markChecked(target);
   removePopup();
   showPopup(target);
