@@ -293,17 +293,15 @@ class StsDict():
             self.add(key, values, skip_check=skip_check)
         return self
 
-    def load(self, *files, type=None):
-        """Add all key-values pairs from dict file(s).
-        """
-        for file in files:
-            t = os.path.splitext(file)[1][1:].lower() if type is None else type
-            if t in ('json', 'jlist'):
-                self._load_json(file)
-            elif t in ('yaml', 'yml'):
-                self._load_yaml(file)
-            else:
-                self._load_plain(file)
+    def load(self, file, type=None):
+        """Add all key-values pairs from a dict file."""
+        t = os.path.splitext(file)[1][1:].lower() if type is None else type
+        if t in ('json', 'jlist'):
+            self._load_json(file)
+        elif t in ('yaml', 'yml'):
+            self._load_yaml(file)
+        else:
+            self._load_plain(file)
         return self
 
     def _load_plain(self, file):

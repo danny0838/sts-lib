@@ -345,7 +345,8 @@ class TestClassStsDict(unittest.TestCase):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_()
-                stsdict.load(tempfile, tempfile2)
+                stsdict.load(tempfile)
+                stsdict.load(tempfile2)
                 self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']}, stsdict)
 
         # trailing linefeed
@@ -416,7 +417,8 @@ class TestClassStsDict(unittest.TestCase):
             for class_ in (StsDict, Table, Trie):
                 with self.subTest(type=class_, ext=ext):
                     stsdict = class_()
-                    stsdict.load(tempfile, tempfile2)
+                    stsdict.load(tempfile)
+                    stsdict.load(tempfile2)
                     self.assertEqual({
                         '简': ['簡'],
                         '干': ['幹', '乾', '干', '榦'],
@@ -445,7 +447,8 @@ class TestClassStsDict(unittest.TestCase):
             for class_ in (StsDict, Table, Trie):
                 with self.subTest(type=class_, ext=ext):
                     stsdict = class_()
-                    stsdict.load(tempfile, tempfile2)
+                    stsdict.load(tempfile)
+                    stsdict.load(tempfile2)
                     self.assertEqual({
                         '简': ['簡'],
                         '干': ['幹', '乾', '干', '榦'],

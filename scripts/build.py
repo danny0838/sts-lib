@@ -116,7 +116,9 @@ def main():
             srcs = (os.path.join(tmp_dir, f'{src}.list') for src in srcs)
             dest = os.path.join(dicts_dir, f'{dst}.tlist')
             print(f'building: {dest}')
-            table = Trie().load(*srcs)
+            table = Trie()
+            for src in srcs:
+                table.load(src)
             table.dumpjson(dest)
 
     # -- compile *.tlist for tongwen-dict
@@ -146,7 +148,9 @@ def main():
             srcs = (os.path.join(tmp_dir, f'{src}.list') for src in srcs)
             dest = os.path.join(dicts_dir, f'{dst}.tlist')
             print(f'building: {dest}')
-            table = Trie().load(*srcs)
+            table = Trie()
+            for src in srcs:
+                table.load(src)
             table.dumpjson(dest)
 
 
