@@ -963,6 +963,8 @@ class StsMaker():
         # make the requested dicts
         for dict_scheme in config['dicts']:
             dict_scheme = self.resolve_dict_scheme(dict_scheme, config_dir)
+            if not skip_check:
+                self.check_update(dict_scheme)
             dest = self.make_dict(dict_scheme, config_dir=config_dir,
                                   skip_check=skip_check, quiet=quiet)
 
@@ -1023,7 +1025,7 @@ class StsMaker():
             else:
                 raise RuntimeError(f'Specified flie does not exist: {dest}')
 
-        if not skip_check and not self.check_update(dest, files):
+        if not skip_check and not dict_scheme.get('_updated'):
             if not quiet:
                 print(f'skip making (up-to-date): {dest}')
             return dest
@@ -1111,20 +1113,42 @@ class StsMaker():
 
         return os.path.normpath(relative_stsdict)
 
-    def check_update(self, output, filegroups):
-        """Check if the output file needs update.
+    def check_update(self, dict_scheme, mtime=math.inf):
+        """Recursively check if dict_scheme needs update.
+
+        Updated dict_scheme or descendant dict_scheme sets
+        dict_scheme['_updated'] = True.
+
+        Returns:
+            bool: True if needs update and False otherwise.
         """
-        if not os.path.isfile(output):
-            return True
+        # @deprecated
+        if isinstance(dict_scheme, list):
+            return any(self.check_update(src, mtime) for src in dict_scheme)
 
-        for files in filegroups:
-            if isinstance(files, str):
-                files = [files]
-            for file in files:
-                if os.path.getmtime(file) > os.path.getmtime(output):
-                    return True
+        if isinstance(dict_scheme, str):
+            dict_scheme = {'file': dict_scheme}
 
-        return False
+        rv = False
+
+        file = dict_scheme.get('file')
+
+        if file:
+            if not os.path.isfile(file):
+                rv = dict_scheme['_updated'] = True
+            else:
+                file_mtime = os.path.getmtime(file)
+                if file_mtime > mtime:
+                    rv = True
+
+                mtime = file_mtime
+
+        srcs = dict_scheme.get('src', ())
+        for src in srcs:
+            if self.check_update(src, mtime):
+                rv = dict_scheme['_updated'] = True
+
+        return rv
 
 
 class StsConverter():
