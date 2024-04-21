@@ -555,6 +555,13 @@ function onKeyDown(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
 
+  // special combinations
+  if (event.shiftKey && event.key === "~" && !target.matches('.editing')) {
+    event.preventDefault();
+    editContext(target);
+    return;
+  }
+
   if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
     return;
   }
