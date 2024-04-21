@@ -598,11 +598,19 @@ function onKeyDown(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
 
-  if (target.matches('.editing') && event.key !== "`") {
+  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
     return;
   }
 
-  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+  if (target.matches('.editing')) {
+    switch (event.key) {
+      case "`":
+      case "Escape": {
+        event.preventDefault();
+        toggleEditing(target);
+        break;
+      }
+    }
     return;
   }
 
@@ -739,7 +747,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   <li><kbd>Z</kbd>／<kbd>C</kbd>：移至上／下一個相同字。</li>
   <li><kbd>W</kbd>／<kbd>S</kbd>：套用前／後一個候選字。</li>
   <li><kbd>0</kbd>-<kbd>9</kbd>：套用對應的候選字（<kbd>0</kbd>對應轉換前的字）。</li>
-  <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，可自由編輯。編輯模式下本鍵以外的操作鍵將無效。</li>
+  <li><kbd>`</kbd> (<kbd>1</kbd>左邊的反引號)：將此字切換為編輯模式，可自由編輯。編輯模式下可用此鍵或<kbd>Esc</kbd>關閉編輯模式，其餘操作鍵無效。</li>
   <li><kbd>Enter</kbd>：開啟選單執行指令。</li>
 </ul>
 </details>

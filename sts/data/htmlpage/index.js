@@ -555,11 +555,19 @@ function onKeyDown(event) {
   const target = event.target.closest('a');
   if (!target) { return; }
 
-  if (target.matches('.editing') && event.key !== "`") {
+  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
     return;
   }
 
-  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+  if (target.matches('.editing')) {
+    switch (event.key) {
+      case "`":
+      case "Escape": {
+        event.preventDefault();
+        toggleEditing(target);
+        break;
+      }
+    }
     return;
   }
 
