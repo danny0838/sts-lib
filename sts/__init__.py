@@ -962,13 +962,37 @@ class StsMaker():
 
         # make the requested dicts
         for dict_scheme in config['dicts']:
+            dict_scheme = self.resolve_dict_scheme(dict_scheme, config_dir)
             dest = self.make_dict(dict_scheme, config_dir=config_dir,
                                   skip_check=skip_check, quiet=quiet)
 
         return dest
 
+    def resolve_dict_scheme(self, dict_scheme, config_dir):
+        """Recursively resolve file paths for dict_scheme."""
+        # @deprecated
+        if isinstance(dict_scheme, list):
+            return [self.resolve_dict_scheme(src, config_dir) for src in dict_scheme]
+
+        if isinstance(dict_scheme, str):
+            return self.get_stsdict_file(dict_scheme, config_dir)
+
+        dict_ = dict_scheme.copy()
+        try:
+            dict_['file'] = os.path.normpath(os.path.join(config_dir, dict_['file']))
+        except KeyError:
+            pass
+        try:
+            srcs = dict_['src']
+        except KeyError:
+            pass
+        else:
+            for i, src in enumerate(srcs):
+                srcs[i] = self.resolve_dict_scheme(src, config_dir)
+        return dict_
+
     def make_dict(self, dict_scheme, config_dir, skip_check=False, quiet=False):
-        dest = os.path.normpath(os.path.join(config_dir, dict_scheme['file']))
+        dest = dict_scheme['file']
         format = os.path.splitext(dest)[1][1:].lower()
         mode = dict_scheme.get('mode', 'load')
         src = dict_scheme.get('src', [])
@@ -977,7 +1001,7 @@ class StsMaker():
         exclude = dict_scheme.get('exclude', None)
         check = dict_scheme.get('check', False)
 
-        files = self.resolve_src_files(src, config_dir)
+        files = src
 
         if include is not None:
             try:
@@ -1086,12 +1110,6 @@ class StsMaker():
                 return os.path.normpath(search_file)
 
         return os.path.normpath(relative_stsdict)
-
-    def resolve_src_files(self, files, base_dir):
-        return [self.get_stsdict_file(f, base_dir=base_dir)
-                if isinstance(f, str)
-                else self.resolve_src_files(f, base_dir=base_dir)
-                for f in files]
 
     def check_update(self, output, filegroups):
         """Check if the output file needs update.
