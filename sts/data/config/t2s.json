@@ -5,8 +5,8 @@
       "file": "../dictionary/t2s.tlist",
       "mode": "load",
       "src": [
-        "TSPhrases.txt",
-        "TSCharacters.txt"
+        "../dictionary/TSPhrases.txt",
+        "../dictionary/TSCharacters.txt"
       ]
     }
   ]

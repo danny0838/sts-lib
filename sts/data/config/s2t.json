@@ -5,8 +5,8 @@
       "file": "../dictionary/s2t.tlist",
       "mode": "load",
       "src": [
-        "STPhrases.txt",
-        "STCharacters.txt"
+        "../dictionary/STPhrases.txt",
+        "../dictionary/STCharacters.txt"
       ]
     }
   ]

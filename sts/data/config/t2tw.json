@@ -5,7 +5,7 @@
       "file": "../dictionary/t2tw.tlist",
       "mode": "load",
       "src": [
-        "TWVariants.txt"
+        "../dictionary/TWVariants.txt"
       ]
     }
   ]

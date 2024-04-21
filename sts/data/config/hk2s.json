@@ -1,7 +1,7 @@
 {
   "name": "Traditional Chinese (Hong Kong variant) to Simplified Chinese",
   "requires": [
-    "_default"
+    "_default.json"
   ],
   "dicts": [
     {
@@ -9,12 +9,12 @@
       "mode": "join",
       "src": [
         [
-          "HKVariantsRevPhrases.txt",
-          "HKVariantsRev.list"
+          "../dictionary/HKVariantsRevPhrases.txt",
+          "../dictionary/HKVariantsRev.list"
         ],
         [
-          "TSPhrases.txt",
-          "TSCharacters.txt"
+          "../dictionary/TSPhrases.txt",
+          "../dictionary/TSCharacters.txt"
         ]
       ]
     }

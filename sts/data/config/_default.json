@@ -5,37 +5,37 @@
       "file": "../dictionary/TWPhrases.list",
       "mode": "load",
       "src": [
-        "TWPhrasesIT.txt",
-        "TWPhrasesName.txt",
-        "TWPhrasesOther.txt"
+        "../dictionary/TWPhrasesIT.txt",
+        "../dictionary/TWPhrasesName.txt",
+        "../dictionary/TWPhrasesOther.txt"
       ]
     },
     {
       "file": "../dictionary/TWPhrasesRev.list",
       "mode": "swap",
       "src": [
-        "TWPhrases.list"
+        "../dictionary/TWPhrases.list"
       ]
     },
     {
       "file": "../dictionary/TWVariantsRev.list",
       "mode": "swap",
       "src": [
-        "TWVariants.txt"
+        "../dictionary/TWVariants.txt"
       ]
     },
     {
       "file": "../dictionary/HKVariantsRev.list",
       "mode": "swap",
       "src": [
-        "HKVariants.txt"
+        "../dictionary/HKVariants.txt"
       ]
     },
     {
       "file": "../dictionary/JPVariantsRev.list",
       "mode": "swap",
       "src": [
-        "JPVariants.txt"
+        "../dictionary/JPVariants.txt"
       ]
     }
   ]

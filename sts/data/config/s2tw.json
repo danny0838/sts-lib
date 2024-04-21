@@ -6,11 +6,11 @@
       "mode": "join",
       "src": [
         [
-          "STPhrases.txt",
-          "STCharacters.txt"
+          "../dictionary/STPhrases.txt",
+          "../dictionary/STCharacters.txt"
         ],
         [
-          "TWVariants.txt"
+          "../dictionary/TWVariants.txt"
         ]
       ]
     }

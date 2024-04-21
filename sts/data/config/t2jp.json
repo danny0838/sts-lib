@@ -5,7 +5,7 @@
       "file": "../dictionary/t2jp.tlist",
       "mode": "load",
       "src": [
-        "JPVariants.txt"
+        "../dictionary/JPVariants.txt"
       ]
     }
   ]

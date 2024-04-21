@@ -1,7 +1,7 @@
 {
   "name": "Traditional Chinese (Taiwan standard) to Simplified Chinese (with phrases)",
   "requires": [
-    "_default"
+    "_default.json"
   ],
   "dicts": [
     {
@@ -9,13 +9,13 @@
       "mode": "join",
       "src": [
         [
-          "TWPhrasesRev.list",
-          "TWVariantsRevPhrases.txt",
-          "TWVariantsRev.list"
+          "../dictionary/TWPhrasesRev.list",
+          "../dictionary/TWVariantsRevPhrases.txt",
+          "../dictionary/TWVariantsRev.list"
         ],
         [
-          "TSPhrases.txt",
-          "TSCharacters.txt"
+          "../dictionary/TSPhrases.txt",
+          "../dictionary/TSCharacters.txt"
         ]
       ]
     }
