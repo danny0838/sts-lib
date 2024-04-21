@@ -348,14 +348,58 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.load(tempfile, tempfile2)
                 self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']}, stsdict)
 
-        # check for cases of 0 or 2+ tabs
+        # trailing linefeed
         with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t幹 乾\t# 一些註解\n姜\n干\t干\n\n干\t榦""")
+            fh.write("""干\t幹\n""")
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
                 stsdict = class_()
                 stsdict.load(tempfile)
-                self.assertEqual({'干': ['幹', '乾', '干', '榦']}, stsdict)
+                self.assertEqual({'干': ['幹']}, stsdict)
+
+        # empty value
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t""")
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_()
+                stsdict.load(tempfile)
+                self.assertEqual({'干': ['']}, stsdict)
+
+        # empty line (error in OpenCC < 1.1.4)
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹\n\n于\t於""")
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_()
+                stsdict.load(tempfile)
+                self.assertEqual({'干': ['幹'], '于': ['於']}, stsdict)
+
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹\n\n""")
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_()
+                stsdict.load(tempfile)
+                self.assertEqual({'干': ['幹']}, stsdict)
+
+        # 0 tab: safely ignored (error in OpenCC)
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干""")
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_()
+                stsdict.load(tempfile)
+                self.assertEqual({}, stsdict)
+
+        # 2 tabs: safely ignored (2nd tab treated as part of value in OpenCC)
+        with open(tempfile, 'w', encoding='UTF-8') as fh:
+            fh.write("""干\t幹 乾\t# 一些註解""")
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_()
+                stsdict.load(tempfile)
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
     def test_load_json(self):
         for ext in ('json', 'jlist'):
@@ -1483,6 +1527,96 @@ class TestClassStsMaker(unittest.TestCase):
         with mock.patch('sts.StsDict.dump') as mocker:
             StsMaker().make(config_file, quiet=True)
             mocker.assert_called_with(mock.ANY, sort=mock.ANY, check=True)
+
+    def test_get_config_file(self):
+        # absolute path
+        self.assertEqual(
+            os.path.join(self.root, 'myconf.json'),
+            StsMaker().get_config_file(os.path.join(self.root, 'myconf.json')),
+        )
+
+        # relative to CWD
+        self.assertEqual(
+            'myconf.json',
+            StsMaker().get_config_file('myconf.json'),
+        )
+        self.assertEqual(
+            os.path.normpath('subdir/myconf.json'),
+            StsMaker().get_config_file('subdir/myconf.json'),
+        )
+
+        # relative to base_dir
+        self.assertEqual(
+            os.path.join(self.root, 'myconf.json'),
+            StsMaker().get_config_file('myconf.json', base_dir=self.root),
+        )
+        self.assertEqual(
+            os.path.normpath(os.path.join(self.root, 'subdir/myconf.json')),
+            StsMaker().get_config_file('subdir/myconf.json', base_dir=self.root),
+        )
+
+        # relative to default config directory
+        tmpfile = os.path.join(StsMaker.config_dir, '__dummy__.tmp.json')
+        with open(tmpfile, 'w'):
+            pass
+        try:
+            self.assertEqual(
+                os.path.join(StsMaker.config_dir, '__dummy__.tmp.json'),
+                StsMaker().get_config_file('__dummy__.tmp.json'),
+            )
+        finally:
+            os.remove(tmpfile)
+
+        # relative to default config directory (omit extension)
+        tmpfile = os.path.join(StsMaker.config_dir, '__dummy__.tmp.json')
+        with open(tmpfile, 'w'):
+            pass
+        try:
+            self.assertEqual(
+                os.path.join(StsMaker.config_dir, '__dummy__.tmp.json'),
+                StsMaker().get_config_file('__dummy__.tmp'),
+            )
+        finally:
+            os.remove(tmpfile)
+
+    def test_get_stsdict_file(self):
+        # absolute path
+        self.assertEqual(
+            os.path.join(self.root, 'dict.list'),
+            StsMaker().get_stsdict_file(os.path.join(self.root, 'dict.list')),
+        )
+
+        # relative to CWD
+        self.assertEqual(
+            'dict.list',
+            StsMaker().get_stsdict_file('dict.list'),
+        )
+        self.assertEqual(
+            os.path.normpath('subdir/dict.list'),
+            StsMaker().get_stsdict_file('subdir/dict.list'),
+        )
+
+        # relative to base_dir
+        self.assertEqual(
+            os.path.join(self.root, 'dict.list'),
+            StsMaker().get_stsdict_file('dict.list', base_dir=self.root),
+        )
+        self.assertEqual(
+            os.path.normpath(os.path.join(self.root, 'subdir/dict.list')),
+            StsMaker().get_stsdict_file('subdir/dict.list', base_dir=self.root),
+        )
+
+        # relative to default dictionary directory
+        tmpfile = os.path.join(StsMaker.dictionary_dir, '__dummy__.tmp.txt')
+        with open(tmpfile, 'w'):
+            pass
+        try:
+            self.assertEqual(
+                os.path.join(StsMaker.dictionary_dir, '__dummy__.tmp.txt'),
+                StsMaker().get_stsdict_file('__dummy__.tmp.txt'),
+            )
+        finally:
+            os.remove(tmpfile)
 
 
 class TestClassStsConverter(unittest.TestCase):
