@@ -1,12 +1,15 @@
 {
   "name": "Traditional Chinese to Traditional Chinese (Taiwan standard)",
+  "requires": [
+    "_default.json"
+  ],
   "dicts": [
     {
       "file": "../dictionary/t2tw.tlist",
       "auto_space": true,
       "mode": "load",
       "src": [
-        "../../opencc/dictionary/TWVariants.txt"
+        "../dictionary/TWVariants.list"
       ]
     }
   ]

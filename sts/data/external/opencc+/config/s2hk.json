@@ -1,5 +1,8 @@
 {
   "name": "Simplified Chinese to Traditional Chinese (Hong Kong variant)",
+  "requires": [
+    "_default.json"
+  ],
   "dicts": [
     {
       "file": "../dictionary/s2hk.tlist",
@@ -9,11 +12,11 @@
         {
           "mode": "load",
           "src": [
-            "../../opencc/dictionary/STPhrases.txt",
-            "../../opencc/dictionary/STCharacters.txt"
+            "../dictionary/STPhrases.list",
+            "../dictionary/STCharacters.list"
           ]
         },
-        "../../opencc/dictionary/HKVariants.txt"
+        "../dictionary/HKVariants.list"
       ]
     }
   ]

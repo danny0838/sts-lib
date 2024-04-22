@@ -12,15 +12,15 @@
         {
           "mode": "load",
           "src": [
-            "../../opencc/dictionary/TWVariantsRevPhrases.txt",
+            "../dictionary/TWVariantsRevPhrases.list",
             "../dictionary/TWVariantsRev.list"
           ]
         },
         {
           "mode": "load",
           "src": [
-            "../../opencc/dictionary/TSPhrases.txt",
-            "../../opencc/dictionary/TSCharacters.txt"
+            "../dictionary/TSPhrases.list",
+            "../dictionary/TSCharacters.list"
           ]
         }
       ]
