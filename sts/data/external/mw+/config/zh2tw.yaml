@@ -1,0 +1,8 @@
+dicts:
+- file: ../dictionary/zh2tw.tlist
+  auto_space: true
+  mode: load
+  src:
+  - ../../mw/dictionary/zh2TW.txt
+  - ../../mw/dictionary/zh2Hant.txt
+  - ../../unihan/dictionary/TraditionalVariant.txt

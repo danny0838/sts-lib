@@ -1,0 +1,11 @@
+name: New Japanese Kanji (Shinjitai) to Traditional Chinese Characters (Kyūjitai)
+requires:
+- _default.yaml
+dicts:
+- file: ../dictionary/jp2t.tlist
+  auto_space: true
+  mode: load
+  src:
+  - ../../opencc/dictionary/JPShinjitaiPhrases.txt
+  - ../../opencc/dictionary/JPShinjitaiCharacters.txt
+  - ../dictionary/JPVariantsRev.list

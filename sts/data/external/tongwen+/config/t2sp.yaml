@@ -1,0 +1,7 @@
+dicts:
+- file: ../dictionary/t2sp.tlist
+  mode: load
+  src:
+  - ../../tongwen/dictionary/t2s-phrase.txt
+  - ../../tongwen/dictionary/t2s-char.txt
+  - ../../unihan/dictionary/SimplifiedVariant.txt

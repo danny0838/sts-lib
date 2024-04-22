@@ -1,0 +1,7 @@
+name: Traditional Chinese to Traditional Chinese (Hong Kong variant)
+dicts:
+- file: ../dictionary/t2hk.tlist
+  auto_space: true
+  mode: load
+  src:
+  - ../../opencc/dictionary/HKVariants.txt
