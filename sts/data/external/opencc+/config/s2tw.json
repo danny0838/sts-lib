@@ -1,5 +1,8 @@
 {
   "name": "Simplified Chinese to Traditional Chinese (Taiwan standard)",
+  "requires": [
+    "_default.json"
+  ],
   "dicts": [
     {
       "file": "../dictionary/s2tw.tlist",
@@ -9,7 +12,7 @@
         {
           "mode": "load",
           "src": [
-            "../dictionary/STPhrases.txt",
+            "../dictionary/STPhrases.list",
             "../../opencc/dictionary/STPhrases.txt",
             "../../opencc/dictionary/STCharacters.txt"
           ]
