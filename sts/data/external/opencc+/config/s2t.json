@@ -6,6 +6,7 @@
       "auto_space": true,
       "mode": "load",
       "src": [
+        "../dictionary/STPhrases.txt",
         "../../opencc/dictionary/STPhrases.txt",
         "../../opencc/dictionary/STCharacters.txt"
       ]
