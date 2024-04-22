@@ -8,9 +8,9 @@ dicts:
   src:
   - mode: load
     src:
-    - ../../opencc/dictionary/STPhrases.txt
-    - ../../opencc/dictionary/STCharacters.txt
+    - ../dictionary/STPhrases.list
+    - ../dictionary/STCharacters.list
   - mode: load
     src:
-    - ../../opencc/dictionary/TWPhrases.txt
-    - ../../opencc/dictionary/TWVariants.txt
+    - ../dictionary/TWPhrases.list
+    - ../dictionary/TWVariants.list

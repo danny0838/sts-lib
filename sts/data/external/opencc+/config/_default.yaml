@@ -1,14 +1,122 @@
 name: Built-in dictionaries
 dicts:
+- file: ../dictionary/STCharacters.list
+  mode: load
+  src:
+  - ../dictionary/STCharacters.txt
+  - mode: filter
+    method: remove_key_values
+    src:
+    - ../../opencc/dictionary/STCharacters.txt
+    - ../dictionary/STCharactersRemove.txt
+- file: ../dictionary/STPhrases.list
+  mode: load
+  src:
+  - mode: expand
+    placeholders:
+    - '%n'
+    - '%pn'
+    src:
+    - ../dictionary/STPhrases.txt
+    - mode: expand
+      placeholders:
+      - '%a'
+      src:
+      - ../dictionary/STPhrasesExpNum.txt
+      - ../dictionary/STPhrasesExpNumApprox.txt
+    - ../dictionary/STPhrasesExpPronoun.txt
+  - ../../opencc/dictionary/STPhrases.txt
+- file: ../dictionary/TSPhrases.list
+  mode: load
+  src:
+  - mode: expand
+    placeholders:
+    - '%t'
+    src:
+    - ../dictionary/TSPhrases.txt
+    - ../dictionary/TSPhrasesExpTitle.txt
+  - ../../opencc/dictionary/TSPhrases.txt
+- file: ../dictionary/TSCharacters.list
+  mode: load
+  src:
+  - ../dictionary/TSCharacters.txt
+  - ../../opencc/dictionary/TSCharacters.txt
+- file: ../dictionary/TWPhrases.list
+  mode: load
+  src:
+  - ../dictionary/TWPhrases.txt
+  - ../../opencc/dictionary/TWPhrases.txt
+- file: ../dictionary/TWVariants.list
+  mode: load
+  src:
+  - ../dictionary/TWVariants.txt
+  - mode: filter
+    method: remove_key_values
+    src:
+    - ../../opencc/dictionary/TWVariants.txt
+    - ../dictionary/TWVariantsRemove.txt
+- file: ../dictionary/TWPhrasesRev.list
+  mode: load
+  src:
+  - mode: expand
+    placeholders:
+    - '%c'
+    src:
+    - ../dictionary/TWPhrasesRev.txt
+    - ../dictionary/TWPhrasesRevExpLang.txt
+  - ../../opencc/dictionary/TWPhrasesRev.txt
 - file: ../dictionary/TWVariantsRev.list
-  mode: swap
+  mode: load
   src:
-  - ../../opencc/dictionary/TWVariants.txt
+  - ../dictionary/TWVariantsRev.txt
+  - mode: swap
+    src:
+    - ../dictionary/TWVariants.list
+- file: ../dictionary/TWVariantsRevPhrases.list
+  mode: load
+  src:
+  - ../dictionary/TWVariantsRevPhrases.txt
+  - ../../opencc/dictionary/TWVariantsRevPhrases.txt
+- file: ../dictionary/HKVariants.list
+  mode: load
+  src:
+  - ../dictionary/HKVariants.txt
+  - mode: filter
+    method: remove_key_values
+    src:
+    - ../../opencc/dictionary/HKVariants.txt
+    - ../dictionary/HKVariantsRemove.txt
 - file: ../dictionary/HKVariantsRev.list
-  mode: swap
+  mode: load
   src:
-  - ../../opencc/dictionary/HKVariants.txt
+  - ../dictionary/HKVariantsRev.txt
+  - mode: swap
+    src:
+    - ../dictionary/HKVariants.list
+- file: ../dictionary/HKVariantsRevPhrases.list
+  mode: load
+  src:
+  - ../dictionary/HKVariantsRevPhrases.txt
+  - ../../opencc/dictionary/HKVariantsRevPhrases.txt
+- file: ../dictionary/JPVariants.list
+  mode: load
+  src:
+  - ../dictionary/JPVariants.txt
+  - mode: filter
+    method: remove_key_values
+    src:
+    - ../../opencc/dictionary/JPVariants.txt
+    - ../dictionary/JPVariantsRemove.txt
 - file: ../dictionary/JPVariantsRev.list
-  mode: swap
+  mode: load
   src:
-  - ../../opencc/dictionary/JPVariants.txt
+  - ../dictionary/JPVariantsRev.txt
+  - ../../opencc/dictionary/JPShinjitaiCharacters.txt
+  - mode: swap
+    src:
+    - ../dictionary/JPVariants.list
+- file: ../dictionary/JPVariantsRevPhrases.list
+  mode: load
+  src:
+  - ../dictionary/JPVariantsRevPhrases.txt
+  - ../../opencc/dictionary/JPShinjitaiPhrases.txt

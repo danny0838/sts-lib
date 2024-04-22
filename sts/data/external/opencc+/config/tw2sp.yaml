@@ -8,10 +8,10 @@ dicts:
   src:
   - mode: load
     src:
-    - ../../opencc/dictionary/TWPhrasesRev.txt
-    - ../../opencc/dictionary/TWVariantsRevPhrases.txt
+    - ../dictionary/TWPhrasesRev.list
+    - ../dictionary/TWVariantsRevPhrases.list
     - ../dictionary/TWVariantsRev.list
   - mode: load
     src:
-    - ../../opencc/dictionary/TSPhrases.txt
-    - ../../opencc/dictionary/TSCharacters.txt
+    - ../dictionary/TSPhrases.list
+    - ../dictionary/TSCharacters.list
