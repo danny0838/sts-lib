@@ -1460,14 +1460,14 @@ class TestClassStsMaker(unittest.TestCase):
                 fh.read()
             )
 
-    def test_dict_include_basic(self):
+    def test_dict_mode_filter_include_basic(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
                 'dicts': [
                     {
                         'file': 'dict.list',
-                        'mode': 'load',
+                        'mode': 'filter',
                         'include': r'^[\u0000-\uFFFF]*$',
                         'src': [
                             'phrases.txt',
@@ -1501,14 +1501,14 @@ class TestClassStsMaker(unittest.TestCase):
             '噹': ['当'],
         }, dict(converter.table))
 
-    def test_dict_include_bad_regex(self):
+    def test_dict_mode_filter_include_bad_regex(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
                 'dicts': [
                     {
                         'file': 'dict.list',
-                        'mode': 'load',
+                        'mode': 'filter',
                         'include': r'???',
                         'src': [
                             'phrases.txt',
@@ -1521,14 +1521,14 @@ class TestClassStsMaker(unittest.TestCase):
         with self.assertRaises(ValueError):
             StsMaker().make(config_file, quiet=True)
 
-    def test_dict_exclude_basic(self):
+    def test_dict_mode_filter_exclude_basic(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
                 'dicts': [
                     {
                         'file': 'dict.list',
-                        'mode': 'load',
+                        'mode': 'filter',
                         'exclude': r'[\U00010000-\U0010FFFF]',
                         'src': [
                             'phrases.txt',
@@ -1569,7 +1569,7 @@ class TestClassStsMaker(unittest.TestCase):
                 'dicts': [
                     {
                         'file': 'dict.list',
-                        'mode': 'load',
+                        'mode': 'filter',
                         'exclude': r'???',
                         'src': [
                             'phrases.txt',
@@ -1582,14 +1582,14 @@ class TestClassStsMaker(unittest.TestCase):
         with self.assertRaises(ValueError):
             StsMaker().make(config_file, quiet=True)
 
-    def test_dict_include_and_exclude(self):
+    def test_dict_mode_filter_include_and_exclude(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
                 'dicts': [
                     {
                         'file': 'dict.list',
-                        'mode': 'load',
+                        'mode': 'filter',
                         'include': r'^[\u0000-\uFFFF]*$',
                         'exclude': r'当',
                         'src': [

@@ -96,24 +96,27 @@ converter.convert_file(input=None, output=None
  *     It should be a .tlist (compiled trie), .jlist (compiled table), or .list
  *     (plain text table). An unknown file extension is treated as .list. `src`
  *     must exist when omitted.
- * @property {string} [mode=load] - the mode to handle the loaded dicts: "load"
- *     to simply merge the loaded keys and values; "swap" to reverse the dict
- *     (i.e. use the values as keys and the keys as values); "join" to chain
- *     dicts (a conversion using a dict joining dict1 and dict2 works like a
- *     conversion using dict1 and then dict2, but takes care of word
- *     segmentation).
+ * @property {string} [mode=load] - the mode to handle the loaded dicts.
+ *     - "load" to simply merge the loaded keys and values;
+ *     - "swap" to reverse the dict (i.e. use the values as keys and the keys
+ *       as values);
+ *     - "join" to chain dicts (a conversion using a dict joining dict1 and
+ *       dict2 works like a conversion using dict1 and then dict2, but takes
+ *       care of word segmentation);
+ *     - "filter" to filter the output values in the loaded dicts with extra
+ *       "include" and "exclude" properties.
  * @property {srcDictScheme[]} [src] - the source dicts. `file` must exist when
  *     omitted.
  * @property {boolean} [sort] - true to sort the keys of the output dictionary.
- * @property {string} [include] - a regex filter that discards non-matched
- *     conversion values.
- * @property {string} [exclude] - a regex filter that discards matched
- *     conversion values.
  * @property {boolean} [check] - true to raise an exception if the output
  *     contains an invalid char which will be loaded incorrectly. Set this
  *     when the output is a plain text table file and the source files contain
  *     untrusted JSON or YAML data that may include a char like " ", "\t",
  *     "\n", etc. in the dictionary.
+ * @property {string} [include] - a regex filter that discards non-matched
+ *     conversion values. (for "filter" mode)
+ * @property {string} [exclude] - a regex filter that discards matched
+ *     conversion values. (for "filter" mode)
  */
 ```
 

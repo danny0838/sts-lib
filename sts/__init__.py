@@ -929,8 +929,6 @@ class StsMaker():
                         ],
                         "sort": true,   // truthy to sort the keys of the
                                         // generated dictionary
-                        "include": "...",  // regex filter for output values
-                        "exclude": "...",  // regex filter for output values
                         "check": true,  // check for invalid output
                     },
                     ...
@@ -1026,23 +1024,24 @@ class StsMaker():
             for i, src in enumerate(srcs):
                 srcs[i] = self.normalize_dict_scheme(src, config_dir)
 
-        dict_scheme.setdefault('mode', 'load')
+        mode = dict_scheme.setdefault('mode', 'load')
         dict_scheme['sort'] = bool(dict_scheme.get('sort'))
         dict_scheme['check'] = bool(dict_scheme.get('check'))
 
-        try:
-            dict_scheme['include'] = re.compile(dict_scheme['include'])
-        except KeyError:
-            dict_scheme['include'] = None
-        except re.error as exc:
-            raise ValueError(f'regex syntax error of the "include" filter: {exc}')
+        if mode == 'filter':
+            try:
+                dict_scheme['include'] = re.compile(dict_scheme['include'])
+            except KeyError:
+                dict_scheme['include'] = None
+            except re.error as exc:
+                raise ValueError(f'regex syntax error of the "include" filter: {exc}')
 
-        try:
-            dict_scheme['exclude'] = re.compile(dict_scheme['exclude'])
-        except KeyError:
-            dict_scheme['exclude'] = None
-        except re.error as exc:
-            raise ValueError(f'regex syntax error of the "exclude" filter: {exc}')
+            try:
+                dict_scheme['exclude'] = re.compile(dict_scheme['exclude'])
+            except KeyError:
+                dict_scheme['exclude'] = None
+            except re.error as exc:
+                raise ValueError(f'regex syntax error of the "exclude" filter: {exc}')
 
         return dict_scheme
 
@@ -1067,8 +1066,6 @@ class StsMaker():
         mode = dict_scheme['mode']
         srcs = dict_scheme['src']
         sort = dict_scheme['sort']
-        include = dict_scheme['include']
-        exclude = dict_scheme['exclude']
 
         if not srcs:
             if not os.path.isfile(dest):
@@ -1087,16 +1084,6 @@ class StsMaker():
             raise ValueError(f'Specified mode is not supported: {mode}')
         else:
             table = func(dict_scheme)
-
-        if include is not None or exclude is not None:
-            _table = table
-            table = Table()
-            for key, values in _table.items():
-                values = [v for v in values
-                          if (include is None or include.search(v))
-                          and (exclude is None or not exclude.search(v))]
-                if values:
-                    table.add(key, values)
 
         if dest:
             os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -1117,6 +1104,23 @@ class StsMaker():
             else:
                 for key, values in src.items():
                     table.add(key, values)
+        return table
+
+    def _make_dict_mode_filter(self, dict_scheme):
+        table = self._make_dict_mode_load(dict_scheme)
+
+        include = dict_scheme['include']
+        exclude = dict_scheme['exclude']
+        if include or exclude:
+            _table = table
+            table = Table()
+            for key, values in _table.items():
+                values = [v for v in values
+                          if (include is None or include.search(v))
+                          and (exclude is None or not exclude.search(v))]
+                if values:
+                    table.add(key, values)
+
         return table
 
     def _make_dict_mode_swap(self, dict_scheme):
