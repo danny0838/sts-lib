@@ -1,0 +1,17 @@
+{
+  "name": "Traditional Chinese (Hong Kong variant) to Traditional Chinese",
+  "requires": [
+    "_default.json"
+  ],
+  "dicts": [
+    {
+      "file": "../dictionary/hk2t.tlist",
+      "auto_space": true,
+      "mode": "load",
+      "src": [
+        "../../opencc/dictionary/HKVariantsRevPhrases.txt",
+        "../dictionary/HKVariantsRev.list"
+      ]
+    }
+  ]
+}
