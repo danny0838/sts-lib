@@ -9,6 +9,7 @@
         {
           "mode": "load",
           "src": [
+            "../dictionary/STPhrases.txt",
             "../../opencc/dictionary/STPhrases.txt",
             "../../opencc/dictionary/STCharacters.txt"
           ]
