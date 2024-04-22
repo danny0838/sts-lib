@@ -12,7 +12,7 @@
         {
           "mode": "load",
           "src": [
-            "../dictionary/STPhrases.txt",
+            "../dictionary/STPhrases.list",
             "../../opencc/dictionary/STPhrases.txt",
             "../../opencc/dictionary/STCharacters.txt"
           ]
