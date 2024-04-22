@@ -1,8 +1,10 @@
 name: Traditional Chinese to Simplified Chinese
+requires:
+- _default.yaml
 dicts:
 - file: ../dictionary/t2s.tlist
   auto_space: true
   mode: load
   src:
-  - ../../opencc/dictionary/TSPhrases.txt
-  - ../../opencc/dictionary/TSCharacters.txt
+  - ../dictionary/TSPhrases.list
+  - ../dictionary/TSCharacters.list

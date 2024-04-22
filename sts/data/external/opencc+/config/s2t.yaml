@@ -1,8 +1,10 @@
 name: Simplified Chinese to Traditional Chinese
+requires:
+- _default.yaml
 dicts:
 - file: ../dictionary/s2t.tlist
   auto_space: true
   mode: load
   src:
-  - ../../opencc/dictionary/STPhrases.txt
-  - ../../opencc/dictionary/STCharacters.txt
+  - ../dictionary/STPhrases.list
+  - ../dictionary/STCharacters.list
