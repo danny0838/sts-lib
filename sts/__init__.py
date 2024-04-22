@@ -256,6 +256,11 @@ class StsDict():
                 return False
         return True
 
+    def __delitem__(self, key):
+        """Implementation of del self[key].
+        """
+        del self._dict[key]
+
     def keys(self):
         """Get a generator of keys.
         """
@@ -799,6 +804,17 @@ class Trie(StsDict):
         """
         yield from self.keys()
 
+    def __delitem__(self, key):
+        """Implementation of del self[key].
+        """
+        trie = self._dict
+        try:
+            for k in self._split(key):
+                trie = trie[k]
+            del trie['']
+        except KeyError:
+            raise KeyError(key)
+
     def keys(self):
         """Get a generator of keys.
         """
@@ -1043,6 +1059,11 @@ class StsMaker():
             except re.error as exc:
                 raise ValueError(f'regex syntax error of the "exclude" filter: {exc}')
 
+        elif mode == 'expand':
+            dict_scheme.setdefault('placeholders', [])
+            if len(dict_scheme['placeholders']) != len(srcs) - 1:
+                raise ValueError('length of dict["placeholders"] does not match dict["src"]')
+
         return dict_scheme
 
     def make_dict(self, dict_scheme, config_dir, skip_check=False, quiet=False):
@@ -1133,6 +1154,123 @@ class StsMaker():
         for src in dict_scheme['src']:
             dict_ = Table().load(src) if isinstance(src, str) else src
             table = table.join(dict_)
+        return table
+
+    def _make_dict_mode_expand(self, dict_scheme):
+        newtable = Table()
+
+        srcs = dict_scheme['src']
+        src = srcs.pop(0)
+        table = Table().load(src) if isinstance(src, str) else src
+        dicts = [Table().load(src) if isinstance(src, str) else src for src in srcs]
+
+        placeholders = dict_scheme['placeholders']
+        placeholders_re = re.compile('|'.join(re.escape(p) for p in placeholders))
+        map_placeholder_to_idx = {p: i for i, p in enumerate(placeholders)}
+
+        for key, values in table.items():
+            key_parts = list(self._make_dict_mode_expand_split(key, placeholders_re))
+            value_parts_list = [list(self._make_dict_mode_expand_split(v, placeholders_re)) for v in values]
+
+            map_placeholder_to_dict_keys = {}
+            for part in itertools.chain(key_parts, *value_parts_list):
+                if isinstance(part, str):
+                    continue
+                key = part[0]
+                key_idx = map_placeholder_to_idx[key]
+                dict_keys = dicts[key_idx].keys()
+                map_placeholder_to_dict_keys[key] = dict_keys
+
+            for comb in itertools.product(*map_placeholder_to_dict_keys.values()):
+                newkey = self._make_dict_mode_expand_get_expanded_key(key_parts, comb, map_placeholder_to_idx)
+                newvalues = [
+                    self._make_dict_mode_expand_get_expanded_value(vpp, comb, map_placeholder_to_idx, dicts)
+                    for vpp in value_parts_list
+                ]
+                newtable.add(newkey, newvalues)
+
+        return newtable
+
+    @staticmethod
+    def _make_dict_mode_expand_split(text, placeholders_re):
+        index = 0
+        for m in placeholders_re.finditer(text):
+            start, end = m.span(0)
+
+            t = text[index:start]
+            if t:
+                yield t
+
+            t = m.group(0)
+            if t:
+                yield (t,)
+
+            index = end
+
+        t = text[index:]
+        if t:
+            yield t
+
+    @staticmethod
+    def _make_dict_mode_expand_get_expanded_key(parts, comb, map_placeholder_to_idx):
+        rv = []
+        for part in parts:
+            if isinstance(part, str):
+                rv.append(part)
+                continue
+
+            key = part[0]
+            key_idx = map_placeholder_to_idx[key]
+            rv.append(comb[key_idx])
+        return ''.join(rv)
+
+    @staticmethod
+    def _make_dict_mode_expand_get_expanded_value(parts, comb, map_placeholder_to_idx, dicts):
+        rv = []
+        for part in parts:
+            if isinstance(part, str):
+                rv.append(part)
+                continue
+
+            key = part[0]
+            key_idx = map_placeholder_to_idx[key]
+            try:
+                rv.append(dicts[key_idx][comb[key_idx]][0])
+            except IndexError:
+                rv.append(key)
+        return ''.join(rv)
+
+    def _make_dict_mode_remove_keys(self, dict_scheme):
+        srcs = dict_scheme['src']
+        src = srcs.pop(0)
+        table = Table().load(src) if isinstance(src, str) else src
+        for src in srcs:
+            dict_ = Table().load(src) if isinstance(src, str) else src
+            for k in dict_:
+                try:
+                    del table[k]
+                except KeyError:
+                    continue
+        return table
+
+    def _make_dict_mode_remove_values(self, dict_scheme):
+        srcs = dict_scheme['src']
+        src = srcs.pop(0)
+        table = Table().load(src) if isinstance(src, str) else src
+        for src in srcs:
+            dict_ = Table().load(src) if isinstance(src, str) else src
+            for k, vv in dict_.items():
+                try:
+                    t = table[k]
+                except KeyError:
+                    continue
+                for v in vv:
+                    try:
+                        t.remove(v)
+                    except ValueError:
+                        pass
+                if not t:
+                    del table[k]
         return table
 
     def get_config_file(self, config, base_dir=None):

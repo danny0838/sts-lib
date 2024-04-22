@@ -274,6 +274,17 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertTrue(stsdict != dict2)
                 self.assertTrue(dict2 != stsdict)
 
+    def test_delitem(self):
+        for class_ in (StsDict, Table, Trie):
+            with self.subTest(type=class_):
+                stsdict = class_({'干姜': ['乾薑'], '姜': ['姜', '薑']})
+                del stsdict['干姜']
+                self.assertEqual({'姜'}, set(stsdict))
+
+                stsdict = class_({'干姜': ['乾薑'], '姜': ['姜', '薑']})
+                with self.assertRaises(KeyError):
+                    del stsdict['干']
+
     def test_keys(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
@@ -1418,6 +1429,265 @@ class TestClassStsMaker(unittest.TestCase):
             '采': ['採'],
             '采信': ['採信'],
             '信息': ['資訊'],
+        }, dict(converter.table))
+
+    def test_dict_mode_expand(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'expand',
+                        'src': [
+                            'dict.txt',
+                            'num1.txt',
+                            'num2.txt',
+                        ],
+                        'placeholders': [
+                            '%n',
+                            '%s',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                %n里%s\t%n里%s
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num1.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                １\t１
+                ２\t２
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num2.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                壹\t壹
+                貳\t弍
+                叄\t叁
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '１里壹': ['１里壹'],
+            '１里貳': ['１里弍'],
+            '１里叄': ['１里叁'],
+            '２里壹': ['２里壹'],
+            '２里貳': ['２里弍'],
+            '２里叄': ['２里叁'],
+        }, dict(converter.table))
+
+    def test_dict_mode_expand_match_same_key(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'expand',
+                        'src': [
+                            'dict.txt',
+                            'num.txt',
+                        ],
+                        'placeholders': [
+                            '%n',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                %n里%n\t%n里%n
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                １\t１
+                ２\t２
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '１里１': ['１里１'],
+            '２里２': ['２里２'],
+        }, dict(converter.table))
+
+    def test_dict_mode_expand_in_values(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'expand',
+                        'src': [
+                            'dict.txt',
+                            'num.txt',
+                        ],
+                        'placeholders': [
+                            '%n',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                Ｎ里\t%n里
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                １\t１
+                ２\t２
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            'Ｎ里': ['１里', '２里'],
+        }, dict(converter.table))
+
+    def test_dict_mode_expand_multi(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'expand',
+                        'src': [
+                            'dict.txt',
+                            'num.txt',
+                        ],
+                        'placeholders': [
+                            '%n',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                %n里\t%n里
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                １\t１ 一
+                ２\t２ 二
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '１里': ['１里'],
+            '２里': ['２里'],
+        }, dict(converter.table))
+
+    def test_dict_mode_remove_keys(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'remove_keys',
+                        'src': [
+                            'dict.txt',
+                            'exclude.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干\t幹 乾 干 榦 𠏉
+                于\t於 于
+                简\t簡
+                """
+            ))
+
+        with open(os.path.join(self.root, 'exclude.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干\t幹 乾
+                于\t
+                门\t門
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '简': ['簡'],
+        }, dict(converter.table))
+
+    def test_dict_mode_remove_values(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'remove_values',
+                        'src': [
+                            'dict.txt',
+                            'exclude.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干\t幹 乾 干 榦 𠏉
+                于\t於 于
+                简\t簡
+                """
+            ))
+
+        with open(os.path.join(self.root, 'exclude.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干\t榦 𠏉 桿
+                于\t於 于
+                门\t門
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '干': ['幹', '乾', '干'],
+            '简': ['簡'],
         }, dict(converter.table))
 
     def test_dict_sort(self):
