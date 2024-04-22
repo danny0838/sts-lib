@@ -6,5 +6,5 @@ dicts:
   auto_space: true
   mode: load
   src:
-  - ../../opencc/dictionary/HKVariantsRevPhrases.txt
+  - ../dictionary/HKVariantsRevPhrases.list
   - ../dictionary/HKVariantsRev.list
