@@ -3622,7 +3622,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "不准点咖啡",
       "expected": {
         "s2t": "不准點咖啡"
@@ -3890,21 +3889,18 @@
       }
     },
     {
-      "xfail": true,
       "input": "游一游",
       "expected": {
         "s2t": "游一游"
       }
     },
     {
-      "xfail": true,
       "input": "往回游",
       "expected": {
         "s2t": "往回游"
       }
     },
     {
-      "xfail": true,
       "input": "游刃有余",
       "expected": {
         "s2t": "游刃有餘"
@@ -3917,7 +3913,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "鱼在游动呢",
       "expected": {
         "s2t": "魚在游動呢"
@@ -4320,7 +4315,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "这一出出重复的剧目",
       "expected": {
         "s2t": "這一齣齣重複的劇目"
@@ -4333,14 +4327,12 @@
       }
     },
     {
-      "xfail": true,
       "input": "接着是这出吧",
       "expected": {
         "s2t": "接着是這齣吧"
       }
     },
     {
-      "xfail": true,
       "input": "大师一出手，便知有没有",
       "expected": {
         "s2t": "大師一出手，便知有沒有"
@@ -4443,7 +4435,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "神罗天征",
       "expected": {
         "s2t": "神羅天征"
@@ -4567,7 +4558,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "由于姓人士",
       "expected": {
         "s2t": "由于姓人士"
@@ -4664,7 +4654,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "向导向导演致敬",
       "expected": {
         "s2t": "嚮導向導演致敬"
@@ -4721,7 +4710,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "密码表",
       "expected": {
         "s2t": "密碼表"
@@ -4734,7 +4722,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "超渡轮回",
       "expected": {
         "s2t": "超渡輪迴"
