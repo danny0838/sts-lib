@@ -19,16 +19,28 @@
     },
     {
       "file": "../dictionary/TWVariantsRev.list",
-      "mode": "swap",
+      "mode": "load",
       "src": [
-        "../../opencc/dictionary/TWVariants.txt"
+        "../dictionary/TWVariantsRev.txt",
+        {
+          "mode": "swap",
+          "src": [
+            "../../opencc/dictionary/TWVariants.txt"
+          ]
+        }
       ]
     },
     {
       "file": "../dictionary/HKVariantsRev.list",
-      "mode": "swap",
+      "mode": "load",
       "src": [
-        "../../opencc/dictionary/HKVariants.txt"
+        "../dictionary/HKVariantsRev.txt",
+        {
+          "mode": "swap",
+          "src": [
+            "../../opencc/dictionary/HKVariants.txt"
+          ]
+        }
       ]
     },
     {
