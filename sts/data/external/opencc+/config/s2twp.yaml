@@ -1,0 +1,16 @@
+name: Simplified Chinese to Traditional Chinese (Taiwan standard, with phrases)
+requires:
+- _default.yaml
+dicts:
+- file: ../dictionary/s2twp.tlist
+  auto_space: true
+  mode: join
+  src:
+  - mode: load
+    src:
+    - ../../opencc/dictionary/STPhrases.txt
+    - ../../opencc/dictionary/STCharacters.txt
+  - mode: load
+    src:
+    - ../../opencc/dictionary/TWPhrases.txt
+    - ../../opencc/dictionary/TWVariants.txt

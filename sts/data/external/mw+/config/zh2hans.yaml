@@ -1,0 +1,7 @@
+dicts:
+- file: ../dictionary/zh2hans.tlist
+  auto_space: true
+  mode: load
+  src:
+  - ../../mw/dictionary/zh2Hans.txt
+  - ../../unihan/dictionary/SimplifiedVariant.txt

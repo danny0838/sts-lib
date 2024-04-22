@@ -1,0 +1,11 @@
+name: Simplified Chinese to Traditional Chinese (Hong Kong variant)
+dicts:
+- file: ../dictionary/s2hk.tlist
+  auto_space: true
+  mode: join
+  src:
+  - mode: load
+    src:
+    - ../../opencc/dictionary/STPhrases.txt
+    - ../../opencc/dictionary/STCharacters.txt
+  - ../../opencc/dictionary/HKVariants.txt

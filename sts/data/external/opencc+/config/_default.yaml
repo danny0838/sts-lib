@@ -1,0 +1,14 @@
+name: Built-in dictionaries
+dicts:
+- file: ../dictionary/TWVariantsRev.list
+  mode: swap
+  src:
+  - ../../opencc/dictionary/TWVariants.txt
+- file: ../dictionary/HKVariantsRev.list
+  mode: swap
+  src:
+  - ../../opencc/dictionary/HKVariants.txt
+- file: ../dictionary/JPVariantsRev.list
+  mode: swap
+  src:
+  - ../../opencc/dictionary/JPVariants.txt

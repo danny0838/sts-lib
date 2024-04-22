@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import zipfile
 
 import requests
@@ -228,6 +229,18 @@ def handle_fanhuaji(root_dir):
         json.dump(_fanhuaji_convert_tests(data), fh, indent=2, ensure_ascii=False, check_circular=False)
 
 
+def handle_opencc_plus(root_dir, opencc_dir):
+    with os.scandir(os.path.join(opencc_dir, 'tests')) as it:
+        for entry in it:
+            if not entry.is_file:
+                continue
+
+            src = entry.path
+            dst = os.path.join(root_dir, 'tests', entry.name)
+            logger.info('copying: %s => %s', src, dst)
+            shutil.copy2(src, dst)
+
+
 def fetch(verbosity=logging.INFO):
     logger.setLevel(verbosity)
 
@@ -239,6 +252,8 @@ def fetch(verbosity=logging.INFO):
     handle_mw(os.path.join(data_dir, 'external', 'mw'))
     handle_tongwen(os.path.join(data_dir, 'external', 'tongwen'))
     handle_fanhuaji(os.path.join(data_dir, 'external', 'fanhuaji'))
+
+    handle_opencc_plus(os.path.join(data_dir, 'external', 'opencc+'), os.path.join(data_dir, 'external', 'opencc'))
 
 
 def parse_args(argv=None):
