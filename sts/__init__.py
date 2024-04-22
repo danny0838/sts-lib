@@ -1013,8 +1013,8 @@ class StsMaker():
         else:
             format = '.list'
 
-        mode = dict_scheme.get('mode', 'load')
-        srcs = dict_scheme.get('src', [])
+        mode = dict_scheme.setdefault('mode', 'load')
+        srcs = dict_scheme.setdefault('src', [])
         sort = dict_scheme.get('sort', False)
         include = dict_scheme.get('include', None)
         exclude = dict_scheme.get('exclude', None)
@@ -1043,23 +1043,12 @@ class StsMaker():
         for i, src in enumerate(srcs):
             srcs[i] = self.make_dict(src, config_dir, skip_check, quiet)
 
-        if mode in ('load', 'swap'):
-            table = Table()
-            for src in srcs:
-                if isinstance(src, str):
-                    table.load(src)
-                else:
-                    for key, values in src.items():
-                        table.add(key, values)
-            if mode == 'swap':
-                table = table.swap()
-        elif mode == 'join':
-            table = Table()
-            for src in srcs:
-                dict_ = Table().load(src) if isinstance(src, str) else src
-                table = table.join(dict_)
-        else:
+        try:
+            func = getattr(self, f'_make_dict_mode_{mode}')
+        except AttributeError:
             raise ValueError(f'Specified mode is not supported: {mode}')
+        else:
+            table = func(dict_scheme)
 
         if include is not None or exclude is not None:
             _table = table
@@ -1080,6 +1069,28 @@ class StsMaker():
             else:  # default: list
                 table.dump(dest, sort=sort, check=check)
 
+        return table
+
+    def _make_dict_mode_load(self, dict_scheme):
+        table = Table()
+        for src in dict_scheme['src']:
+            if isinstance(src, str):
+                table.load(src)
+            else:
+                for key, values in src.items():
+                    table.add(key, values)
+        return table
+
+    def _make_dict_mode_swap(self, dict_scheme):
+        table = self._make_dict_mode_load(dict_scheme)
+        table = table.swap()
+        return table
+
+    def _make_dict_mode_join(self, dict_scheme):
+        table = Table()
+        for src in dict_scheme['src']:
+            dict_ = Table().load(src) if isinstance(src, str) else src
+            table = table.join(dict_)
         return table
 
     def get_config_file(self, config, base_dir=None):
