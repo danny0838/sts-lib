@@ -206,8 +206,7 @@ class StsDict():
     """
     def __init__(self, *args, **kwargs):
         self._dict = {}
-        for key, values in dict(*args, **kwargs).items():
-            self.add(key, values, skip_check=True)
+        self.update(dict(*args, **kwargs))
 
     def __repr__(self):
         """Implementation of repr(self).
@@ -324,8 +323,7 @@ class StsDict():
             data = json.load(fh)
             if not isinstance(data, dict):
                 data = dict(data)
-            for key, values in data.items():
-                self.add(key, values)
+            self.update(data)
 
     def _load_yaml(self, file):
         try:
@@ -337,8 +335,7 @@ class StsDict():
             data = yaml.safe_load(fh)
             if not isinstance(data, dict):
                 data = dict(data)
-            for key, values in data.items():
-                self.add(key, values)
+            self.update(data)
 
     def dump(self, file=None, sort=False, check=False):
         """Dump key-values pairs to a plain-dict file.
@@ -1139,8 +1136,7 @@ class StsMaker():
             if isinstance(src, str):
                 table.load(src)
             else:
-                for key, values in src.items():
-                    table.add(key, values)
+                table.update(src)
         return table
 
     def _make_dict_mode_filter(self, dict_scheme):
