@@ -967,10 +967,7 @@ class StsMaker():
         # locate and load the config file
         config_file = self.get_config_file(config_name, base_dir=base_dir)
         config_dir = os.path.abspath(os.path.dirname(config_file))
-
-        with open(config_file, 'r', encoding='UTF-8') as fh:
-            config = json.load(fh)
-
+        config = self.load_config(config_file)
         self.normalize_config(config, config_dir)
 
         # handle required configs
@@ -999,6 +996,24 @@ class StsMaker():
             self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check, quiet=quiet)
 
         return dest
+
+    def load_config(self, config_file):
+        ext = os.path.splitext(config_file)[1][1:].lower()
+
+        if ext in ('yaml', 'yml'):
+            try:
+                import yaml
+            except ModuleNotFoundError:
+                raise RuntimeError('install PyYAML module to support loading .yaml config')
+
+            with open(config_file, 'r', encoding='UTF-8') as fh:
+                config = yaml.safe_load(fh)
+
+        else:  # default: json
+            with open(config_file, 'r', encoding='UTF-8') as fh:
+                config = json.load(fh)
+
+        return config
 
     def normalize_config(self, config, config_dir):
         """Normalize and validate config in place."""
@@ -1293,10 +1308,14 @@ class StsMaker():
             search_file = os.path.join(self.config_dir, config)
             if os.path.isfile(search_file):
                 return os.path.normpath(search_file)
-            if not config.lower().endswith('.json'):
-                search_file = os.path.join(self.config_dir, config + '.json')
-                if os.path.isfile(search_file):
-                    return os.path.normpath(search_file)
+
+            exts = ('.json', '.yaml', '.yml')
+            ext = os.path.splitext(config)[1].lower()
+            if ext not in exts:
+                for ext in exts:
+                    search_file = os.path.join(self.config_dir, config + ext)
+                    if os.path.isfile(search_file):
+                        return os.path.normpath(search_file)
 
         return os.path.normpath(relative_config)
 

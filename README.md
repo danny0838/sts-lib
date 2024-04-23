@@ -6,7 +6,7 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 
 ## Features 特色
 
-* 使用與 [OpenCC](https://github.com/BYVoid/OpenCC) 格式相容的詞典檔。
+* 使用與 [OpenCC](https://github.com/BYVoid/OpenCC) 格式相容的詞典檔。此外亦支援 JSON 或 YAML 格式的詞典檔。
 * 可「並聯」或「串聯」組合多個詞典檔作為轉換方案，並預先儲存成單一詞典檔以加速載入。詞典檔更新時也會自動重新生成組合詞典。
 * 簡繁對應、異體字對應、地區慣用詞對應等不同的對應關係皆區分至不同的詞典檔。
 * 詞典及配置檔與程式本體分離，可自由修改、擴充。
@@ -27,7 +27,7 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 
 * `sts convert [OPTIONs] [file ...]` 執行簡繁轉換：
   * `file` 為一或多個欲轉換的檔案。（省略則讀取標準輸入 STDIN）
-  * `-c CONFIG` 指定配置檔，可為內建配置檔名稱或自製 JSON 配置檔的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
+  * `-c CONFIG` 指定配置檔，可為內建配置檔名稱或自製配置檔（JSON 或 YAML）的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如可輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
   * `-f FORMAT` 指定輸出格式，可用格式如下：
     * `txt`：純文字，適合一般使用。
     * `txtm`：純文字加轉換標示。
@@ -74,7 +74,7 @@ converter.convert_file(input=None, output=None
  * @property {string[]} [requires] - required configs, which are made before
  *     making from this config, as an absolute path, or a path relative to the
  *     directory of this config file, or the basename of a built-in config file
- *     (with or without ".json")
+ *     (with or without extension ".json", ".yaml", ".yml")
  * @property {srcDictScheme[]} dicts - schemes of each dictionary file to be
  *     generated or loaded.
  */

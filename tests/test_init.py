@@ -1956,16 +1956,18 @@ class TestClassStsMaker(unittest.TestCase):
             os.remove(tmpfile)
 
         # relative to default config directory (omit extension)
-        tmpfile = os.path.join(StsMaker.config_dir, '__dummy__.tmp.json')
-        with open(tmpfile, 'w'):
-            pass
-        try:
-            self.assertEqual(
-                os.path.join(StsMaker.config_dir, '__dummy__.tmp.json'),
-                StsMaker().get_config_file('__dummy__.tmp'),
-            )
-        finally:
-            os.remove(tmpfile)
+        for ext in ('json', 'yaml', 'yml'):
+            with self.subTest(ext=ext):
+                tmpfile = os.path.join(StsMaker.config_dir, f'__dummy__.tmp.{ext}')
+                with open(tmpfile, 'w'):
+                    pass
+                try:
+                    self.assertEqual(
+                        os.path.join(StsMaker.config_dir, f'__dummy__.tmp.{ext}'),
+                        StsMaker().get_config_file('__dummy__.tmp'),
+                    )
+                finally:
+                    os.remove(tmpfile)
 
     def test_get_stsdict_file(self):
         # absolute path
