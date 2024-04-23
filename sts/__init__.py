@@ -1090,7 +1090,7 @@ class StsMaker():
 
         dest = dict_scheme.get('file')
         if dest:
-            if not dict_scheme.get('_updated'):
+            if not skip_check and not dict_scheme.get('_updated'):
                 return dest
 
             format = os.path.splitext(dest)[1][1:].lower()
