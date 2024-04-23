@@ -1195,6 +1195,11 @@ class StsMaker():
                 ph = part[0]
                 map_ph_to_comb_idx.setdefault(ph, len(map_ph_to_comb_idx))
 
+            # shortcut when no placeholder
+            if not map_ph_to_comb_idx:
+                newtable.add(key, values)
+                continue
+
             it = (dicts[map_ph_to_dict_idx[ph]] for ph in map_ph_to_comb_idx)
             for comb in itertools.product(*it):
                 context = (dicts, comb, map_ph_to_dict_idx, map_ph_to_comb_idx)
