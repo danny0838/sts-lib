@@ -10,6 +10,13 @@
       }
     },
     {
+      "id": "BYVoid_OpenCC_Issue_848",
+      "input": "英文字母 泰文字 希臘文字型 馬來文字體",
+      "expected": {
+        "tw2sp": "英文字母 泰文字 希腊文字型 马来文字体"
+      }
+    },
+    {
       "input": "徵羽摩柯",
       "expected": {
         "t2s": "徵羽摩柯"
