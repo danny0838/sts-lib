@@ -157,6 +157,25 @@ def merge_ts_multi():
     table.save()
 
 
+def merge_st_multi():
+    table = CharTable(scheme_trad_table).load()
+
+    table_st = CharTable(scheme_st_multi_table).load()
+    for row in table_st.values():
+        simp = row['simp']
+        trads = row['trads']
+        for trad in trads:
+            try:
+                entry = table[trad]
+            except KeyError:
+                table[trad] = {'trad': trad, 'cn': [simp]}
+            else:
+                if simp not in entry['cn']:
+                    entry['cn'].append(simp)
+
+    table.save()
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -169,7 +188,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_ts_multi',
+        'method', nargs='?', default='merge_st_multi',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
