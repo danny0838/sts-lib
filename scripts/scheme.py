@@ -15,6 +15,7 @@ scheme_trad_table = {
     'fields': ['trad', 'vars', 'cn', 'tw', 'hk', 'jp', 'jpg', 'notes'],
     'fields_as_list': {'vars', 'cn', 'tw', 'hk', 'jp', 'jpg'},
     'has_header': True,
+    'auto_sort': True,
 }
 
 scheme_st_multi_table = {
@@ -40,6 +41,7 @@ class CharTable(dict):
         self.fields_as_list = scheme.get('fields_as_list', set())
         self.dialect = scheme.get('dialect', 'char-table')
         self.has_header = scheme.get('has_header', False)
+        self.auto_sort = scheme.get('auto_sort', False)
 
     @contextmanager
     def open(self, mode='r'):
@@ -80,7 +82,9 @@ class CharTable(dict):
 
     def save(self):
         with self.open('w') as writer:
-            for row in self.values():
+            keys = sorted(self) if self.auto_sort else self.keys()
+            for key in keys:
+                row = self[key]
                 _row = {
                     k: (' '.join(v) if k in self.fields_as_list else v)
                     for k, v in row.items()
