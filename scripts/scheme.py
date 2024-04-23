@@ -65,7 +65,7 @@ class CharTable(dict):
 
         for row in reader:
             for field in self.fields_as_list:
-                row[field] = [v for v in row[field].split(' ') if v]
+                row[field] = list(dict.fromkeys(v for v in row[field].split(' ') if v))
             yield row
 
     def _open_iterrows(self, reader):
