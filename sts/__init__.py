@@ -1177,18 +1177,18 @@ class StsMaker():
         dicts = [Table().load(src) if isinstance(src, str) else src for src in srcs]
 
         placeholders = dict_scheme['placeholders']
-        placeholders_re = re.compile('|'.join(re.escape(p) for p in placeholders))
+        ph_table = Trie({p: p for p in placeholders})
         map_ph_to_dict_idx = {p: i for i, p in enumerate(placeholders)}
 
         for key, values in table.items():
-            key_parts = list(self._make_dict_mode_expand_split(key, placeholders_re))
-            value_parts_list = [list(self._make_dict_mode_expand_split(v, placeholders_re)) for v in values]
+            key_parts = list(ph_table.apply(key))
+            value_parts_list = [list(ph_table.apply(v)) for v in values]
 
             map_ph_to_comb_idx = {}
             for part in itertools.chain(key_parts, *value_parts_list):
                 if isinstance(part, str):
                     continue
-                ph = part[0]
+                ph = ''.join(part.key)
                 map_ph_to_comb_idx.setdefault(ph, len(map_ph_to_comb_idx))
 
             # shortcut when no placeholder
@@ -1209,26 +1209,6 @@ class StsMaker():
         return newtable
 
     @staticmethod
-    def _make_dict_mode_expand_split(text, placeholders_re):
-        index = 0
-        for m in placeholders_re.finditer(text):
-            start, end = m.span(0)
-
-            t = text[index:start]
-            if t:
-                yield t
-
-            t = m.group(0)
-            if t:
-                yield (t,)
-
-            index = end
-
-        t = text[index:]
-        if t:
-            yield t
-
-    @staticmethod
     def _make_dict_mode_expand_get_expanded_key(parts, context):
         _, comb, _, map_ph_to_comb_idx = context
         rv = []
@@ -1237,7 +1217,7 @@ class StsMaker():
                 rv.append(part)
                 continue
 
-            ph = part[0]
+            ph = ''.join(part.key)
             rv.append(comb[map_ph_to_comb_idx[ph]])
         return ''.join(rv)
 
@@ -1259,7 +1239,7 @@ class StsMaker():
                 stack.append((parts, idx + 1))
                 continue
 
-            ph = part[0]
+            ph = ''.join(part.key)
             dict_idx = map_ph_to_dict_idx[ph]
             comb_idx = map_ph_to_comb_idx[ph]
             for value in dicts[dict_idx][comb[comb_idx]]:

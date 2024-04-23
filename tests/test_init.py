@@ -1734,6 +1734,49 @@ class TestClassStsMaker(unittest.TestCase):
             '２周': ['二周', '贰周', '二週', '贰週'],
         }, dict(converter.table))
 
+    def test_dict_mode_expand_ids(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'expand',
+                        'src': [
+                            'dict.txt',
+                            'expander.txt',
+                        ],
+                        'placeholders': [
+                            '⿰虫单',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                ⿰虫单\t蟬
+                ⿱艹⿰虫单\t⿱艹蟬
+                """
+            ))
+
+        with open(os.path.join(self.root, 'expander.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                １\t１
+                ２\t２
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '１': ['蟬'],
+            '２': ['蟬'],
+            '⿱艹⿰虫单': ['⿱艹蟬'],
+        }, dict(converter.table))
+
     def test_dict_mode_remove_keys(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
