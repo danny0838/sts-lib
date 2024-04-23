@@ -8,4 +8,5 @@
 *.md text
 *.py text
 *.toml text
+*.tsv text
 *.txt text
