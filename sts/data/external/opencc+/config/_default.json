@@ -32,9 +32,24 @@
     },
     {
       "file": "../dictionary/TWPhrasesRev.list",
-      "mode": "swap",
+      "mode": "load",
       "src": [
-        "../dictionary/TWPhrases.list"
+        {
+          "mode": "expand",
+          "placeholders": [
+            "%c"
+          ],
+          "src": [
+            "../dictionary/TWPhrasesRev.txt",
+            "../dictionary/TWPhrasesRevExpLang.txt"
+          ]
+        },
+        {
+          "mode": "swap",
+          "src": [
+            "../dictionary/TWPhrases.list"
+          ]
+        }
       ]
     },
     {
