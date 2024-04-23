@@ -1204,10 +1204,10 @@ class StsMaker():
             for comb in itertools.product(*it):
                 context = (dicts, comb, map_ph_to_dict_idx, map_ph_to_comb_idx)
                 newkey = self._make_dict_mode_expand_get_expanded_key(key_parts, context)
-                newvalues = [
-                    self._make_dict_mode_expand_get_expanded_value(vpp, context)
+                newvalues = itertools.chain.from_iterable(
+                    self._make_dict_mode_expand_get_expanded_values(vpp, context)
                     for vpp in value_parts_list
-                ]
+                )
                 newtable.add(newkey, newvalues)
 
         return newtable
@@ -1246,19 +1246,32 @@ class StsMaker():
         return ''.join(rv)
 
     @staticmethod
-    def _make_dict_mode_expand_get_expanded_value(parts, context):
+    def _make_dict_mode_expand_get_expanded_values(parts, context):
         dicts, comb, map_ph_to_dict_idx, map_ph_to_comb_idx = context
         rv = []
-        for part in parts:
+        stack = [(parts, 0)]
+        substack = []
+        while stack:
+            parts, idx = stack.pop()
+            try:
+                part = parts[idx]
+            except IndexError:
+                rv.append(''.join(parts))
+                continue
+
             if isinstance(part, str):
-                rv.append(part)
+                stack.append((parts, idx + 1))
                 continue
 
             ph = part[0]
             dict_idx = map_ph_to_dict_idx[ph]
             comb_idx = map_ph_to_comb_idx[ph]
-            rv.append(dicts[dict_idx][comb[comb_idx]][0])
-        return ''.join(rv)
+            for value in dicts[dict_idx][comb[comb_idx]]:
+                newparts = parts[:idx] + [value] + parts[idx + 1:]
+                substack.append((newparts, idx + 1))
+            while substack:
+                stack.append(substack.pop())
+        return rv
 
     def _make_dict_mode_remove_keys(self, dict_scheme):
         srcs = dict_scheme['src']

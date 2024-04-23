@@ -1693,7 +1693,7 @@ class TestClassStsMaker(unittest.TestCase):
             'Ｎ里': ['１里', '２里'],
         }, dict(converter.table))
 
-    def test_dict_mode_expand_multi(self):
+    def test_dict_mode_expand_multi_values(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1715,23 +1715,23 @@ class TestClassStsMaker(unittest.TestCase):
         with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
             fh.write(dedent(
                 """\
-                %n里\t%n里
+                %n周\t%n周 %n週
                 """
             ))
 
         with open(os.path.join(self.root, 'num.txt'), 'w', encoding='UTF-8') as fh:
             fh.write(dedent(
                 """\
-                １\t１ 一
-                ２\t２ 二
+                １\t一 壹
+                ２\t二 贰
                 """
             ))
 
         stsdict = StsMaker().make(config_file, quiet=True)
         converter = StsConverter(stsdict)
         self.assertEqual({
-            '１里': ['１里'],
-            '２里': ['２里'],
+            '１周': ['一周', '壹周', '一週', '壹週'],
+            '２周': ['二周', '贰周', '二週', '贰週'],
         }, dict(converter.table))
 
     def test_dict_mode_remove_keys(self):

@@ -120,7 +120,7 @@ converter.convert_file(input=None, output=None
  *       "include" and "exclude" properties
  *     - "expand" to expand the placeholders (defined in the extra
  *       "placeholders" property) in the first dict with the matching key and
- *        value in other dicts;
+ *        values in other dicts;
  *     - "remove_keys" to remove keys from the first dict if it appears in any
  *       other one;
  *     - "remove_values" to remove key-value pairs from the first dict if it
