@@ -369,7 +369,8 @@ class StsDict():
                             )
                 fh.write(f'{key}\t{" ".join(values)}\n')
 
-    def loadjson(self, file):
+    @classmethod
+    def loadjson(cls, file):
         """Load from a JSON file.
 
         NOTE: The input data format may vary across subclasses.
@@ -378,7 +379,7 @@ class StsDict():
             a new object with the same class.
         """
         with open(file, 'r', encoding='UTF-8') as fh:
-            stsdict = self.__class__()
+            stsdict = cls()
             stsdict._dict = json.load(fh)
         return stsdict
 
@@ -1374,9 +1375,9 @@ class StsConverter():
         else:
             _, ext = os.path.splitext(stsdict)
             if ext.lower() == '.jlist':
-                self.table = Table().loadjson(stsdict)
+                self.table = Table.loadjson(stsdict)
             elif ext.lower() == '.tlist':
-                self.table = Trie().loadjson(stsdict)
+                self.table = Trie.loadjson(stsdict)
             else:  # default: list
                 self.table = Table().load(stsdict)
 
