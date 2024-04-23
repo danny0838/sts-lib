@@ -75,7 +75,8 @@ converter.convert_file(input=None, output=None
  *     making from this config, as an absolute path, or a path relative to the
  *     directory of this config file, or the basename of a built-in config file
  *     (with or without ".json")
- * @property {dictScheme[]} dicts - schemes of each dictionary file to generate
+ * @property {srcDictScheme[]} dicts - schemes of each dictionary file to be
+ *     generated or loaded.
  */
 
 /**

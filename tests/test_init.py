@@ -782,7 +782,54 @@ class TestClassStsMaker(unittest.TestCase):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
 
-    def test_file_none(self):
+    def test_bad_config_object(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump([], fh)
+
+        with self.assertRaises(ValueError):
+            StsMaker().make(config_file, quiet=True)
+
+    def test_no_dicts(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({}, fh)
+
+        with self.assertRaises(ValueError):
+            StsMaker().make(config_file, quiet=True)
+
+    def test_dict_str(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    'dict.txt',
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                干姜\t乾薑
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.txt'), stsdict)
+
+    def test_dict_str_missing_file(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    'dict.txt',
+                ],
+            }, fh)
+
+        with self.assertRaises(RuntimeError):
+            StsMaker().make(config_file, quiet=True)
+
+    def test_dict_no_file(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -806,7 +853,7 @@ class TestClassStsMaker(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             StsMaker().make(config_file, quiet=True)
 
-    def test_src_none(self):
+    def test_dict_no_src(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -827,7 +874,7 @@ class TestClassStsMaker(unittest.TestCase):
         stsdict = StsMaker().make(config_file, quiet=True)
         self.assertEqual(os.path.join(self.root, 'dict.txt'), stsdict)
 
-    def test_src_none_missing_file(self):
+    def test_dict_no_src_and_file_nonexist(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -841,7 +888,7 @@ class TestClassStsMaker(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             StsMaker().make(config_file, quiet=True)
 
-    def test_src_nested(self):
+    def test_dict_src_nested(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -885,7 +932,7 @@ class TestClassStsMaker(unittest.TestCase):
             '干': ['干'],
         }, dict(converter.table))
 
-    def test_format_list(self):
+    def test_dict_format_list(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -924,7 +971,7 @@ class TestClassStsMaker(unittest.TestCase):
                 fh.read()
             )
 
-    def test_format_jlist(self):
+    def test_dict_format_jlist(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -963,7 +1010,7 @@ class TestClassStsMaker(unittest.TestCase):
                 fh.read()
             )
 
-    def test_format_tlist(self):
+    def test_dict_format_tlist(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1002,7 +1049,7 @@ class TestClassStsMaker(unittest.TestCase):
                 fh.read()
             )
 
-    def test_format_other(self):
+    def test_dict_format_other(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1041,7 +1088,7 @@ class TestClassStsMaker(unittest.TestCase):
                 fh.read()
             )
 
-    def test_mode_load1(self):
+    def test_dict_mode_load1(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1086,7 +1133,7 @@ class TestClassStsMaker(unittest.TestCase):
             '贵': ['貴'],
         }, dict(converter.table))
 
-    def test_mode_load2(self):
+    def test_dict_mode_load2(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1131,7 +1178,7 @@ class TestClassStsMaker(unittest.TestCase):
             '干娘': ['乾娘'],
         }, dict(converter.table))
 
-    def test_mode_swap(self):
+    def test_dict_mode_swap(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1178,7 +1225,7 @@ class TestClassStsMaker(unittest.TestCase):
             '貴': ['贵'],
         }, dict(converter.table))
 
-    def test_mode_join1(self):
+    def test_dict_mode_join1(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1228,7 +1275,7 @@ class TestClassStsMaker(unittest.TestCase):
             '奔驰': ['賓士'],
         }, dict(converter.table))
 
-    def test_mode_join2(self):
+    def test_dict_mode_join2(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1283,7 +1330,7 @@ class TestClassStsMaker(unittest.TestCase):
             '正則表达式': ['正規表示式'],
         }, dict(converter.table))
 
-    def test_mode_join3(self):
+    def test_dict_mode_join3(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1334,7 +1381,7 @@ class TestClassStsMaker(unittest.TestCase):
             '表達式': ['表达式'],
         }, dict(converter.table))
 
-    def test_mode_join4(self):
+    def test_dict_mode_join4(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1373,7 +1420,7 @@ class TestClassStsMaker(unittest.TestCase):
             '信息': ['資訊'],
         }, dict(converter.table))
 
-    def test_sort(self):
+    def test_dict_sort(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1413,7 +1460,7 @@ class TestClassStsMaker(unittest.TestCase):
                 fh.read()
             )
 
-    def test_include_basic(self):
+    def test_dict_include_basic(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1454,7 +1501,7 @@ class TestClassStsMaker(unittest.TestCase):
             '噹': ['当'],
         }, dict(converter.table))
 
-    def test_include_bad_regex(self):
+    def test_dict_include_bad_regex(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1474,7 +1521,7 @@ class TestClassStsMaker(unittest.TestCase):
         with self.assertRaises(ValueError):
             StsMaker().make(config_file, quiet=True)
 
-    def test_exclude_basic(self):
+    def test_dict_exclude_basic(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1515,7 +1562,7 @@ class TestClassStsMaker(unittest.TestCase):
             '噹': ['当'],
         }, dict(converter.table))
 
-    def test_exclude_bad_regex(self):
+    def test_dict_exclude_bad_regex(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1535,7 +1582,7 @@ class TestClassStsMaker(unittest.TestCase):
         with self.assertRaises(ValueError):
             StsMaker().make(config_file, quiet=True)
 
-    def test_include_and_exclude(self):
+    def test_dict_include_and_exclude(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
@@ -1576,7 +1623,7 @@ class TestClassStsMaker(unittest.TestCase):
             '陣': ['阵'],
         }, dict(converter.table))
 
-    def test_check(self):
+    def test_dict_check(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({

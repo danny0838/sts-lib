@@ -956,44 +956,95 @@ class StsMaker():
         with open(config_file, 'r', encoding='UTF-8') as fh:
             config = json.load(fh)
 
+        self.normalize_config(config, config_dir)
+
         # handle required configs
         if not skip_requires:
-            for cf in config.get('requires', []):
+            for cf in config['requires']:
                 self.make(cf, base_dir=config_dir, skip_requires=skip_requires, quiet=quiet)
 
         # make the requested dicts
         for dict_scheme in config['dicts']:
-            dict_scheme = self.resolve_dict_scheme(dict_scheme, config_dir)
-            try:
-                dest = dict_scheme['file']
-            except KeyError:
-                raise RuntimeError('file is not defined')
+            if isinstance(dict_scheme, str):
+                dest = dict_scheme
+                if not os.path.isfile(dest):
+                    raise RuntimeError(f'specified dict file does not exist: {dest}')
+                continue
+
+            dest = dict_scheme['file']
+
+            if dest is None:
+                raise RuntimeError('dict["file"] is not specified')
+
             if not skip_check and not self.check_update(dict_scheme):
                 if not quiet:
                     print(f'skip making (up-to-date): {dest}')
                 continue
+
             self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check, quiet=quiet)
 
         return dest
 
-    def resolve_dict_scheme(self, dict_scheme, config_dir):
-        """Recursively resolve file paths for dict_scheme."""
+    def normalize_config(self, config, config_dir):
+        """Normalize and validate config in place."""
+        if not isinstance(config, dict):
+            raise ValueError('config is not a dict')
+
+        config.setdefault('requires', [])
+
+        try:
+            dict_schemes = config['dicts']
+        except KeyError:
+            raise ValueError('config["dicts"] is not specified')
+
+        for i, dict_scheme in enumerate(dict_schemes):
+            dict_schemes[i] = self.normalize_dict_scheme(dict_scheme, config_dir)
+
+        return config
+
+    def normalize_dict_scheme(self, dict_scheme, config_dir):
+        """Recursively normalize and validiate dict_scheme in place.
+
+        - Resolve file paths.
+
+        Args:
+            dict_scheme: a dict or a str for the dictionary path
+        """
         if isinstance(dict_scheme, str):
             return self.get_stsdict_file(dict_scheme, config_dir)
 
-        dict_ = dict_scheme.copy()
         try:
-            dict_['file'] = os.path.normpath(os.path.join(config_dir, dict_['file']))
+            dict_scheme['file'] = os.path.normpath(os.path.join(config_dir, dict_scheme['file']))
         except KeyError:
-            pass
+            dict_scheme['file'] = None
+
         try:
-            srcs = dict_['src']
+            srcs = dict_scheme['src']
         except KeyError:
-            pass
+            dict_scheme['src'] = []
         else:
             for i, src in enumerate(srcs):
-                srcs[i] = self.resolve_dict_scheme(src, config_dir)
-        return dict_
+                srcs[i] = self.normalize_dict_scheme(src, config_dir)
+
+        dict_scheme.setdefault('mode', 'load')
+        dict_scheme['sort'] = bool(dict_scheme.get('sort'))
+        dict_scheme['check'] = bool(dict_scheme.get('check'))
+
+        try:
+            dict_scheme['include'] = re.compile(dict_scheme['include'])
+        except KeyError:
+            dict_scheme['include'] = None
+        except re.error as exc:
+            raise ValueError(f'regex syntax error of the "include" filter: {exc}')
+
+        try:
+            dict_scheme['exclude'] = re.compile(dict_scheme['exclude'])
+        except KeyError:
+            dict_scheme['exclude'] = None
+        except re.error as exc:
+            raise ValueError(f'regex syntax error of the "exclude" filter: {exc}')
+
+        return dict_scheme
 
     def make_dict(self, dict_scheme, config_dir, skip_check=False, quiet=False):
         """Make a dict.
@@ -1013,29 +1064,16 @@ class StsMaker():
         else:
             format = '.list'
 
-        mode = dict_scheme.setdefault('mode', 'load')
-        srcs = dict_scheme.setdefault('src', [])
-        sort = dict_scheme.get('sort', False)
-        include = dict_scheme.get('include', None)
-        exclude = dict_scheme.get('exclude', None)
-        check = dict_scheme.get('check', False)
+        mode = dict_scheme['mode']
+        srcs = dict_scheme['src']
+        sort = dict_scheme['sort']
+        include = dict_scheme['include']
+        exclude = dict_scheme['exclude']
 
         if not srcs:
             if not os.path.isfile(dest):
                 raise RuntimeError(f'Specified flie does not exist: {dest}')
             return dest
-
-        if include is not None:
-            try:
-                include = re.compile(include)
-            except re.error as exc:
-                raise ValueError(f'regex syntax error of the include filter: {exc}')
-
-        if exclude is not None:
-            try:
-                exclude = re.compile(exclude)
-            except re.error as exc:
-                raise ValueError(f'regex syntax error of the exclude filter: {exc}')
 
         if dest and not quiet:
             print(f'making: {dest}')
@@ -1067,7 +1105,7 @@ class StsMaker():
             elif format == 'jlist':
                 table.dumpjson(dest, sort=sort)
             else:  # default: list
-                table.dump(dest, sort=sort, check=check)
+                table.dump(dest, sort=sort, check=dict_scheme['check'])
 
         return table
 
