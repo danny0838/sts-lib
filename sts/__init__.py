@@ -1182,25 +1182,25 @@ class StsMaker():
 
         placeholders = dict_scheme['placeholders']
         placeholders_re = re.compile('|'.join(re.escape(p) for p in placeholders))
-        map_placeholder_to_idx = {p: i for i, p in enumerate(placeholders)}
+        map_ph_to_dict_idx = {p: i for i, p in enumerate(placeholders)}
 
         for key, values in table.items():
             key_parts = list(self._make_dict_mode_expand_split(key, placeholders_re))
             value_parts_list = [list(self._make_dict_mode_expand_split(v, placeholders_re)) for v in values]
 
-            map_placeholder_to_dict_keys = {}
+            map_ph_to_comb_idx = {}
             for part in itertools.chain(key_parts, *value_parts_list):
                 if isinstance(part, str):
                     continue
-                key = part[0]
-                key_idx = map_placeholder_to_idx[key]
-                dict_keys = dicts[key_idx].keys()
-                map_placeholder_to_dict_keys[key] = dict_keys
+                ph = part[0]
+                map_ph_to_comb_idx.setdefault(ph, len(map_ph_to_comb_idx))
 
-            for comb in itertools.product(*map_placeholder_to_dict_keys.values()):
-                newkey = self._make_dict_mode_expand_get_expanded_key(key_parts, comb, map_placeholder_to_idx)
+            it = (dicts[map_ph_to_dict_idx[ph]] for ph in map_ph_to_comb_idx)
+            for comb in itertools.product(*it):
+                context = (dicts, comb, map_ph_to_dict_idx, map_ph_to_comb_idx)
+                newkey = self._make_dict_mode_expand_get_expanded_key(key_parts, context)
                 newvalues = [
-                    self._make_dict_mode_expand_get_expanded_value(vpp, comb, map_placeholder_to_idx, dicts)
+                    self._make_dict_mode_expand_get_expanded_value(vpp, context)
                     for vpp in value_parts_list
                 ]
                 newtable.add(newkey, newvalues)
@@ -1228,32 +1228,31 @@ class StsMaker():
             yield t
 
     @staticmethod
-    def _make_dict_mode_expand_get_expanded_key(parts, comb, map_placeholder_to_idx):
+    def _make_dict_mode_expand_get_expanded_key(parts, context):
+        _, comb, _, map_ph_to_comb_idx = context
         rv = []
         for part in parts:
             if isinstance(part, str):
                 rv.append(part)
                 continue
 
-            key = part[0]
-            key_idx = map_placeholder_to_idx[key]
-            rv.append(comb[key_idx])
+            ph = part[0]
+            rv.append(comb[map_ph_to_comb_idx[ph]])
         return ''.join(rv)
 
     @staticmethod
-    def _make_dict_mode_expand_get_expanded_value(parts, comb, map_placeholder_to_idx, dicts):
+    def _make_dict_mode_expand_get_expanded_value(parts, context):
+        dicts, comb, map_ph_to_dict_idx, map_ph_to_comb_idx = context
         rv = []
         for part in parts:
             if isinstance(part, str):
                 rv.append(part)
                 continue
 
-            key = part[0]
-            key_idx = map_placeholder_to_idx[key]
-            try:
-                rv.append(dicts[key_idx][comb[key_idx]][0])
-            except IndexError:
-                rv.append(key)
+            ph = part[0]
+            dict_idx = map_ph_to_dict_idx[ph]
+            comb_idx = map_ph_to_comb_idx[ph]
+            rv.append(dicts[dict_idx][comb[comb_idx]][0])
         return ''.join(rv)
 
     def _make_dict_mode_remove_keys(self, dict_scheme):

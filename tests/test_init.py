@@ -1471,7 +1471,7 @@ class TestClassStsMaker(unittest.TestCase):
             fh.write(dedent(
                 """\
                 壹\t壹
-                貳\t弍
+                貳\t贰
                 叄\t叁
                 """
             ))
@@ -1480,11 +1480,104 @@ class TestClassStsMaker(unittest.TestCase):
         converter = StsConverter(stsdict)
         self.assertEqual({
             '１里壹': ['１里壹'],
-            '１里貳': ['１里弍'],
+            '１里貳': ['１里贰'],
             '１里叄': ['１里叁'],
             '２里壹': ['２里壹'],
-            '２里貳': ['２里弍'],
+            '２里貳': ['２里贰'],
             '２里叄': ['２里叁'],
+        }, dict(converter.table))
+
+    def test_dict_mode_expand_skipped_placeholder(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'expand',
+                        'src': [
+                            'dict.txt',
+                            'num1.txt',
+                            'num2.txt',
+                        ],
+                        'placeholders': [
+                            '%n',
+                            '%s',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                %s里\t%s里
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num1.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                １\t１
+                ２\t２
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num2.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                壹\t壹
+                貳\t贰
+                叄\t叁
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '壹里': ['壹里'],
+            '貳里': ['贰里'],
+            '叄里': ['叁里'],
+        }, dict(converter.table))
+
+    def test_dict_mode_expand_no_placeholder(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'expand',
+                        'src': [
+                            'dict.txt',
+                            'num1.txt',
+                        ],
+                        'placeholders': [
+                            '%n',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                里\t裏 里
+                """
+            ))
+
+        with open(os.path.join(self.root, 'num1.txt'), 'w', encoding='UTF-8') as fh:
+            fh.write(dedent(
+                """\
+                １\t１
+                ２\t２
+                """
+            ))
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        converter = StsConverter(stsdict)
+        self.assertEqual({
+            '里': ['裏', '里'],
         }, dict(converter.table))
 
     def test_dict_mode_expand_match_same_key(self):
