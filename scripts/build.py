@@ -128,24 +128,21 @@ def main():
         for src in NTW_SRCS:
             url = f'{NTW_URL_PREFIX}{src}'
             print(f'fetching: {url}')
-            response = requests.get(url)
+            response = requests.get(url, stream=True)
             if not response.ok:
                 raise RuntimeError(f'failed to fetch: {url}')
-
-            dict_ = response.json()
-            table = Table()
-            for k, v in dict_.items():
-                table.add(k, v, skip_check=True)
 
             # remove .min.json
             fn, _ = os.path.splitext(src)
             fn, _ = os.path.splitext(fn)
 
-            file = os.path.join(tmp_dir, f'{fn}.list')
-            table.dump(file)
+            file = os.path.join(tmp_dir, f'{fn}.json')
+            with open(file, 'wb') as fh:
+                for chunk in response.iter_content(chunk_size=None):
+                    fh.write(chunk)
 
         for dst, srcs in NTW_DICTS.items():
-            srcs = (os.path.join(tmp_dir, f'{src}.list') for src in srcs)
+            srcs = (os.path.join(tmp_dir, f'{src}.json') for src in srcs)
             dest = os.path.join(dicts_dir, f'{dst}.tlist')
             print(f'building: {dest}')
             table = Trie()
