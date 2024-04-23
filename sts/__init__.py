@@ -280,12 +280,12 @@ class StsDict():
         """Add a key-values pair to this dictionary.
 
         Args:
-            values: a string or a list of strings.
+            values: a string or an iterable of strings.
             skip_check: True to skip checking duplicated values.
         """
-        values = [values] if isinstance(values, str) else values
+        values = (values,) if isinstance(values, str) else values
         list_ = self._dict.setdefault(key, [])
-        list_ += values if skip_check else [x for x in values if x not in list_]
+        list_ += values if skip_check else (x for x in values if x not in list_)
         return self
 
     def update(self, stsdict, skip_check=False):

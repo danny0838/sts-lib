@@ -306,6 +306,19 @@ class TestClassStsDict(unittest.TestCase):
     def test_add(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
+                # str
+                stsdict = class_()
+
+                stsdict.add('干', '幹')
+                self.assertEqual({'干': ['幹']}, stsdict)
+
+                stsdict.add('干', '乾')
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
+
+                stsdict.add('姜', '姜')
+                self.assertEqual({'干': ['幹', '乾'], '姜': ['姜']}, stsdict)
+
+                # list
                 stsdict = class_()
 
                 stsdict.add('干', ['幹', '乾'])
@@ -320,16 +333,35 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.add('姜', ['姜', '薑'])
                 self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']}, stsdict)
 
+                # iterable
+                stsdict = class_()
+
+                stsdict.add('干', ('幹', '乾'))
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
+
+                stsdict.add('干', iter(('幹', '乾', '干')))
+                self.assertEqual({'干': ['幹', '乾', '干']}, stsdict)
+
     def test_add_skip_check(self):
         for class_ in (StsDict, Table, Trie):
             with self.subTest(type=class_):
+                # list
                 stsdict = class_({'干': ['幹', '乾']})
 
-                stsdict.add('干', ['幹'])
+                stsdict.add('干', ['乾'])
                 self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
                 stsdict.add('干', ['乾'], skip_check=True)
                 self.assertEqual({'干': ['幹', '乾', '乾']}, stsdict)
+
+                # iterable
+                stsdict = class_()
+
+                stsdict.add('干', ('幹', '乾'), skip_check=True)
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
+
+                stsdict.add('干', iter(('幹', '乾')), skip_check=True)
+                self.assertEqual({'干': ['幹', '乾', '幹', '乾']}, stsdict)
 
     def test_update(self):
         for class_ in (StsDict, Table, Trie):
