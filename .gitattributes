@@ -9,5 +9,6 @@
 *.mjs text
 *.py text
 *.toml text
+*.tsv text
 *.txt text
 *.yaml text
