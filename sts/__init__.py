@@ -1078,7 +1078,7 @@ class StsMaker():
         elif mode == 'expand':
             dict_scheme.setdefault('placeholders', [])
             if len(dict_scheme['placeholders']) != len(srcs) - 1:
-                raise ValueError('length of dict["placeholders"] does not match dict["src"]')
+                raise ValueError('len(dict["placeholders"]) must be len(dict["src"]) - 1')
 
         return dict_scheme
 
