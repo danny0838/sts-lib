@@ -3,6 +3,7 @@
 *.cfg text
 *.md text
 *.txt text
+*.tsv text
 *.html text
 *.ini text
 *.json text
