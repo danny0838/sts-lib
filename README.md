@@ -4,6 +4,7 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 
 簡繁祕書是開源、輕巧、有彈性的中文簡繁轉換工具，也支援異體字轉換及地區慣用詞轉換。
 
+
 ## Features 特色
 
 * 使用與 [OpenCC](https://github.com/BYVoid/OpenCC) 格式相容的詞典檔。此外亦支援 JSON 或 YAML 格式的詞典檔。
@@ -15,11 +16,18 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 * 支援用正規表示式略過特定文字的轉換。
 * 支援編碼轉換，可自訂輸入及輸出檔案的字元編碼。
 
+
 ## Usage 使用
 
 ### Installation 安裝
 
+安裝 Python >= 3.7 ([官網](https://www.python.org/))，然後在命令列輸入以下指令安裝（或升級至）最新版本：
+
     pip install -U sts-lib
+
+> 若要支援 YAML 格式，須額外安裝 PyYAML 套件，或改用以下指令安裝：
+>
+>    pip install -U sts-lib[yaml]
 
 ### Command Line
 
@@ -65,7 +73,12 @@ converter.convert_file(input=None, output=None
 [p for p in converter.convert("干了吧")]  # [StsDictConv(key=['干', '了'], values=['幹了', '乾了']), '吧']
 ```
 
-## Config 配置檔
+
+## Advanced 進階開發
+
+### Config 配置檔
+
+配置檔為 JSON 或 YAML 檔案（副檔名須為 `.yaml` 或 `.yml`）。規格如下：
 
 ```javascript
 /**
@@ -129,6 +142,45 @@ converter.convert_file(input=None, output=None
  */
 ```
 
+### Dictionary 詞典檔
+
+原始詞典檔可為純文字、JSON、或 YAML。規格如下：
+
+#### 純文字
+
+純文字詞典副檔名為 .txt。規格為以 TAB 字元分隔輸入詞與轉換詞，多個轉換詞之間以半形空白分隔，如下：
+
+```
+輸入詞1\t轉換詞11 轉換詞12 ...
+輸入詞2\t轉換詞21 轉換詞22 ...
+...
+```
+
+注意，使用此格式時，輸入詞不可含有 TAB 字元，轉換詞不可含有半形空白字元。此外也不可含有換行等字元。
+
+#### JSON
+
+JSON 詞典副檔名為 `.json`。規格如下：
+
+```
+{
+  "輸入詞1": ["轉換詞11", "轉換詞12", ...],
+  "輸入詞2": ["轉換詞22", "轉換詞22", ...],
+  ...
+}
+```
+
+#### YAML
+
+YAML 詞典副檔名為 `.yaml` 或 `.yml`。規格如下：
+
+```
+輸入詞1: [轉換詞11, 轉換詞12, ...]
+輸入詞2: [轉換詞22, 轉換詞22, ...]
+...
+```
+
+
 ## 線上版
 
 [簡繁祕書線上版](https://danny0838.github.io/sts-lib/)
@@ -136,6 +188,7 @@ converter.convert_file(input=None, output=None
 本線上轉換工具支援文字轉換及檔案轉換。前者只要在輸入區填入文字，就會自動轉換並且可以互動式校訂。後者可以用按鈕或拖放選擇一或多個檔案，就會逐一轉換後自動下載。預設檔案輸入輸出編碼皆是UTF-8，如要輸入其他編碼的檔案，可在進階選項設定。
 
 目前內建 [OpenCC](https://github.com/BYVoid/OpenCC)、[MediaWiki](https://github.com/wikimedia/mediawiki)、[新同文堂](https://github.com/tongwentang/tongwen-dict)的轉換方案，並且修正了 OpenCC 演算法缺陷導致一些地區詞無法正常轉換的問題（詳見[相關問題回報](https://github.com/BYVoid/OpenCC/issues/475)）。
+
 
 ## License 許可協議
 
