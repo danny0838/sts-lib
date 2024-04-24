@@ -948,7 +948,6 @@ document.addEventListener('DOMContentLoaded', function (event) {
       elem.setCustomValidity('');
     });
   }
-  
 });
 
 {%- endif %}
