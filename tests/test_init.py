@@ -1,4 +1,5 @@
 import io
+import itertools
 import json
 import os
 import re
@@ -214,29 +215,25 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertEqual({'干', '姜', '干姜'}, set(stsdict))
 
     def test_eq(self):
-        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
+                dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
                 stsdict = cls(dict_)
                 self.assertTrue(stsdict == dict_)
                 self.assertTrue(dict_ == stsdict)
                 self.assertFalse(stsdict != dict_)
                 self.assertFalse(dict_ != stsdict)
 
-        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
-        dict2 = {'干姜': ['乾薑'], '干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
+                dict2 = {'干姜': ['乾薑'], '干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
                 stsdict = cls(dict_)
                 self.assertTrue(stsdict == dict2)
                 self.assertTrue(dict2 == stsdict)
                 self.assertFalse(stsdict != dict2)
                 self.assertFalse(dict2 != stsdict)
 
-        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
-        dict2 = {'干姜': ['乾薑'], '干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
+                dict2 = {'干姜': ['乾薑'], '干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
                 stsdict = cls(dict_)
                 stsdict2 = cls(dict2)
                 self.assertTrue(stsdict == stsdict2)
@@ -244,30 +241,24 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertFalse(stsdict != stsdict2)
                 self.assertFalse(stsdict2 != stsdict)
 
-        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
-        dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
+                dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
                 stsdict = cls(dict_)
                 self.assertFalse(stsdict == dict2)
                 self.assertFalse(dict2 == stsdict)
                 self.assertTrue(stsdict != dict2)
                 self.assertTrue(dict2 != stsdict)
 
-        dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
-        dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
+                dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
                 stsdict = cls(dict_)
                 self.assertFalse(stsdict == dict2)
                 self.assertFalse(dict2 == stsdict)
                 self.assertTrue(stsdict != dict2)
                 self.assertTrue(dict2 != stsdict)
 
-        dict_ = {'干': ['幹', '乾', '干', '𠏉'], '姜': ['姜', '薑']}
-        dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                dict_ = {'干': ['幹', '乾', '干', '𠏉'], '姜': ['姜', '薑']}
+                dict2 = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑']}
                 stsdict = cls(dict_)
                 self.assertFalse(stsdict == dict2)
                 self.assertFalse(dict2 == stsdict)
@@ -377,153 +368,144 @@ class TestClassStsDict(unittest.TestCase):
                 self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
     def test_load_plain(self):
-        tempfile = os.path.join(self.root, 'test.tmp')
-        tempfile2 = os.path.join(self.root, 'test2.tmp')
-
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t幹 乾""")
-        with open(tempfile2, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t干 榦\n姜\t姜 薑""")
-
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
+                tempfile = os.path.join(self.root, 'test.tmp')
+                tempfile2 = os.path.join(self.root, 'test2.tmp')
+
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t幹 乾""")
+                with open(tempfile2, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t干 榦\n姜\t姜 薑""")
+
                 stsdict = cls()
                 stsdict.load(tempfile)
                 stsdict.load(tempfile2)
                 self.assertEqual({'干': ['幹', '乾', '干', '榦'], '姜': ['姜', '薑']}, stsdict)
 
-        # trailing linefeed
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t幹\n""")
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                # trailing linefeed
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t幹\n""")
+
                 stsdict = cls()
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹']}, stsdict)
 
-        # empty value
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t""")
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                # empty value
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t""")
+
                 stsdict = cls()
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['']}, stsdict)
 
-        # empty line (error in OpenCC < 1.1.4)
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t幹\n\n于\t於""")
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                # empty line (error in OpenCC < 1.1.4)
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t幹\n\n于\t於""")
+
                 stsdict = cls()
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹'], '于': ['於']}, stsdict)
 
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t幹\n\n""")
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t幹\n\n""")
+
                 stsdict = cls()
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹']}, stsdict)
 
-        # 0 tab: safely ignored (error in OpenCC)
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干""")
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                # 0 tab: safely ignored (error in OpenCC)
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干""")
+
                 stsdict = cls()
                 stsdict.load(tempfile)
                 self.assertEqual({}, stsdict)
 
-        # 2 tabs: safely ignored (2nd tab treated as part of value in OpenCC)
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t幹 乾\t# 一些註解""")
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                # 2 tabs: safely ignored (2nd tab treated as part of value in OpenCC)
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t幹 乾\t# 一些註解""")
+
                 stsdict = cls()
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
     def test_load_json(self):
-        for ext in ('json', 'jlist'):
-            tempfile = os.path.join(self.root, f'test.{ext}')
-            tempfile2 = os.path.join(self.root, f'test2.{ext}')
+        for cls, ext in itertools.product((StsDict, Table, Trie), ('json', 'jlist')):
+            with self.subTest(type=cls, ext=ext):
+                tempfile = os.path.join(self.root, f'test.{ext}')
+                tempfile2 = os.path.join(self.root, f'test2.{ext}')
 
-            # dict as {key1: values1, ...} or [[key1, values1], [key2, values2], ...]
-            # where values is a str or a list of strs
-            with open(tempfile, 'w', encoding='UTF-8') as fh:
-                json.dump({'简': '簡', '干': ['幹', '乾']}, fh)
-            with open(tempfile2, 'w', encoding='UTF-8') as fh:
-                json.dump([['干', ['干', '榦']], ['姜', ['姜', '薑']], ['体', '體']], fh)
+                # dict as {key1: values1, ...} or [[key1, values1], [key2, values2], ...]
+                # where values is a str or a list of strs
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    json.dump({'简': '簡', '干': ['幹', '乾']}, fh)
+                with open(tempfile2, 'w', encoding='UTF-8') as fh:
+                    json.dump([['干', ['干', '榦']], ['姜', ['姜', '薑']], ['体', '體']], fh)
 
-            for cls in (StsDict, Table, Trie):
-                with self.subTest(type=cls, ext=ext):
-                    stsdict = cls()
-                    stsdict.load(tempfile)
-                    stsdict.load(tempfile2)
-                    self.assertEqual({
-                        '简': ['簡'],
-                        '干': ['幹', '乾', '干', '榦'],
-                        '姜': ['姜', '薑'],
-                        '体': ['體'],
-                    }, stsdict)
+                stsdict = cls()
+                stsdict.load(tempfile)
+                stsdict.load(tempfile2)
+                self.assertEqual({
+                    '简': ['簡'],
+                    '干': ['幹', '乾', '干', '榦'],
+                    '姜': ['姜', '薑'],
+                    '体': ['體'],
+                }, stsdict)
 
     def test_load_yaml(self):
-        for ext in ('yaml', 'yml'):
-            tempfile = os.path.join(self.root, f'test.{ext}')
-            tempfile2 = os.path.join(self.root, f'test2.{ext}')
+        for cls, ext in itertools.product((StsDict, Table, Trie), ('yaml', 'yml')):
+            with self.subTest(type=cls, ext=ext):
+                tempfile = os.path.join(self.root, f'test.{ext}')
+                tempfile2 = os.path.join(self.root, f'test2.{ext}')
 
-            # dict as {key1: values1, ...} or [[key1, values1], [key2, values2], ...]
-            # where values is a str or a list of strs
-            with open(tempfile, 'w', encoding='UTF-8') as fh:
-                yaml.dump(
-                    {'简': '簡', '干': ['幹', '乾']},
-                    fh, allow_unicode=True,
-                )
-            with open(tempfile2, 'w', encoding='UTF-8') as fh:
-                yaml.dump(
-                    [['干', ['干', '榦']], ['姜', ['姜', '薑']], ['体', '體']],
-                    fh, allow_unicode=True,
-                )
+                # dict as {key1: values1, ...} or [[key1, values1], [key2, values2], ...]
+                # where values is a str or a list of strs
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    yaml.dump(
+                        {'简': '簡', '干': ['幹', '乾']},
+                        fh, allow_unicode=True,
+                    )
+                with open(tempfile2, 'w', encoding='UTF-8') as fh:
+                    yaml.dump(
+                        [['干', ['干', '榦']], ['姜', ['姜', '薑']], ['体', '體']],
+                        fh, allow_unicode=True,
+                    )
 
-            for cls in (StsDict, Table, Trie):
-                with self.subTest(type=cls, ext=ext):
-                    stsdict = cls()
-                    stsdict.load(tempfile)
-                    stsdict.load(tempfile2)
-                    self.assertEqual({
-                        '简': ['簡'],
-                        '干': ['幹', '乾', '干', '榦'],
-                        '姜': ['姜', '薑'],
-                        '体': ['體'],
-                    }, stsdict)
+                stsdict = cls()
+                stsdict.load(tempfile)
+                stsdict.load(tempfile2)
+                self.assertEqual({
+                    '简': ['簡'],
+                    '干': ['幹', '乾', '干', '榦'],
+                    '姜': ['姜', '薑'],
+                    '体': ['體'],
+                }, stsdict)
 
     def test_load_type(self):
         """Forced with type parameter"""
-        # .json load as plain
-        tempfile = os.path.join(self.root, 'test.json')
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干\t幹 乾""")
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
+                # .json load as plain
+                tempfile = os.path.join(self.root, 'test.json')
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t幹 乾""")
+
                 stsdict = cls()
                 stsdict.load(tempfile, type='txt')
                 self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
-        # .txt load as json
-        tempfile = os.path.join(self.root, 'test.txt')
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            json.dump({'干': ['幹', '乾']}, fh)
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
+                # .txt load as json
+                tempfile = os.path.join(self.root, 'test.txt')
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    json.dump({'干': ['幹', '乾']}, fh)
+
                 stsdict = cls()
                 stsdict.load(tempfile, type='json')
                 self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
     def test_dump(self):
         tempfile = os.path.join(self.root, 'test.tmp')
-
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
                 stsdict = cls({'干': ['干', '榦'], '姜': ['姜', '薑']})
@@ -548,7 +530,6 @@ class TestClassStsDict(unittest.TestCase):
 
     def test_dump_badchar(self):
         tempfile = os.path.join(self.root, 'test.tmp')
-
         for cls in (StsDict, Table, Trie):
             for badchar in '\t\n\r':
                 with self.subTest(type=cls, char=badchar, where='key'):
@@ -2775,7 +2756,7 @@ class TestBasicCases(unittest.TestCase):
 class TestConfigs(unittest.TestCase):
     @slow_test()
     def test_make(self):
-        def clear_lists():
+        def clear_generated_dicts():
             with os.scandir(dict_dir) as it:
                 for file in it:
                     if dict_pattern.search(file.path):
@@ -2786,10 +2767,12 @@ class TestConfigs(unittest.TestCase):
         config_pattern = re.compile(r'\.json$', re.I)
         dict_pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
         for file in os.listdir(config_dir):
-            if config_pattern.search(file):
-                with self.subTest(config=file):
-                    clear_lists()
-                    StsMaker().make(file, quiet=True)
+            if not config_pattern.search(file):
+                continue
+
+            with self.subTest(config=file):
+                clear_generated_dicts()
+                StsMaker().make(file, quiet=True)
 
 
 if __name__ == '__main__':
