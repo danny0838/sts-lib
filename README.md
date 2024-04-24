@@ -118,11 +118,11 @@ converter.convert_file(input=None, output=None
  *     - "join" to chain dicts (a conversion using a dict joining dict1 and
  *       dict2 works like a conversion using dict1 and then dict2, but takes
  *       care of word segmentation);
- *     - "filter" to filter the output values in the loaded dicts with extra
- *       "include" and "exclude" properties
  *     - "expand" to expand the placeholders (defined in the extra
  *       "placeholders" property) in the first dict with the matching key and
  *        values in other dicts;
+ *     - "filter" to filter the output values in the loaded dicts with extra
+ *       "include" and "exclude" properties;
  *     - "remove_keys" to remove keys from the first dict if it appears in any
  *       other one;
  *     - "remove_values" to remove key-value pairs from the first dict if it
@@ -135,12 +135,12 @@ converter.convert_file(input=None, output=None
  *     when the output is a plain text table file and the source files contain
  *     untrusted JSON or YAML data that may include a char like " ", "\t",
  *     "\n", etc. in the dictionary.
+ * @property {string[]} [placeholders] - strings to be expanded using other
+ *     dicts. (for "expand" mode)
  * @property {string} [include] - a regex filter that discards non-matched
  *     conversion values. (for "filter" mode)
  * @property {string} [exclude] - a regex filter that discards matched
  *     conversion values. (for "filter" mode)
- * @property {string[]} [placeholders] - strings to be expanded using other
- *     dicts. (for "expand" mode)
  */
 ```
 

@@ -1139,23 +1139,6 @@ class StsMaker():
                 table.update(src)
         return table
 
-    def _make_dict_mode_filter(self, dict_scheme):
-        table = self._make_dict_mode_load(dict_scheme)
-
-        include = dict_scheme['include']
-        exclude = dict_scheme['exclude']
-        if include or exclude:
-            _table = table
-            table = Table()
-            for key, values in _table.items():
-                values = [v for v in values
-                          if (include is None or include.search(v))
-                          and (exclude is None or not exclude.search(v))]
-                if values:
-                    table.add(key, values)
-
-        return table
-
     def _make_dict_mode_swap(self, dict_scheme):
         table = self._make_dict_mode_load(dict_scheme)
         table = table.swap()
@@ -1248,6 +1231,23 @@ class StsMaker():
             while substack:
                 stack.append(substack.pop())
         return rv
+
+    def _make_dict_mode_filter(self, dict_scheme):
+        table = self._make_dict_mode_load(dict_scheme)
+
+        include = dict_scheme['include']
+        exclude = dict_scheme['exclude']
+        if include or exclude:
+            _table = table
+            table = Table()
+            for key, values in _table.items():
+                values = [v for v in values
+                          if (include is None or include.search(v))
+                          and (exclude is None or not exclude.search(v))]
+                if values:
+                    table.add(key, values)
+
+        return table
 
     def _make_dict_mode_remove_keys(self, dict_scheme):
         srcs = dict_scheme['src']
