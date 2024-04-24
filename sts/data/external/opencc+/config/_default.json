@@ -25,6 +25,7 @@
       "file": "../dictionary/TWPhrases.list",
       "mode": "load",
       "src": [
+        "../dictionary/TWPhrases.txt",
         "../../opencc/dictionary/TWPhrasesIT.txt",
         "../../opencc/dictionary/TWPhrasesName.txt",
         "../../opencc/dictionary/TWPhrasesOther.txt"
