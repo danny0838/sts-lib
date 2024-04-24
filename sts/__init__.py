@@ -1058,6 +1058,10 @@ class StsMaker():
         dict_scheme['check'] = bool(dict_scheme.get('check'))
 
         if mode == 'filter':
+            method = dict_scheme.setdefault('method', 'remove_key_values')
+            if method not in ('remove_keys', 'remove_key_values'):
+                raise ValueError(f'unknown method for filter: {method}')
+
             try:
                 dict_scheme['include'] = re.compile(dict_scheme['include'])
             except KeyError:
@@ -1233,7 +1237,14 @@ class StsMaker():
         return rv
 
     def _make_dict_mode_filter(self, dict_scheme):
-        table = self._make_dict_mode_load(dict_scheme)
+        method = getattr(self, f'_make_dict_mode_filter_method_{dict_scheme["method"]}')
+
+        srcs = dict_scheme['src']
+        src = srcs.pop(0)
+        table = Table().load(src) if isinstance(src, str) else src
+        for src in srcs:
+            dict_ = Table().load(src) if isinstance(src, str) else src
+            method(table, dict_)
 
         include = dict_scheme['include']
         exclude = dict_scheme['exclude']
@@ -1249,38 +1260,28 @@ class StsMaker():
 
         return table
 
-    def _make_dict_mode_remove_keys(self, dict_scheme):
-        srcs = dict_scheme['src']
-        src = srcs.pop(0)
-        table = Table().load(src) if isinstance(src, str) else src
-        for src in srcs:
-            dict_ = Table().load(src) if isinstance(src, str) else src
-            for k in dict_:
-                try:
-                    del table[k]
-                except KeyError:
-                    continue
-        return table
+    @staticmethod
+    def _make_dict_mode_filter_method_remove_keys(table, dict):
+        for k in dict:
+            try:
+                del table[k]
+            except KeyError:
+                continue
 
-    def _make_dict_mode_remove_values(self, dict_scheme):
-        srcs = dict_scheme['src']
-        src = srcs.pop(0)
-        table = Table().load(src) if isinstance(src, str) else src
-        for src in srcs:
-            dict_ = Table().load(src) if isinstance(src, str) else src
-            for k, vv in dict_.items():
+    @staticmethod
+    def _make_dict_mode_filter_method_remove_key_values(table, dict):
+        for k, vv in dict.items():
+            try:
+                t = table[k]
+            except KeyError:
+                continue
+            for v in vv:
                 try:
-                    t = table[k]
-                except KeyError:
-                    continue
-                for v in vv:
-                    try:
-                        t.remove(v)
-                    except ValueError:
-                        pass
-                if not t:
-                    del table[k]
-        return table
+                    t.remove(v)
+                except ValueError:
+                    pass
+            if not t:
+                del table[k]
 
     def get_config_file(self, config, base_dir=None):
         """Calculate the path of a config file.

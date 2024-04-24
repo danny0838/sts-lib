@@ -1787,23 +1787,16 @@ class TestClassStsMaker(unittest.TestCase):
                         'mode': 'filter',
                         'include': r'^[\u0000-\uFFFF]*$',
                         'src': [
-                            'phrases.txt',
-                            'chars.txt',
+                            'dict.txt',
                         ],
                     },
                 ],
             }, fh)
 
-        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
             fh.write(dedent(
                 """\
                 㑮陣\t𫝈阵
-                """
-            ))
-
-        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
-            fh.write(dedent(
-                """\
                 陣\t阵
                 㑮\t𫝈
                 噹\t当 𰁸
@@ -1828,8 +1821,7 @@ class TestClassStsMaker(unittest.TestCase):
                         'mode': 'filter',
                         'include': r'???',
                         'src': [
-                            'phrases.txt',
-                            'chars.txt',
+                            'dict.txt',
                         ],
                     },
                 ],
@@ -1848,23 +1840,16 @@ class TestClassStsMaker(unittest.TestCase):
                         'mode': 'filter',
                         'exclude': r'[\U00010000-\U0010FFFF]',
                         'src': [
-                            'phrases.txt',
-                            'chars.txt',
+                            'dict.txt',
                         ],
                     },
                 ],
             }, fh)
 
-        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
             fh.write(dedent(
                 """\
                 㑮陣\t𫝈阵
-                """
-            ))
-
-        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
-            fh.write(dedent(
-                """\
                 陣\t阵
                 㑮\t𫝈
                 噹\t当 𰁸
@@ -1889,8 +1874,7 @@ class TestClassStsMaker(unittest.TestCase):
                         'mode': 'filter',
                         'exclude': r'???',
                         'src': [
-                            'phrases.txt',
-                            'chars.txt',
+                            'dict.txt',
                         ],
                     },
                 ],
@@ -1910,23 +1894,16 @@ class TestClassStsMaker(unittest.TestCase):
                         'include': r'^[\u0000-\uFFFF]*$',
                         'exclude': r'当',
                         'src': [
-                            'phrases.txt',
-                            'chars.txt',
+                            'dict.txt',
                         ],
                     },
                 ],
             }, fh)
 
-        with open(os.path.join(self.root, 'phrases.txt'), 'w', encoding='UTF-8') as fh:
+        with open(os.path.join(self.root, 'dict.txt'), 'w', encoding='UTF-8') as fh:
             fh.write(dedent(
                 """\
                 㑮陣\t𫝈阵
-                """
-            ))
-
-        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
-            fh.write(dedent(
-                """\
                 陣\t阵
                 㑮\t𫝈
                 噹\t当 𰁸
@@ -1940,14 +1917,15 @@ class TestClassStsMaker(unittest.TestCase):
             '陣': ['阵'],
         }, dict(converter.table))
 
-    def test_dict_mode_remove_keys(self):
+    def test_dict_mode_filter_method_remove_keys(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
                 'dicts': [
                     {
                         'file': 'dict.list',
-                        'mode': 'remove_keys',
+                        'mode': 'filter',
+                        'method': 'remove_keys',
                         'src': [
                             'dict.txt',
                             'exclude.txt',
@@ -1980,14 +1958,15 @@ class TestClassStsMaker(unittest.TestCase):
             '简': ['簡'],
         }, dict(converter.table))
 
-    def test_dict_mode_remove_values(self):
+    def test_dict_mode_filter_method_remove_key_values(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({
                 'dicts': [
                     {
                         'file': 'dict.list',
-                        'mode': 'remove_values',
+                        'mode': 'filter',
+                        'method': 'remove_key_values',
                         'src': [
                             'dict.txt',
                             'exclude.txt',
@@ -2020,6 +1999,26 @@ class TestClassStsMaker(unittest.TestCase):
             '干': ['幹', '乾', '干'],
             '简': ['簡'],
         }, dict(converter.table))
+
+    def test_dict_mode_filter_method_unknown(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.list',
+                        'mode': 'filter',
+                        'method': 'unknown',
+                        'src': [
+                            'dict.txt',
+                            'exclude.txt',
+                        ],
+                    },
+                ],
+            }, fh)
+
+        with self.assertRaises(ValueError):
+            StsMaker().make(config_file, quiet=True)
 
     def test_dict_sort(self):
         config_file = os.path.join(self.root, 'config.json')

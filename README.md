@@ -121,12 +121,8 @@ converter.convert_file(input=None, output=None
  *     - "expand" to expand the placeholders (defined in the extra
  *       "placeholders" property) in the first dict with the matching key and
  *        values in other dicts;
- *     - "filter" to filter the output values in the loaded dicts with extra
- *       "include" and "exclude" properties;
- *     - "remove_keys" to remove keys from the first dict if it appears in any
- *       other one;
- *     - "remove_values" to remove key-value pairs from the first dict if it
- *       appears in any other one.
+ *     - "filter" to filter the output keys and values in the loaded dicts
+ *       using extra "method", "include", and "exclude" properties.
  * @property {srcDictScheme[]} [src] - the source dicts. `file` must exist when
  *     omitted.
  * @property {boolean} [sort] - true to sort the keys of the output dictionary.
@@ -137,6 +133,12 @@ converter.convert_file(input=None, output=None
  *     "\n", etc. in the dictionary.
  * @property {string[]} [placeholders] - strings to be expanded using other
  *     dicts. (for "expand" mode)
+ * @property {string} [method=remove_key_values] - how to filter (for "filter"
+ *     mode)
+ *     - "remove_keys" to remove keys from the first dict if it appears in any
+ *       other one;
+ *     - "remove_key_values" to remove key-value pairs from the first dict if it
+ *       appears in any other one.
  * @property {string} [include] - a regex filter that discards non-matched
  *     conversion values. (for "filter" mode)
  * @property {string} [exclude] - a regex filter that discards matched
