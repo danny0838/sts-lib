@@ -414,13 +414,13 @@ class TestClassStsDict(unittest.TestCase):
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹']}, stsdict)
 
-                # 0 tab: safely ignored (error in OpenCC)
+                # 0 tab: output same (error in OpenCC)
                 with open(tempfile, 'w', encoding='UTF-8') as fh:
-                    fh.write("""干""")
+                    fh.write("""干\n于""")
 
                 stsdict = cls()
                 stsdict.load(tempfile)
-                self.assertEqual({}, stsdict)
+                self.assertEqual({'干': ['干'], '于': ['于']}, stsdict)
 
                 # 2 tabs: safely ignored (2nd tab treated as part of value in OpenCC)
                 with open(tempfile, 'w', encoding='UTF-8') as fh:
@@ -1921,6 +1921,7 @@ class TestClassStsMaker(unittest.TestCase):
                 干\t幹 乾 干 榦 𠏉
                 于\t於 于
                 简\t簡
+                单\t單
                 """
             ))
 
@@ -1929,6 +1930,7 @@ class TestClassStsMaker(unittest.TestCase):
                 """\
                 干\t幹 乾
                 于\t
+                单
                 门\t門
                 """
             ))
@@ -1962,6 +1964,7 @@ class TestClassStsMaker(unittest.TestCase):
                 干\t幹 乾 干 榦 𠏉
                 于\t於 于
                 简\t簡
+                单\t單
                 """
             ))
 
@@ -1969,7 +1972,8 @@ class TestClassStsMaker(unittest.TestCase):
             fh.write(dedent(
                 """\
                 干\t榦 𠏉 桿
-                于\t於 于
+                于
+                单\t單
                 门\t門
                 """
             ))
@@ -1978,6 +1982,7 @@ class TestClassStsMaker(unittest.TestCase):
         converter = StsConverter(stsdict)
         self.assertEqual({
             '干': ['幹', '乾', '干'],
+            '于': ['於'],
             '简': ['簡'],
         }, dict(converter.table))
 

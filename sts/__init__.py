@@ -311,10 +311,13 @@ class StsDict():
     def _load_plain(self, file):
         with open(file, 'r', encoding='UTF-8') as fh:
             for line in fh:
+                line = line.rstrip('\n')
                 try:
-                    key, values, *_ = line.rstrip('\n').split('\t')
+                    key, values, *_ = line.split('\t')
                 except ValueError:
-                    pass
+                    # no '\t', treat as key => [key] except for empty line
+                    if line:
+                        self.add(line, line)
                 else:
                     self.add(key, values.split(' '))
 
