@@ -5,12 +5,12 @@ on:
   # Runs on pushes targeting the branch
   push:
     branches:
-      - master
       - gh-pages
     paths:
-      - 'sts/data/config/**'
-      - 'sts/data/dictionary/**'
-      - 'sts/data/htmlpage/**'
+      - 'sts/data/**'
+      - '!sts/data/*'
+      - '!sts/data/scheme/**'
+      - '!sts/data/OpenCC/scheme/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
