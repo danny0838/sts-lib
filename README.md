@@ -7,8 +7,8 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 
 ## Features 特色
 
-* 使用與 [OpenCC](https://github.com/BYVoid/OpenCC) 格式相容的詞典檔。此外亦支援 JSON 或 YAML 格式的詞典檔。
-* 可「並聯」或「串聯」組合多個詞典檔作為轉換方案，並預先儲存成單一詞典檔以加速載入。詞典檔更新時也會自動重新生成組合詞典。
+* 支援 [OpenCC](https://github.com/BYVoid/OpenCC) 格式及 JSON、YAML 格式的詞典檔。
+* 可透過配置檔組合多個詞典檔作為具體轉換方案。組合詞典可儲存成新詞典檔以加速未來載入使用，任一詞典檔更新時皆會自動重新生成組合詞典。支援的組合方式有「並聯」、「串聯」、「反轉」、「擴充」、「過濾」等等。
 * 簡繁對應、異體字對應、地區慣用詞對應等不同的對應關係皆區分至不同的詞典檔。
 * 詞典及配置檔與程式本體分離，可自由修改、擴充。
 * 支援一對多轉換，轉換結果可輸出為純文字、HTML、JSON 等格式。
