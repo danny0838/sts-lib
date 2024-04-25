@@ -78,7 +78,7 @@ converter.convert_file(input=None, output=None
 
 ## Configuration 配置
 
-如要自訂轉換方案，可參見[配置檔及詞典檔規格說明](./CONFIG.md)。
+如要自訂轉換方案，可參見[配置檔及詞典檔規格說明](https://github.com/danny0838/sts-lib/blob/master/CONFIG.md)。
 
 
 ## 線上版
