@@ -2,6 +2,9 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.29.0] - 2024-04-25
+* `¦rµü` (without `\t`) in a plain text dictionary is not treated as `¦rµü\t¦rµü`¡C
+
 ## [0.28.0] - 2024-04-24
 * Removed `remove_keys` and `remove_values` modes, and merged them into `filter` mode.
 
