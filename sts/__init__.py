@@ -967,7 +967,10 @@ class StsMaker():
         # locate and load the config file
         config_file = self.get_config_file(config_name, base_dir=base_dir)
         config_dir = os.path.abspath(os.path.dirname(config_file))
-        config = self.load_config(config_file)
+        try:
+            config = self.load_config(config_file)
+        except Exception as exc:
+            raise RuntimeError(f'failed to load config file "{config_file}": {exc}')
         self.normalize_config(config, config_dir)
 
         # handle required configs
