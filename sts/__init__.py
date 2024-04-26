@@ -48,7 +48,7 @@ except ImportError:
         return _lazyprop
 
 
-__version__ = '0.29.0'
+__version__ = '0.29.1'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
