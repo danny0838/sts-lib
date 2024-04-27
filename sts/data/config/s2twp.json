@@ -17,7 +17,7 @@
         },
         {
           "mode": "load",
-          "src": [ 
+          "src": [
             "../dictionary/TWPhrases.list",
             "../dictionary/TWVariants.txt"
           ]

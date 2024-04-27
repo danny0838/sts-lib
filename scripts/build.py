@@ -11,7 +11,6 @@ import requests
 
 from sts import StsMaker, Table, Trie
 
-
 PUBLIC_DIR = '_public'
 
 MW_REF = 'master'
@@ -50,7 +49,7 @@ def check_update(file, tpl):
 def render_on_demand(file, tpl, *args, **kwargs):
     # @TODO: render only if the template or an included file is updated
     # if not check_update(file, tpl):
-        # return
+    #     return
 
     print(f'building: {file}')
     with open(file, 'w', encoding='utf-8') as fh:
