@@ -287,6 +287,11 @@ def merge_HKVariants():  # noqa: N802
     merge_Variants(src, 'hk')
 
 
+def merge_JPVariants():  # noqa: N802
+    src = os.path.join(root, 'sts', 'data', 'dictionary', 'JPVariants.txt')
+    merge_Variants(src, 'jp')
+
+
 def make_dicts():
     """Validate scheme files and make dictionary files from them."""
     def validate_t2x_multi(x, table_main_t2x):
@@ -450,7 +455,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_HKVariants',
+        'method', nargs='?', default='merge_JPVariants',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
