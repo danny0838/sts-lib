@@ -292,6 +292,93 @@ def merge_JPVariants():  # noqa: N802
     merge_Variants(src, 'jp')
 
 
+def merge_tgh_t2s():
+    tgh_conv = {}
+    with CharTable(
+        src=os.path.join(root, 'sts', 'data', 'scheme', 'cn_tgh_convert.tsv'),
+        fields=['id', 'std', 'trad', 'vars'],
+        fields_as_list={'vars'},
+    ).open() as reader:
+        for row in reader:
+            row['trad'] = row['trad'] or None
+            tgh_conv.setdefault(row['id'], {})[row['trad']] = row
+
+    tgh_list = {}
+    with CharTable(
+        src=os.path.join(root, 'sts', 'data', 'scheme', 'cn_tgh_list.tsv'),
+        fields=['id', 'std'],
+    ).open() as reader:
+        for row in reader:
+            try:
+                tgh_list[row['id']] = tgh_conv[row['id']]
+            except KeyError:
+                row['trad'] = None
+                row['vars'] = []
+                tgh_list.setdefault(row['id'], {})[row['std']] = row
+
+    tgh_table = {}
+    for dict_ in tgh_list.values():
+        for trad, entry in dict_.items():
+            trad = entry['trad'] or entry['std']
+            tgh_table[trad] = {
+                'trad': trad,
+                'vars': entry.get('vars', []),
+                'std': entry['std'],
+            }
+
+    trad_table = CharTable(scheme_trad_table).load()
+
+    trad_table_v2t = {}
+    trad_table_s2t = {}
+    for trad, entry in trad_table.items():
+        for var in entry['vars']:
+            if var != trad and var not in trad_table:
+                trad_table_v2t[var] = trad
+        for simp in entry['cn']:
+            if simp != trad and simp not in trad_table:
+                trad_table_s2t[simp] = trad
+
+    for trad, entry in tgh_table.items():
+        trad = entry['trad']
+        vars = entry['vars']
+        std = entry['std']
+
+        try:
+            newtrad = trad_table_v2t[trad]
+        except KeyError:
+            pass
+        else:
+            print(f"""taking "{newtrad}" instead of "{trad}" as traditional (the latter is defined as a variant)""")
+            vars = [v for v in ([trad] + vars) if v != newtrad]
+            trad = newtrad
+
+        try:
+            newtrad = trad_table_s2t[trad]
+        except KeyError:
+            pass
+        else:
+            print(f"""taking "{newtrad}" instead of "{trad}" as traditional (the latter is defined as a simplified)""")
+            vars = [v for v in ([trad] + vars) if v != newtrad]
+            trad = newtrad
+
+        if trad not in trad_table:
+            for var in vars:
+                if var in trad_table:
+                    print(f"""taking "{var}" instead of "{trad}" as traditional (the former is defined as a standard)""")
+                    trad = var
+                    break
+
+        try:
+            entry = trad_table[trad]
+        except KeyError:
+            pass
+        else:
+            if std not in entry['cn']:
+                entry['cn'].append(std)
+
+    trad_table.save()
+
+
 def make_dicts():
     """Validate scheme files and make dictionary files from them."""
     def validate_t2x_multi(x, table_main_t2x):
@@ -455,7 +542,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_JPVariants',
+        'method', nargs='?', default='merge_tgh_t2s',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
