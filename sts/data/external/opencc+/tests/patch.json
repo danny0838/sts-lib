@@ -83,7 +83,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "持續著作品",
       "expected": {
         "tw2s": "持续着作品"
