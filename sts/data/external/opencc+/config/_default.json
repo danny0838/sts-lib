@@ -2,23 +2,69 @@
   "name": "Built-in dictionaries",
   "dicts": [
     {
-      "file": "../dictionary/STPhrases.list",
-      "mode": "expand",
-      "placeholders": [
-        "%n"
-      ],
+      "file": "../dictionary/STCharacters.list",
+      "mode": "load",
       "src": [
-        "../dictionary/STPhrases.txt",
+        "../dictionary/STCharacters.txt",
+        {
+          "mode": "filter",
+          "method": "remove_key_values",
+          "src": [
+            "../../opencc/dictionary/STCharacters.txt",
+            "../dictionary/STCharactersRemove.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "../dictionary/STPhrases.list",
+      "mode": "load",
+      "src": [
         {
           "mode": "expand",
           "placeholders": [
             "%n"
           ],
           "src": [
-            "../dictionary/STPhrasesExpNum.txt",
-            "../dictionary/STPhrasesExpNumPost.txt"
+            "../dictionary/STPhrases.txt",
+            {
+              "mode": "expand",
+              "placeholders": [
+                "%n"
+              ],
+              "src": [
+                "../dictionary/STPhrasesExpNum.txt",
+                "../dictionary/STPhrasesExpNumPost.txt"
+              ]
+            }
           ]
-        }
+        },
+        "../../opencc/dictionary/STPhrases.txt"
+      ]
+    },
+    {
+      "file": "../dictionary/TSPhrases.list",
+      "mode": "load",
+      "src": [
+        {
+          "mode": "expand",
+          "placeholders": [
+            "%fn"
+          ],
+          "src": [
+            "../dictionary/TSPhrases.txt",
+            "../dictionary/TSPhrasesExpFamilyName.txt"
+          ]
+        },
+        "../../opencc/dictionary/TSPhrases.txt"
+      ]
+    },
+    {
+      "file": "../dictionary/TSCharacters.list",
+      "mode": "load",
+      "src": [
+        "../dictionary/TSCharacters.txt",
+        "../../opencc/dictionary/TSCharacters.txt"
       ]
     },
     {
@@ -29,6 +75,21 @@
         "../../opencc/dictionary/TWPhrasesIT.txt",
         "../../opencc/dictionary/TWPhrasesName.txt",
         "../../opencc/dictionary/TWPhrasesOther.txt"
+      ]
+    },
+    {
+      "file": "../dictionary/TWVariants.list",
+      "mode": "load",
+      "src": [
+        "../dictionary/TWVariants.txt",
+        {
+          "mode": "filter",
+          "method": "remove_key_values",
+          "src": [
+            "../../opencc/dictionary/TWVariants.txt",
+            "../dictionary/TWVariantsRemove.txt"
+          ]
+        }
       ]
     },
     {
@@ -61,7 +122,22 @@
         {
           "mode": "swap",
           "src": [
-            "../../opencc/dictionary/TWVariants.txt"
+            "../dictionary/TWVariants.list"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "../dictionary/HKVariants.list",
+      "mode": "load",
+      "src": [
+        "../dictionary/HKVariants.txt",
+        {
+          "mode": "filter",
+          "method": "remove_key_values",
+          "src": [
+            "../../opencc/dictionary/HKVariants.txt",
+            "../dictionary/HKVariantsRemove.txt"
           ]
         }
       ]
@@ -74,7 +150,7 @@
         {
           "mode": "swap",
           "src": [
-            "../../opencc/dictionary/HKVariants.txt"
+            "../dictionary/HKVariants.list"
           ]
         }
       ]
