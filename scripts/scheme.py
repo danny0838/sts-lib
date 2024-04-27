@@ -176,6 +176,29 @@ def merge_st_multi():
     table.save()
 
 
+def merge_STCharacters():  # noqa: N802
+    table = CharTable(scheme_trad_table).load()
+
+    with CharTable(
+        src=os.path.join(root, 'sts', 'data', 'dictionary', 'STCharacters.txt'),
+        fields=['simp', 'trads'],
+        fields_as_list={'trads'},
+    ).open() as reader:
+        for row in reader:
+            simp = row['simp']
+            trads = row['trads']
+            for trad in trads:
+                try:
+                    entry = table[trad]
+                except KeyError:
+                    table[trad] = {'trad': trad, 'cn': [simp]}
+                else:
+                    if simp not in entry['cn']:
+                        entry['cn'].append(simp)
+
+    table.save()
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -188,7 +211,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_st_multi',
+        'method', nargs='?', default='merge_STCharacters',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
