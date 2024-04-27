@@ -199,6 +199,27 @@ def merge_STCharacters():  # noqa: N802
     table.save()
 
 
+def merge_TSCharacters():  # noqa: N802
+    table = CharTable(scheme_trad_table).load()
+
+    with CharTable(
+        src=os.path.join(root, 'sts', 'data', 'dictionary', 'TSCharacters.txt'),
+        fields=['trad', 'simps'],
+        fields_as_list={'simps'},
+    ).open() as reader:
+        for row in reader:
+            trad = row['trad']
+            simps = row['simps']
+            try:
+                entry = table[trad]
+            except KeyError:
+                pass
+            else:
+                entry['cn'] = list(dict.fromkeys(simps + entry['cn']))
+
+    table.save()
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -211,7 +232,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_STCharacters',
+        'method', nargs='?', default='merge_TSCharacters',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
