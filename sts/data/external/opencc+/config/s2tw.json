@@ -13,11 +13,10 @@
           "mode": "load",
           "src": [
             "../dictionary/STPhrases.list",
-            "../../opencc/dictionary/STPhrases.txt",
-            "../../opencc/dictionary/STCharacters.txt"
+            "../dictionary/STCharacters.list"
           ]
         },
-        "../../opencc/dictionary/TWVariants.txt"
+        "../dictionary/TWVariants.list"
       ]
     }
   ]

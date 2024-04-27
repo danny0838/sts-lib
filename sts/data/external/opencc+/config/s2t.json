@@ -10,8 +10,7 @@
       "mode": "load",
       "src": [
         "../dictionary/STPhrases.list",
-        "../../opencc/dictionary/STPhrases.txt",
-        "../../opencc/dictionary/STCharacters.txt"
+        "../dictionary/STCharacters.list"
       ]
     }
   ]
