@@ -256,6 +256,32 @@ def merge_TSCharacters():  # noqa: N802
     table.save()
 
 
+def merge_Variants(src, field):  # noqa: N802
+    table = CharTable(scheme_trad_table).load()
+
+    with CharTable(
+        src=src,
+        fields=['trad', 'stds'],
+        fields_as_list={'stds'},
+    ).open() as reader:
+        for row in reader:
+            trad = row['trad']
+            stds = row['stds']
+            try:
+                entry = table[trad]
+            except KeyError:
+                entry = table[trad] = {'trad': trad, field: stds}
+            else:
+                entry[field] = [v for v in stds if v not in entry[field]] + entry[field]
+
+    table.save()
+
+
+def merge_TWVariants():  # noqa: N802
+    src = os.path.join(root, 'sts', 'data', 'dictionary', 'TWVariants.txt')
+    merge_Variants(src, 'tw')
+
+
 def make_dicts():
     """Validate scheme files and make dictionary files from them."""
     def validate_t2x_multi(x, table_main_t2x):
@@ -419,7 +445,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='make_dicts',
+        'method', nargs='?', default='merge_TWVariants',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
