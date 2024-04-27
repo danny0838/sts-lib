@@ -89,7 +89,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "慰藉著我",
       "expected": {
         "tw2s": "慰藉着我"
