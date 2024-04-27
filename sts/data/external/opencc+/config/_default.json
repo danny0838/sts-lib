@@ -128,6 +128,14 @@
       ]
     },
     {
+      "file": "../dictionary/TWVariantsRevPhrases.list",
+      "mode": "load",
+      "src": [
+        "../dictionary/TWVariantsRevPhrases.txt",
+        "../../opencc/dictionary/TWVariantsRevPhrases.txt"
+      ]
+    },
+    {
       "file": "../dictionary/HKVariants.list",
       "mode": "load",
       "src": [
