@@ -9,7 +9,7 @@
       "auto_space": true,
       "mode": "load",
       "src": [
-        "../../opencc/dictionary/TWVariantsRevPhrases.txt",
+        "../dictionary/TWVariantsRevPhrases.list",
         "../dictionary/TWVariantsRev.list"
       ]
     }

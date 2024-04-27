@@ -13,7 +13,7 @@
           "mode": "load",
           "src": [
             "../dictionary/TWPhrasesRev.list",
-            "../../opencc/dictionary/TWVariantsRevPhrases.txt",
+            "../dictionary/TWVariantsRevPhrases.list",
             "../dictionary/TWVariantsRev.list"
           ]
         },
