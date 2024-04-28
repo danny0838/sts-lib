@@ -13,7 +13,7 @@
           "mode": "load",
           "src": [
             "../dictionary/HKVariantsRevPhrases.txt",
-            "../dictionary/HKVariantsRev.list"
+            "../dictionary/HKVariantsRev.txt"
           ]
         },
         {
