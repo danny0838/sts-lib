@@ -256,6 +256,156 @@ def merge_TSCharacters():  # noqa: N802
     table.save()
 
 
+def make_dicts():
+    """Validate scheme files and make dictionary files from them."""
+    def validate_t2x_multi(x, table_main_t2x):
+        src = os.path.join(root, 'sts', 'data', 'scheme', f'chars_t2{x}.tsv')
+
+        print(f'validating: {src}')
+        if not os.path.isfile(src):
+            return {}
+
+        table_t2x = CharTable(
+            src=src,
+            fields=['trad', 'stds', 'notes', 'examples'],
+            fields_as_list={'stds'},
+        ).load()
+        for key in list(table_t2x):
+            row = table_t2x[key]
+            trad = row['trad']
+            stds = row['stds']
+
+            try:
+                stds_main = table_main_t2x[trad]
+            except KeyError:
+                print(f'WARNING: undefined trad char {repr(trad)}')
+                del table_t2x[trad]
+                continue
+
+            extra = [v for v in stds if v not in stds_main]
+            if extra:
+                print(f'WARNING: undefined standard chars {extra} for trad char {repr(trad)}')
+                for v in extra:
+                    stds.remove(v)
+
+        table_t2x.save()
+        return table_t2x
+
+    def validate_x2t_multi(x, table_main_x2t):
+        src = os.path.join(root, 'sts', 'data', 'scheme', f'chars_{x}2t.tsv')
+
+        print(f'validating: {src}')
+        if not os.path.isfile(src):
+            return {}
+
+        table_x2t = CharTable(
+            src=src,
+            fields=['std', 'trads', 'notes', 'examples'],
+            fields_as_list={'trads'},
+        ).load()
+        for key in list(table_x2t):
+            row = table_x2t[key]
+            std = row['std']
+            trads = row['trads']
+
+            try:
+                trads_main = table_main_x2t[std]
+            except KeyError:
+                print(f'WARNING: undefined standard char {repr(std)}')
+                del table_x2t[std]
+                continue
+
+            extra = [v for v in trads if v not in trads_main]
+            if extra:
+                print(f'WARNING: undefined trad chars {extra} for standard char {repr(std)}')
+                for v in extra:
+                    trads.remove(v)
+
+        table_x2t.save()
+        return table_x2t
+
+    def make_t2x_dict(filename, x, fields, hook=None):
+        table_main_t2x = {}
+        for entry in table_main.values():
+            trad = entry['trad']
+            vars = entry['vars']
+            for t in [trad] + vars:
+                table_main_t2x[t] = reduce(lambda a, c: a + entry[c], fields, []) or [trad]
+
+        table_t2x = validate_t2x_multi(x, table_main_t2x)
+
+        for trad, stds in table_main_t2x.items():
+            try:
+                entry = table_t2x[trad]
+            except KeyError:
+                stds = list(stds)
+            else:
+                stds = entry['stds']
+            table_main_t2x[trad] = stds
+
+        if callable(hook):
+            hook(table_main_t2x)
+
+        dst = os.path.join(root, 'sts', 'data', 'dictionary', filename)
+        print(f'making {dst}')
+        with CharTable(
+            src=dst,
+            fields=['trad', 'stds'],
+            fields_as_list={'stds'},
+        ).open('w') as writer:
+            for trad in sorted(table_main_t2x):
+                stds = table_main_t2x[trad]
+                if stds == [trad]:
+                    continue
+                if stds:
+                    writer.writerow({'trad': trad, 'stds': ' '.join(stds)})
+
+    def make_x2t_dict(filename, x, fields):
+        table_main_x2t = {}
+        for entry in table_main.values():
+            trad = entry['trad']
+            for std in reduce(lambda a, c: a + entry[c], fields, []):
+                table_main_x2t.setdefault(std, {})[trad] = None
+
+        table_x2t = validate_x2t_multi(x, table_main_x2t)
+
+        for std, trads in table_main_x2t.items():
+            try:
+                entry = table_x2t[std]
+            except KeyError:
+                trads = list(trads)
+            else:
+                trads = entry['trads']
+            table_main_x2t[std] = trads
+
+        dst = os.path.join(root, 'sts', 'data', 'dictionary', filename)
+        print(f'making: {dst}')
+        with CharTable(
+            src=dst,
+            fields=['std', 'trads'],
+            fields_as_list={'trads'},
+        ).open('w') as writer:
+            for std in sorted(table_main_x2t):
+                trads = table_main_x2t[std]
+                if trads == [std]:
+                    continue
+                if trads:
+                    writer.writerow({'std': std, 'trads': ' '.join(trads)})
+
+    # load and validate main table
+    table_main = tidy_trad_table()
+
+    # validate multi table and make dict files
+    make_t2x_dict('TSCharacters.txt', 's', ['cn'])
+    make_x2t_dict('STCharacters.txt', 's', ['cn'])
+    make_t2x_dict('TWVariants.txt', 'tw', ['tw'])
+    make_x2t_dict('TWVariantsRev.txt', 'tw', ['tw'])
+    make_t2x_dict('HKVariants.txt', 'hk', ['hk'])
+    make_x2t_dict('HKVariantsRev.txt', 'hk', ['hk'])
+    make_t2x_dict('JPVariants.txt', 'jp', ['jp'])
+    make_x2t_dict('JPVariantsRev.txt', 'jp', ['jp'])
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -264,11 +414,12 @@ def parse_args(argv=None):
             """\
             available methods (non-exhaustive):
               - tidy_tables: tidy table files like {traditional|st_multi|ts_multi}.tsv
+              - make_dicts: validate table files and build dictionary files
             """
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_TSCharacters',
+        'method', nargs='?', default='make_dicts',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
