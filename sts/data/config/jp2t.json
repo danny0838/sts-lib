@@ -10,8 +10,7 @@
       "mode": "load",
       "src": [
         "../dictionary/JPVariantsRevPhrases.txt",
-        "../dictionary/JPVariantsRev.txt",
-        "../dictionary/JPVariantsRev.list"
+        "../dictionary/JPVariantsRev.txt"
       ]
     }
   ]
