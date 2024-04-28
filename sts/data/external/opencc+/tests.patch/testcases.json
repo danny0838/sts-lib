@@ -1,7 +1,6 @@
 {
   "cases": [
     {
-      "xfail": true,
       "id": "nk2028_opencc-js_Issue_37",
       "input": "低级别产品",
       "expected": {

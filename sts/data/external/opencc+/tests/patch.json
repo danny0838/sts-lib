@@ -4813,7 +4813,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "你前面明明问另一个人，我干吗回你？",
       "expected": {
         "s2twp": "你前面明明問另一個人，我幹嘛回你？"
@@ -4821,38 +4820,35 @@
     },
     {
       "input": "你还要干吗",
-      "expected": {
-        "s2twp": "你還要幹嗎"
+      "expected_raw": {
+        "s2twp": ["你", ["還"], "要", ["幹嘛", "幹嗎"]]
       }
     },
     {
-      "xfail": true,
       "input": "你干吗",
-      "expected": {
-        "s2twp": "你幹嘛"
+      "expected_raw": {
+        "s2twp": ["你", ["幹嘛", "幹嗎"]]
       }
     },
     {
       "input": "这一票你干吗",
-      "expected": {
-        "s2twp": "這一票你幹嗎"
+      "expected_raw": {
+        "s2twp": [["這"], "一", "票", "你", ["幹嘛", "幹嗎"]]
       }
     },
     {
       "input": "你还干吗",
-      "expected": {
-        "s2twp": "你還幹嗎"
+      "expected_raw": {
+        "s2twp": ["你", ["還"], ["幹嘛", "幹嗎"]]
       }
     },
     {
-      "xfail": true,
       "input": "你干吗去",
       "expected": {
         "s2twp": "你幹嘛去"
       }
     },
     {
-      "xfail": true,
       "input": "住进后爹家",
       "expected": {
         "s2twp": "住進繼父家"
@@ -4883,28 +4879,24 @@
       }
     },
     {
-      "xfail": true,
       "input": "水平很高",
       "expected": {
         "s2twp": "水準很高"
       }
     },
     {
-      "xfail": true,
       "input": "最佳水平",
       "expected": {
         "s2twp": "最佳水準"
       }
     },
     {
-      "xfail": true,
       "input": "更好的水平",
       "expected": {
         "s2twp": "更好的水準"
       }
     },
     {
-      "xfail": true,
       "input": "生活的水平",
       "expected": {
         "s2twp": "生活的水準"
@@ -4935,63 +4927,54 @@
       }
     },
     {
-      "xfail": true,
       "input": "质量过硬",
       "expected": {
-        "s2twp": "品質優良"
+        "s2twp": "品質過硬"
       }
     },
     {
-      "xfail": true,
       "input": "质量够硬",
       "expected": {
-        "s2twp": "品質夠好"
+        "s2twp": "品質夠硬"
       }
     },
     {
-      "xfail": true,
       "input": "质量令人满意",
       "expected": {
         "s2twp": "品質令人滿意"
       }
     },
     {
-      "xfail": true,
       "input": "令人满意的质量",
       "expected": {
         "s2twp": "令人滿意的品質"
       }
     },
     {
-      "xfail": true,
       "input": "音视频流媒体",
       "expected": {
         "s2twp": "影音串流媒體"
       }
     },
     {
-      "xfail": true,
       "input": "音视频流",
       "expected": {
         "s2twp": "影音串流"
       }
     },
     {
-      "xfail": true,
       "input": "音频流",
       "expected": {
         "s2twp": "音訊串流"
       }
     },
     {
-      "xfail": true,
       "input": "音频流媒",
       "expected": {
         "s2twp": "音訊串流媒體"
       }
     },
     {
-      "xfail": true,
       "input": "音频流媒体",
       "expected": {
         "s2twp": "音訊串流媒體"
@@ -5004,7 +4987,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "橙子",
       "expected": {
         "s2twp": "柳丁"
@@ -5041,7 +5023,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "高端疫苗",
       "expected": {
         "s2twp": "高端疫苗"
@@ -5054,23 +5035,21 @@
       }
     },
     {
-      "xfail": true,
       "input": "秋衣",
       "expected": {
         "s2twp": "衛生衣"
       }
     },
     {
-      "xfail": true,
       "input": "灶门",
       "expected": {
         "s2twp": "竈門"
       }
     },
     {
-      "input": "司法程序",
+      "input": "司法程序 法律程序 作業程序 工作程序",
       "expected": {
-        "s2twp": "司法程序"
+        "s2twp": "司法程序 法律程序 作業程序 工作程序"
       }
     },
     {
@@ -5086,7 +5065,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "录像出租店",
       "expected": {
         "s2twp": "影片出租店"
@@ -5117,7 +5095,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "奔驰的士兵",
       "expected": {
         "s2twp": "奔馳的士兵"
@@ -5130,7 +5107,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "纳米比亚",
       "expected": {
         "s2twp": "納米比亞"
@@ -5143,14 +5119,12 @@
       }
     },
     {
-      "xfail": true,
       "input": "弄黑客人的衣服",
       "expected": {
         "s2twp": "弄黑客人的衣服"
       }
     },
     {
-      "xfail": true,
       "input": "适时加一些水粉以方便面团成型",
       "expected": {
         "s2twp": "適時加一些水粉以方便麵團成型"
@@ -5181,7 +5155,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "提高清晰度",
       "expected": {
         "s2twp": "提高清晰度"
@@ -5200,7 +5173,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "有回放吗",
       "expected": {
         "s2twp": "有重播嗎"
@@ -5225,10 +5197,23 @@
       }
     },
     {
-      "xfail": true,
       "input": "攻打印度",
       "expected": {
         "s2twp": "攻打印度"
+      }
+    },
+    {
+      "input": "3兆字節",
+      "expected": {
+        "s2twp": "3百萬位元組"
+      }
+    },
+    {
+      "input": "数据机",
+      "expected": {
+        "s2t": "數據機",
+        "s2tw": "數據機",
+        "s2twp": "數據機"
       }
     }
   ]
