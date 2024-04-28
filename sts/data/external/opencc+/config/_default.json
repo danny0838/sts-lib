@@ -156,6 +156,14 @@
       ]
     },
     {
+      "file": "../dictionary/JPVariants.list",
+      "mode": "load",
+      "src": [
+        "../dictionary/JPVariants.txt",
+        "../../opencc/dictionary/JPVariants.txt"
+      ]
+    },
+    {
       "file": "../dictionary/JPVariantsRev.list",
       "mode": "swap",
       "src": [
