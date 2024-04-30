@@ -40,7 +40,7 @@ def tearDownModule():
     _tmpdir.cleanup()
 
 
-class TestClassStreamList(unittest.TestCase):
+class TestStreamList(unittest.TestCase):
     def test_iterable(self):
         obj = []
         stream = StreamList(iter(obj))
@@ -122,7 +122,7 @@ class TestClassStreamList(unittest.TestCase):
         self.assertTrue(stream)
 
 
-class TestClassUnicode(unittest.TestCase):
+class TestUnicode(unittest.TestCase):
     def test_split(self):
         self.assertEqual(['沙', '⿰虫风', '简', '转', '繁'], Unicode.split('沙⿰虫风简转繁'))
         self.assertEqual(['沙', '⿱艹⿰虫风', '简', '转', '繁'], Unicode.split('沙⿱艹⿰虫风简转繁'))
@@ -151,7 +151,7 @@ class TestClassUnicode(unittest.TestCase):
         )
 
 
-class TestClassStsDict(unittest.TestCase):
+class TestStsDict(unittest.TestCase):
     def setUp(self):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
@@ -756,7 +756,7 @@ class TestClassStsDict(unittest.TestCase):
                 }, stsdict)
 
 
-class TestClassTable(unittest.TestCase):
+class TestTable(unittest.TestCase):
     def test_key_map_basic(self):
         # basic
         stsdict = Table({
@@ -799,7 +799,7 @@ class TestClassTable(unittest.TestCase):
         self.assertEqual({'干姜': 2, '不了': 3}, stsdict.key_map)
 
 
-class TestClassStsMaker(unittest.TestCase):
+class TestStsMaker(unittest.TestCase):
     def setUp(self):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
@@ -2367,7 +2367,7 @@ class TestClassStsMaker(unittest.TestCase):
         self.assertTrue(StsMaker().check_update(scheme, mtime=10000))
 
 
-class TestClassStsConverter(unittest.TestCase):
+class TestStsConverter(unittest.TestCase):
     sample_s2t_dict = Trie({
         '干': ['幹', '乾', '干'],
         '了': ['了', '瞭'],
@@ -2674,7 +2674,7 @@ class TestClassStsConverter(unittest.TestCase):
             mocker.assert_called_with('干姜', format='html', exclude=regex)
 
 
-class TestBasicCases(unittest.TestCase):
+class TestStsConverterWithUnicode(unittest.TestCase):
     def test_ids(self):
         stsdict = Trie({
             '会': ['會'],
