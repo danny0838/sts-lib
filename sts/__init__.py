@@ -52,6 +52,7 @@ __version__ = '0.29.1'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
+StsConvExclude = namedtuple('StsConvExclude', ['text'])
 
 
 class StreamList(list):
@@ -1433,7 +1434,7 @@ class StsConverter():
             else:
                 t = m.group(0)
             if t:
-                yield t
+                yield StsConvExclude(text=t)
 
             index = end
 
@@ -1453,13 +1454,17 @@ class StsConverter():
         for part in parts:
             if isinstance(part, str):
                 yield part
+            elif isinstance(part, StsConvExclude):
+                yield part.text
             else:
-                yield part[1][0]
+                yield part.values[0]
 
     def _convert_formatted_txtm(self, parts, start='{{', end='}}', sep='->', vsep='|'):
         for part in parts:
             if isinstance(part, str):
                 yield part
+            elif isinstance(part, StsConvExclude):
+                yield part.text
             else:
                 olds, news = part
                 old = ''.join(olds)
@@ -1474,6 +1479,8 @@ class StsConverter():
         for part in parts:
             if isinstance(part, str):
                 yield html.escape(part)
+            elif isinstance(part, StsConvExclude):
+                yield part.text
             else:
                 olds, news = part
                 old = ''.join(olds)

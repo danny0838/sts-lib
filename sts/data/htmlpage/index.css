@@ -7,7 +7,7 @@ dialog footer { margin-top: 1em; display: flex; gap: .5em 1em; flex-direction: r
 dialog footer input { flex-grow: 1; }
 body > footer { margin-top: 1em; text-align: center; font-size: small; }
 #viewer { border: thin ridge #0066CC; padding: 0.5em; background-color: #f8f8ee; white-space: pre-wrap; }
-#viewer a { border: thin dotted #AAA; color: unset; text-decoration: none; }
+#viewer a[tabindex] { border: thin dotted #AAA; }
 #viewer a:focus { outline: medium solid blue; }
 #viewer a.single, .single { background-color: #DDDDDD; }  /* 單選字 */
 #viewer a.changed, .changed { background-color: #DDDDFF; }  /* 異動字 */

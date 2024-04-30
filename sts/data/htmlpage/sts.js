@@ -252,7 +252,7 @@
           if (typeof value === 'undefined') { continue; }
           t = value;
         }
-        if (t)  { yield t; }
+        if (t)  { yield {text: t}; }
 
         index = end;
       }

@@ -2450,19 +2450,19 @@ class TestStsConverter(unittest.TestCase):
     def test_convert_exclude(self):
         converter = StsConverter(self.sample_s2t_dict)
         input = """-{尸}-廿山女田卜"""
-        expected = ['尸', '廿', '山', '女', '田', (['卜'], ['卜', '蔔'])]
+        expected = [('尸',), '廿', '山', '女', '田', (['卜'], ['卜', '蔔'])]
         output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-')))
         self.assertEqual(expected, output)
 
         converter = StsConverter(self.sample_s2t_dict)
         input = """发财了<!-->财<--><!-->干<-->"""
-        expected = [(['发', '财'], ['發財']), (['了'], ['了', '瞭']), '财', '干']
+        expected = [(['发', '财'], ['發財']), (['了'], ['了', '瞭']), ('财',), ('干',)]
         output = list(converter.convert(input, re.compile(r'<!-->(?P<return>.*?)<-->')))
         self.assertEqual(expected, output)
 
         converter = StsConverter(self.sample_s2twp_dict)
         input = """「奔馳」不是奔馳"""
-        expected = ['「奔馳」', '不', '是', (['奔', '馳'], ['賓士'])]
+        expected = [('「奔馳」',), '不', '是', (['奔', '馳'], ['賓士'])]
         output = list(converter.convert(input, re.compile(r'「.*?」')))
         self.assertEqual(expected, output)
 
@@ -2474,19 +2474,19 @@ class TestStsConverter(unittest.TestCase):
 
         converter = StsConverter(self.sample_s2t_dict)
         input = """-{尸}-大口「发财了」"""
-        expected = ['尸', '大', '口', '「发财了」']
+        expected = [('尸',), '大', '口', ('「发财了」',)]
         output = list(converter.convert(input, re.compile(r'「.*?」|-{(?P<return>.*?)}-')))
         self.assertEqual(expected, output)
 
         converter = StsConverter(self.sample_s2t_dict)
         input = """-{尸}-大口 <!-->财干<-->"""
-        expected = ['尸', '大', '口', ' ', '财干']
+        expected = [('尸',), '大', '口', ' ', ('财干',)]
         output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-|<!-->(?P<return2>.*?)<-->')))
         self.assertEqual(expected, output)
 
         converter = StsConverter(self.sample_s2twp_dict)
         input = """「奔馳」不是奔馳"""
-        expected = ['「奔馳」', '不', '是', (['奔', '馳'], ['賓士'])]
+        expected = [('「奔馳」',), '不', '是', (['奔', '馳'], ['賓士'])]
         output = list(converter.convert(input, re.compile(r'「(?P<nomatter>.*?)」')))
         self.assertEqual(expected, output)
 
@@ -2597,13 +2597,31 @@ class TestStsConverter(unittest.TestCase):
         output = ''.join(converter.convert_formatted(input, 'htmlpage'))
         self.assertEqual('%', output)
 
-    def test_convert_formatted_options(self):
-        converter = StsConverter(Table())
+    def test_convert_formatted_exclude(self):
+        stsdict = self.sample_s2t_dict
+        converter = StsConverter(stsdict)
+        exclude = re.compile(r'-{(?P<return>.*?)}-')
+        input = '-{尸}-廿山女田卜'
 
-        with mock.patch('sts.StsConverter.convert') as mocker:
-            regex = re.compile(r'<!--(.*?)-->')
-            list(converter.convert_formatted('乾柴', exclude=regex))
-            mocker.assert_called_with('乾柴', exclude=regex)
+        # txt
+        expected = '尸廿山女田卜'
+        output = ''.join(converter.convert_formatted(input, 'txt', exclude))
+        self.assertEqual(expected, output)
+
+        # txtm
+        expected = '尸廿山女田{{卜->卜|蔔}}'
+        output = ''.join(converter.convert_formatted(input, 'txtm', exclude))
+        self.assertEqual(expected, output)
+
+        # html
+        expected = '尸廿山女田<a atomic><del hidden>卜</del><ins>卜</ins><ins hidden>蔔</ins></a>'
+        output = ''.join(converter.convert_formatted(input, 'html', exclude))
+        self.assertEqual(expected, output)
+
+        # json
+        expected = '[["尸"],"廿","山","女","田",[["卜"],["卜","蔔"]]]'
+        output = ''.join(converter.convert_formatted(input, 'json', exclude))
+        self.assertEqual(expected, output)
 
     def test_convert_text(self):
         converter = StsConverter(self.sample_s2t_dict)

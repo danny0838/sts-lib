@@ -2,14 +2,11 @@ function* walkThroughAnchors(anchor, direction) {
   let a = anchor;
   if (direction > 0) {
     while (a = a.nextElementSibling) {
-      if (a === anchor) { return; }
       yield a;
     }
     if (a = anchor.parentNode.firstElementChild) {
-      if (a === anchor) { return; }
       yield a;
       while (a = a.nextElementSibling) {
-        if (a === anchor) { return; }
         yield a;
       }
     }
@@ -17,14 +14,11 @@ function* walkThroughAnchors(anchor, direction) {
   }
   if (direction < 0) {
     while (a = a.previousElementSibling) {
-      if (a === anchor) { return; }
       yield a;
     }
     if (a = anchor.parentNode.lastElementChild) {
-      if (a === anchor) { return; }
       yield a;
       while (a = a.previousElementSibling) {
-        if (a === anchor) { return; }
         yield a;
       }
     }
@@ -35,6 +29,12 @@ function* walkThroughAnchors(anchor, direction) {
 function moveAnchor(anchor, offset, filter) {
   let i = Math.abs(offset);
   for (const a of walkThroughAnchors(anchor, offset)) {
+    if (a === anchor) {
+      break;
+    }
+    if (!a.matches('a[tabindex]')) {
+      continue;
+    }
     if (typeof filter !== "function" || filter(a)) {
       if (i > 1) {
         i--;
@@ -306,7 +306,7 @@ function autoPick(anchor, mode) {
   })();
 
   const viewer = document.querySelector('#viewer');
-  const anchors = viewer.querySelectorAll('a:not(.unmatched)');
+  const anchors = viewer.querySelectorAll('a[tabindex]:not(.unmatched)');
   const charCur = anchor.querySelector('del').textContent;
 
   func(anchor);
@@ -762,6 +762,10 @@ function convertHtml(dict, text, exclude) {
   for (const part of dict.convert(text, parseExcludePattern(exclude))) {
     if (typeof part === 'string') {
       result.push(escapeHtml(part));
+      continue;
+    }
+    if ('text' in part) {
+      result.push(`<a>${escapeHtml(part.text)}</a>`);
       continue;
     }
 
