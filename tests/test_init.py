@@ -2520,7 +2520,6 @@ class TestClassStsConverter(unittest.TestCase):
         self.assertEqual(expected, output)
 
         # html
-        self.maxDiff = None
         expected = dedent(
             """\
             <a atomic><del hidden>干</del><ins>幹</ins><ins hidden>乾</ins><ins hidden>干</ins></a>了 <a><del hidden>干涉</del><ins>干涉</ins></a>
