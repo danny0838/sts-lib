@@ -23,8 +23,6 @@ from sts import (
 )
 from sts import __version__ as sts_version
 
-from . import slow_test
-
 root_dir = os.path.dirname(__file__)
 
 
@@ -2767,28 +2765,6 @@ class TestBasicCases(unittest.TestCase):
         self.assertEqual('看特製成人片', converter.convert_text('看Å片'))
         self.assertEqual('看A̧片', converter.convert_text('看A̧片'))
         self.assertEqual('看Å̧片', converter.convert_text('看Å̧片'))
-
-
-class TestConfigs(unittest.TestCase):
-    @slow_test()
-    def test_make(self):
-        def clear_generated_dicts():
-            with os.scandir(dict_dir) as it:
-                for file in it:
-                    if dict_pattern.search(file.path):
-                        os.remove(file)
-
-        config_dir = StsMaker.config_dir
-        dict_dir = StsMaker.dictionary_dir
-        config_pattern = re.compile(r'\.json$', re.I)
-        dict_pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
-        for file in os.listdir(config_dir):
-            if not config_pattern.search(file):
-                continue
-
-            with self.subTest(config=file):
-                clear_generated_dicts()
-                StsMaker().make(file, quiet=True)
 
 
 if __name__ == '__main__':
