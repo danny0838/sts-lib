@@ -579,10 +579,12 @@ class StsDict():
             current_parts = parts[pos:end]
             current = ''.join(current_parts)
             try:
-                conv = StsDictConv(current_parts, self._dict[current])
-            except KeyError:
+                match = self._dict[current]
+                assert match
+            except (KeyError, AssertionError):
                 pass
             else:
+                conv = StsDictConv(current_parts, match)
                 return StsDictMatch(conv, pos, end)
             i -= 1
         return None
@@ -757,10 +759,12 @@ class Table(StsDict):
             current_parts = parts[pos:end]
             current = ''.join(current_parts)
             try:
-                conv = StsDictConv(current_parts, self._dict[current])
-            except KeyError:
+                match = self._dict[current]
+                assert match
+            except (KeyError, AssertionError):
                 pass
             else:
+                conv = StsDictConv(current_parts, match)
                 return StsDictMatch(conv, pos, end)
             i -= 1
         return None

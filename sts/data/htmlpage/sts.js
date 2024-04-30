@@ -195,7 +195,7 @@
         }
         i++;
       }
-      if (match) {
+      if (match && match.length) {
         return {
           conv: {
             key: input.slice(pos, matchEnd),

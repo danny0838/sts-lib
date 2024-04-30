@@ -608,6 +608,10 @@ class TestStsDict(unittest.TestCase):
                 self.assertEqual(((['姜'], ['姜', '薑']), 2, 3), stsdict.match('吃干姜了', 2))
                 self.assertIsNone(stsdict.match('吃干姜了', 3))
 
+                # treat empty values as no match
+                stsdict = cls({'需': []})
+                self.assertIsNone(stsdict.match('需要', 0))
+
     def test_apply(self):
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
