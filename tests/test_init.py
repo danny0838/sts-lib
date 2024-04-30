@@ -2370,6 +2370,30 @@ class TestClassStsMaker(unittest.TestCase):
 
 
 class TestClassStsConverter(unittest.TestCase):
+    sample_s2t_dict = Trie({
+        '干': ['幹', '乾', '干'],
+        '了': ['了', '瞭'],
+        '干了': ['幹了', '乾了'],
+        '干涉': ['干涉'],
+        '干柴': ['乾柴'],
+        '虫': ['蟲'],
+        '风': ['風'],
+        '简': ['簡'],
+        '转': ['轉'],
+        '尸': ['屍', '尸'],
+        '卜': ['卜', '蔔'],
+        '发': ['發', '髮'],
+        '财': ['財'],
+        '发财': ['發財'],
+        '圆': ['圓'],
+        '梦': ['夢'],
+    })
+
+    sample_s2twp_dict = Trie({
+        '驰': ['馳'],
+        '奔馳': ['賓士'],
+    })
+
     def setUp(self):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
@@ -2414,8 +2438,7 @@ class TestClassStsConverter(unittest.TestCase):
         self.assertIs(stsdict, converter.table)
 
     def test_convert(self):
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
         input = """干了 干涉 ⿱艹⿰虫风不需要简转繁"""
         expected = [(['干', '了'], ['幹了', '乾了']), ' ', (['干', '涉'], ['干涉']), ' ',
                     '⿱艹⿰虫风', '不', '需', '要', (['简'], ['簡']), (['转'], ['轉']), '繁']
@@ -2423,50 +2446,43 @@ class TestClassStsConverter(unittest.TestCase):
         self.assertEqual(expected, output)
 
     def test_convert_exclude(self):
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
         input = """-{尸}-廿山女田卜"""
         expected = ['尸', '廿', '山', '女', '田', (['卜'], ['卜', '蔔'])]
         output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-')))
         self.assertEqual(expected, output)
 
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
         input = """发财了<!-->财<--><!-->干<-->"""
         expected = [(['发', '财'], ['發財']), (['了'], ['了', '瞭']), '财', '干']
         output = list(converter.convert(input, re.compile(r'<!-->(?P<return>.*?)<-->')))
         self.assertEqual(expected, output)
 
-        stsdict = StsMaker().make('s2twp', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2twp_dict)
         input = """「奔馳」不是奔馳"""
         expected = ['「奔馳」', '不', '是', (['奔', '馳'], ['賓士'])]
         output = list(converter.convert(input, re.compile(r'「.*?」')))
         self.assertEqual(expected, output)
 
-        stsdict = StsMaker().make('s2twp', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2twp_dict)
         input = """奔-{}-驰"""  # noqa: P103
         expected = ['奔', (['驰'], ['馳'])]
         output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-')))  # noqa: P103
         self.assertEqual(expected, output)
 
-        stsdict = StsMaker().make('s2twp', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
         input = """-{尸}-大口「发财了」"""
         expected = ['尸', '大', '口', '「发财了」']
         output = list(converter.convert(input, re.compile(r'「.*?」|-{(?P<return>.*?)}-')))
         self.assertEqual(expected, output)
 
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
         input = """-{尸}-大口 <!-->财干<-->"""
         expected = ['尸', '大', '口', ' ', '财干']
         output = list(converter.convert(input, re.compile(r'-{(?P<return>.*?)}-|<!-->(?P<return2>.*?)<-->')))
         self.assertEqual(expected, output)
 
-        stsdict = StsMaker().make('s2twp', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2twp_dict)
         input = """「奔馳」不是奔馳"""
         expected = ['「奔馳」', '不', '是', (['奔', '馳'], ['賓士'])]
         output = list(converter.convert(input, re.compile(r'「(?P<nomatter>.*?)」')))
@@ -2588,8 +2604,7 @@ class TestClassStsConverter(unittest.TestCase):
             mocker.assert_called_with('乾柴', exclude=regex)
 
     def test_convert_text(self):
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
         input = """干了 干涉 ⿱艹⿰虫风不需要简转繁"""
         expected = r"""幹了 干涉 ⿱艹⿰虫风不需要簡轉繁"""
         self.assertEqual(expected, converter.convert_text(input))
@@ -2611,8 +2626,7 @@ class TestClassStsConverter(unittest.TestCase):
         tempfile = os.path.join(self.root, 'test.tmp')
         tempfile2 = os.path.join(self.root, 'test2.tmp')
 
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
 
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write("""干柴烈火 发财圆梦""")
@@ -2631,8 +2645,7 @@ class TestClassStsConverter(unittest.TestCase):
     def test_convert_file_stdin(self):
         tempfile2 = os.path.join(self.root, 'test2.tmp')
 
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
 
         with mock.patch('sys.stdin', io.StringIO("""干柴烈火 发财圆梦""")):
             converter.convert_file(None, tempfile2)
@@ -2643,8 +2656,7 @@ class TestClassStsConverter(unittest.TestCase):
     def test_convert_file_stdout(self):
         tempfile = os.path.join(self.root, 'test.tmp')
 
-        stsdict = StsMaker().make('s2t', quiet=True)
-        converter = StsConverter(stsdict)
+        converter = StsConverter(self.sample_s2t_dict)
 
         with open(tempfile, 'w', encoding='UTF-8') as fh:
             fh.write("""干柴烈火 发财圆梦""")
