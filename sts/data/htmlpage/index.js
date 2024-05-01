@@ -794,7 +794,13 @@ async function loadDict(mode, customDict) {
 
 function convertText(dict, text, exclude) {
   const timeStart = performance.now();
-  let result = [];
+  const result = _convertText(dict, text, exclude);
+  console.log(`convertText(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
+  return result;
+}
+
+function _convertText(dict, text, exclude) {
+  const result = [];
   for (const part of dict.convert(text, parseExcludePattern(exclude))) {
     if (typeof part === 'string') {
       result.push(part);
@@ -803,9 +809,7 @@ function convertText(dict, text, exclude) {
 
     result.push(part.values[0]);
   }
-  result = result.join('');
-  console.log(`convertText(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
-  return result;
+  return result.join('');
 }
 
 function escapeHtml(...args) {
@@ -829,14 +833,7 @@ function convertHtml(dict, text, exclude) {
   const timeStart = performance.now();
   const result = _convertHtml(dict, text, exclude);
   console.log(`convertHtml(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
-
-  const wrapper = document.getElementById('viewer');
-  wrapper.innerHTML = result;
-  wrapper.hidden = false;
-  wrapper.scrollIntoView();
-
-  let a = wrapper.querySelector('a.unchecked');
-  if (a) { a.focus(); return; }
+  return result;
 }
 
 function _convertHtml(dict, text, exclude) {
@@ -930,7 +927,15 @@ document.addEventListener('DOMContentLoaded', function (event) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const dict = await loadDict(form.method.value, form['custom-dict'].value);
-    convertHtml(dict, form.input.value, form['exclude-pattern'].value);
+    const result = convertHtml(dict, form.input.value, form['exclude-pattern'].value);
+
+    const wrapper = document.getElementById('viewer');
+    wrapper.innerHTML = result;
+    wrapper.hidden = false;
+    wrapper.scrollIntoView();
+
+    const a = wrapper.querySelector('a.unchecked');
+    if (a) { a.focus(); }
   });
 
   form['input'].addEventListener('dragover', (event) => {
