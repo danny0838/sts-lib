@@ -227,38 +227,72 @@ async function dismissPhrase(anchor) {
   const prevNode = anchor.previousSibling;
   const parent = anchor.parentNode;
 
-  // split current anchor as shorter nodes and re-convert
+  // split current anchor into shorter text nodes
   parent.replaceChild(origTextNode, anchor);
   origComps.pop();
-  const nextTextNode = origTextNode.splitText(origComps.join('').length);
+  origTextNode.splitText(origComps.join('').length);
 
-  const html = _convertHtml(dict, origTextNode.nodeValue);
+  // create a placeholder element at the split point
   const ph = document.createElement('span');
   parent.replaceChild(ph, origTextNode);
-  ph.insertAdjacentHTML('beforebegin', html);
 
-  // merge following sibling anchors
-  const nextAnchors = (() => {
-    const evaluator = document.evaluate('following-sibling::a', nextTextNode, null, 0);
-    const rv = [];
-    let a;
-    while (a = evaluator.iterateNext()) {
-      if (!a.matches('[tabindex]')) { break; }
-      rv.push(a);
+  // insert the re-converted shortened text
+  ph.insertAdjacentHTML('beforebegin', _convertHtml(dict, origTextNode.nodeValue));
+
+  // insert an empty anchor to mark non-conversion
+  // so that a subsequent dismissPhrase won't change the split phrase
+  parent.insertBefore(document.createElement('a'), ph);
+
+  // re-convert following nodes and replace changed parts
+  {
+    const nextNodes = (() => {
+      const rv = [];
+      let node = ph;
+      while (node = node.nextSibling) {
+        if (node.nodeType === 1 && !node.matches('a[tabindex]')) {
+          break;
+        }
+        rv.push(node);
+      }
+      return rv;
+    })();
+    const nextText = nextNodes.map(x => getText(x)).join('');
+    const tpl = document.createElement('template');
+    tpl.innerHTML = _convertHtml(dict, nextText);
+    const nextNodesNew = Array.from(tpl.content.childNodes);
+
+    // calculate the position where the unchanged parts start
+    // skip nextNodes[0] and nextNodesNew[0], to always convert the latter part
+    // of the splitted text node
+    let iOld = nextNodes.length - 1;
+    let iNew = nextNodesNew.length - 1;
+    while (iOld >= 1 && iNew >= 1) {
+      const nodeOld = nextNodes[iOld];
+      const nodeNew = nextNodesNew[iNew];
+      if (getText(nodeOld) !== getText(nodeNew)) {
+        break;
+      }
+      iOld--;
+      iNew--;
     }
-    return rv;
-  })();
-  for (const anchor of nextAnchors) {
-    anchor.replaceWith(anchor.querySelector('del').firstChild);
-  }
-  parent.normalize();
+    for (let i = 0; i <= iOld; i++) {
+      parent.removeChild(nextNodes[i]);
+    }
+    for (let i = 0; i <= iNew; i++) {
+      parent.insertBefore(nextNodesNew[i], ph);
+    }
 
-  // re-convert next text
-  const nextNode = ph.nextSibling;
-  if (nextNode.nodeType === 3) {
-    const html = _convertHtml(dict, nextNode.nodeValue);
-    ph.insertAdjacentHTML('afterend', html);
-    parent.removeChild(nextNode);
+    function getText(node) {
+      switch (node.nodeType) {
+        case 1:
+          return node.querySelector('del').textContent;
+        case 3:
+          return node.nodeValue;
+        default:
+          // this should not happen;
+          return '';
+      }
+    }
   }
   ph.remove();
 
