@@ -239,10 +239,6 @@ async function dismissPhrase(anchor) {
   // insert the re-converted shortened text
   ph.insertAdjacentHTML('beforebegin', _convertHtml(dict, origTextNode.nodeValue));
 
-  // insert an empty anchor to mark non-conversion
-  // so that a subsequent dismissPhrase won't change the split phrase
-  parent.insertBefore(document.createElement('a'), ph);
-
   // re-convert following nodes and replace changed parts
   {
     const nextNodes = (() => {
