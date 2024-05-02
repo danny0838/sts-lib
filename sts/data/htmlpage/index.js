@@ -895,10 +895,16 @@ function _convertHtml(dict, text, exclude) {
   return result.join('');
 }
 
-async function convertFile(dict, file, charset, exclude) {
-  const text = await readFileAsText(file, charset);
-  const result = convertText(dict, text, exclude);
-  const fileNew = new File([result], file.name, {type: 'text/plain'});
+async function convertFile(dict, file, method, charset, exclude) {
+  let text = await readFileAsText(file, charset);
+  let filename = file.name;
+  if (['filename-content', 'filename'].includes(method)) {
+    filename = convertText(dict, filename, exclude);
+  }
+  if (['filename-content', 'content'].includes(method)) {
+    text = convertText(dict, text, exclude);
+  }
+  const fileNew = new File([text], filename, {type: 'text/plain'});
   downloadFile(fileNew);
 }
 
@@ -930,7 +936,7 @@ async function showAdvancedOptions(formElem) {
   const dialog = document.getElementById('panel-options');
   const form = dialog.querySelector('form');
 
-  for (const option of ['custom-dict', 'exclude-pattern', 'convert-file-charset']) {
+  for (const option of ['custom-dict', 'exclude-pattern', 'convert-file-method', 'convert-file-charset']) {
     form[option].value = formElem[option].value;
   }
 
@@ -981,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
         });
         const {type, lastModified} = file;
         file = new File([file], entry.fullPath.slice(1) || file.name, {type, lastModified});
-        await convertFile(dict, file, charset, exclude);
+        await convertFile(dict, file, method, charset, exclude);
         return;
       }
 
@@ -1012,6 +1018,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
     const mode = form.method.value;
     const exclude = form['exclude-pattern'].value;
     const customDict = form['custom-dict'].value;
+    const method = form['convert-file-method'].value;
     const charset = form['convert-file-charset'].value;
     const dict = await loadDict(mode, customDict);
     for (const entry of entries) {
@@ -1040,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
     const files = Array.from(event.target.files);
     if (!(files && files.length)) { return; }
     const dict = await loadDict(form.method.value, form['custom-dict'].value);
-    await convertFile(dict, files[0], form['convert-file-charset'].value, form['exclude-pattern'].value);
+    await convertFile(dict, files[0], form['convert-file-method'].value, form['convert-file-charset'].value, form['exclude-pattern'].value);
   });
 
   form.advanced.addEventListener('click', (event) => {

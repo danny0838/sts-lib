@@ -78,6 +78,7 @@
     <input name="copy-text" type="button" value="📋複製">
     <input name="convert-file" type="button" value="📁轉換檔案">
     <input name="convert-file-input" type="file" hidden>
+    <input name="convert-file-method" type="hidden" value="filename-content">
     <input name="convert-file-charset" type="hidden" value="UTF-8">
     <input name="advanced" type="button" value="⚙️選項">
     <input name="custom-dict" type="hidden">
@@ -104,6 +105,14 @@
       <option value="<!\[CDATA\[([\s\S]*?)\]\]>">CDATA 標記</option>
       <option value="<!\[CDATA\[(?<return>[\s\S]*?)\]\]>">CDATA 標記（移除標記）</option>
     </datalist>
+  </section>
+  <section>
+    <label>轉換檔案方式：</label>
+    <select name="convert-file-method">
+      <option value="filename-content">轉換檔名及檔案內容</option>
+      <option value="filename">轉換檔名</option>
+      <option value="content">轉換檔案內容</option>
+    </select>
   </section>
   <section>
     <label>轉換檔案輸入編碼：</label>
