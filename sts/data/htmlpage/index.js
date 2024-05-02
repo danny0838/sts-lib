@@ -930,7 +930,7 @@ async function showAdvancedOptions(formElem) {
   const dialog = document.getElementById('panel-options');
   const form = dialog.querySelector('form');
 
-  for (const option of ['exclude-pattern', 'convert-file-charset']) {
+  for (const option of ['custom-dict', 'exclude-pattern', 'convert-file-charset']) {
     form[option].value = formElem[option].value;
   }
 
