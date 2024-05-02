@@ -461,6 +461,7 @@ async function runCommand(anchor, cmd) {
           resolve(rv);
         }
         dialog.addEventListener('close', onClose);
+        dialog.returnValue = '';
         dialog.showModal();
       });
     } else {
@@ -912,6 +913,7 @@ async function showAdvancedOptions(formElem) {
       resolve(dialog.returnValue);
     }
     dialog.addEventListener('close', onClose);
+    dialog.returnValue = '';
     dialog.showModal();
   });
 
