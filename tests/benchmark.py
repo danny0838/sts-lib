@@ -1,148 +1,59 @@
-import json  # noqa: F401
+import inspect
 import os
 import tempfile
 import timeit
 
-from sts import StsConverter, StsMaker  # noqa: F401
+from sts import StsConverter, StsMaker
 
 root_dir = os.path.dirname(__file__)
 
-build_stmt = """\
-root = tempfile.mkdtemp(dir=tmpdir)
-config_file = os.path.join(root, 's2twp.json')
-with open(config_file, 'w', encoding='UTF-8') as fh:
-    json.dump({
-        'name': 'Simplified Chinese to Traditional Chinese (Taiwan standard) (with phrases)',
-        'requires': [
-            '_default'
-        ],
-        'dicts': [
-            {
-                'file': 's2twp.tlist',
-                'mode': 'join',
-                'src': [
-                    {
-                        'mode': 'load',
-                        'src': [
-                            'STPhrases.txt',
-                            'STCharacters.txt',
-                        ],
-                    },
-                    {
-                        'mode': 'load',
-                        'src': [
-                            'TWPhrases.list',
-                            'TWVariants.txt',
-                        ],
-                    },
-                ],
-            },
-        ],
-    }, fh)
-StsMaker().make(config_file, quiet=True)
-"""
 
-load_setup = """\
-root = tempfile.mkdtemp(dir=tmpdir)
-config_file = os.path.join(root, 's2twp.json')
-with open(config_file, 'w', encoding='UTF-8') as fh:
-    json.dump({
-        'name': 'Simplified Chinese to Traditional Chinese (Taiwan standard) (with phrases)',
-        'requires': [
-            '_default'
-        ],
-        'dicts': [
-            {
-                'file': 's2twp.tlist',
-                'mode': 'join',
-                'src': [
-                    {
-                        'mode': 'load',
-                        'src': [
-                            'STPhrases.txt',
-                            'STCharacters.txt',
-                        ],
-                    },
-                    {
-                        'mode': 'load',
-                        'src': [
-                            'TWPhrases.list',
-                            'TWVariants.txt',
-                        ],
-                    },
-                ],
-            },
-        ],
-    }, fh)
-dict_file = StsMaker().make(config_file, quiet=True)
-"""
+def benchmark_build():
+    def func():
+        StsMaker().make(config, skip_check=True, quiet=True)
 
-load_stmt = """\
-StsConverter(dict_file)
-"""
+    config = 's2twp'
+    StsMaker().make(config, quiet=True)
 
-convert_setup = """\
-root = tempfile.mkdtemp(dir=tmpdir)
-config_file = os.path.join(root, 's2twp.json')
-with open(config_file, 'w', encoding='UTF-8') as fh:
-    json.dump({
-        'name': 'Simplified Chinese to Traditional Chinese (Taiwan standard) (with phrases)',
-        'requires': [
-            '_default'
-        ],
-        'dicts': [
-            {
-                'file': 's2twp.tlist',
-                'mode': 'join',
-                'src': [
-                    {
-                        'mode': 'load',
-                        'src': [
-                            'STPhrases.txt',
-                            'STCharacters.txt',
-                        ],
-                    },
-                    {
-                        'mode': 'load',
-                        'src': [
-                            'TWPhrases.list',
-                            'TWVariants.txt',
-                        ],
-                    },
-                ],
-            },
-        ],
-    }, fh)
-dict_file = StsMaker().make(config_file, quiet=True)
-converter = StsConverter(dict_file)
-sample_file = os.path.join(root_dir, 'benchmark', 'zuozhuan.txt')
-tmp_file = os.path.join(root, 'test.tmp')
-"""
+    benchmark(func, number=2, repeat=3)
 
-convert_stmt = """\
-converter.convert_file(sample_file, tmp_file)
-"""
+
+def benchmark_load():
+    def func():
+        StsConverter(dict_file)
+
+    dict_file = StsMaker().make('s2twp', quiet=True)
+    benchmark(func, number=20, repeat=3)
+
+
+def benchmark_convert():
+    def func():
+        converter.convert_file(sample_file, tmp_file)
+
+    dict_file = StsMaker().make('s2twp', quiet=True)
+    converter = StsConverter(dict_file)
+    sample_file = os.path.join(root_dir, 'benchmark', 'zuozhuan.txt')
+    with tempfile.TemporaryDirectory() as root:
+        tmp_file = os.path.join(root, 'test.tmp')
+
+        benchmark(func, number=2, repeat=3)
+
+
+def benchmark(stmt='pass', setup='pass', number=1, repeat=1, globals=None):
+    # get name of the caller function
+    funcname = inspect.stack()[1].function
+
+    t = timeit.repeat(stmt=stmt, setup=setup, number=number, repeat=repeat, globals=globals)
+    if repeat > 1:
+        print(f'{funcname} ({number} loops) - average: {sum(t) / len(t)}, min: {min(t)}, max: {max(t)}')
+    else:
+        print(f'{funcname} ({number} loops) - {sum(t)}')
 
 
 def main():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # build
-        number = 10
-        repeat = 5
-        t = timeit.repeat(build_stmt, repeat=repeat, number=number, globals={**globals(), **locals()})
-        print(f'build ({number} loops) - average: {sum(t) / len(t)}, min: {min(t)}, max: {max(t)}')
-
-        # load
-        number = 200
-        repeat = 5
-        t = timeit.repeat(load_stmt, load_setup, repeat=repeat, number=number, globals={**globals(), **locals()})
-        print(f'load ({number} loops) - average: {sum(t) / len(t)}, min: {min(t)}, max: {max(t)}')
-
-        # convert
-        number = 10
-        repeat = 5
-        t = timeit.repeat(convert_stmt, convert_setup, repeat=repeat, number=number, globals={**globals(), **locals()})
-        print(f'convert ({number} loops) - average: {sum(t) / len(t)}, min: {min(t)}, max: {max(t)}')
+    benchmark_build()
+    benchmark_load()
+    benchmark_convert()
 
 
 if __name__ == '__main__':
