@@ -157,16 +157,15 @@
       }
     }
 
-    remove(key) {
-      let current = this.dict;
+    delete(key) {
+      let trie = this.dict;
       for (const comp of Unicode.split(key)) {
-        current = current[comp];
-        if (typeof current === 'undefined') {
+        trie = trie[comp];
+        if (typeof trie === 'undefined') {
           return;
         }
       }
-
-      delete current[''];
+      delete trie[''];
     }
 
     normalize(input) {

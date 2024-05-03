@@ -810,7 +810,7 @@ async function loadDict(mode, customDict) {
       if (values.length) {
         dict.add(key, values, true);
       } else {
-        dict.remove(key);
+        dict.delete(key);
       }
     }
   }
