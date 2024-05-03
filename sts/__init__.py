@@ -824,38 +824,53 @@ class Trie(StsDict):
     def keys(self):
         """Get a generator of keys.
         """
-        def recurse(key, trie):
-            for comp in trie:
+        trie = self._dict
+        stack = [('', trie, iter(trie))]
+        while stack:
+            key, trie, it = stack[-1]
+            for comp in it:
                 if comp == '':
                     yield key
                 else:
-                    yield from recurse(key + comp, trie[comp])
-
-        yield from recurse('', self._dict)
+                    trie = trie[comp]
+                    stack.append((key + comp, trie, iter(trie)))
+                    break
+            else:
+                stack.pop()
 
     def values(self):
         """Get a generator of values.
         """
-        def recurse(trie):
-            for comp in trie:
+        trie = self._dict
+        stack = [(trie, iter(trie))]
+        while stack:
+            trie, it = stack[-1]
+            for comp in it:
                 if comp == '':
                     yield trie[comp]
                 else:
-                    yield from recurse(trie[comp])
-
-        yield from recurse(self._dict)
+                    trie = trie[comp]
+                    stack.append((trie, iter(trie)))
+                    break
+            else:
+                stack.pop()
 
     def items(self):
         """Get a generator of key-values pairs.
         """
-        def recurse(key, trie):
-            for comp in trie:
+        trie = self._dict
+        stack = [('', trie, iter(trie))]
+        while stack:
+            key, trie, it = stack[-1]
+            for comp in it:
                 if comp == '':
                     yield key, trie[comp]
                 else:
-                    yield from recurse(key + comp, trie[comp])
-
-        yield from recurse('', self._dict)
+                    trie = trie[comp]
+                    stack.append((key + comp, trie, iter(trie)))
+                    break
+            else:
+                stack.pop()
 
     def add(self, key, values, skip_check=False):
         """Add a key-values pair to this dictionary.
