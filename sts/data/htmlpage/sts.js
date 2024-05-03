@@ -127,6 +127,35 @@
       return new StsDict(dict);
     }
 
+    get(key) {
+      let trie = this.dict;
+      for (const comp of Unicode.split(key)) {
+        trie = trie[comp];
+        if (typeof trie === 'undefined') {
+          return null;
+        }
+      }
+      return trie[''] || null;
+    }
+
+    *entries() {
+      const stack = [['', this.dict]];
+      const substack = [];
+      while (stack.length) {
+        let [key, trie] = stack.pop();
+        for (let comp in trie) {
+          if (comp === '') {
+            yield [key, trie[comp]];
+          } else {
+            substack.push([key + comp, trie[comp]]);
+          }
+        }
+        while (substack.length) {
+          stack.push(substack.pop());
+        }
+      }
+    }
+
     add(key, values, important) {
       if (!Array.isArray(values)) {
         values = [values];
