@@ -824,53 +824,38 @@ class Trie(StsDict):
     def keys(self):
         """Get a generator of keys.
         """
-        def recurse(trie):
-            for key in trie:
-                if key == '':
-                    yield ''.join(keystack)
+        def recurse(key, trie):
+            for comp in trie:
+                if comp == '':
+                    yield key
                 else:
-                    keystack.append(key)
-                    triestack.append(trie[key])
-                    yield from recurse(triestack[-1])
-            keystack.pop()
-            triestack.pop()
+                    yield from recurse(key + comp, trie[comp])
 
-        keystack = ['']
-        triestack = [self._dict]
-        yield from recurse(triestack[-1])
+        yield from recurse('', self._dict)
 
     def values(self):
         """Get a generator of values.
         """
         def recurse(trie):
-            for key in trie:
-                if key == '':
-                    yield trie[key]
+            for comp in trie:
+                if comp == '':
+                    yield trie[comp]
                 else:
-                    triestack.append(trie[key])
-                    yield from recurse(triestack[-1])
-            triestack.pop()
+                    yield from recurse(trie[comp])
 
-        triestack = [self._dict]
-        yield from recurse(triestack[-1])
+        yield from recurse(self._dict)
 
     def items(self):
         """Get a generator of key-values pairs.
         """
-        def recurse(trie):
-            for key in trie:
-                if key == '':
-                    yield ''.join(keystack), trie[key]
+        def recurse(key, trie):
+            for comp in trie:
+                if comp == '':
+                    yield key, trie[comp]
                 else:
-                    keystack.append(key)
-                    triestack.append(trie[key])
-                    yield from recurse(triestack[-1])
-            keystack.pop()
-            triestack.pop()
+                    yield from recurse(key + comp, trie[comp])
 
-        keystack = ['']
-        triestack = [self._dict]
-        yield from recurse(triestack[-1])
+        yield from recurse('', self._dict)
 
     def add(self, key, values, skip_check=False):
         """Add a key-values pair to this dictionary.
