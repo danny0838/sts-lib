@@ -18,20 +18,26 @@ with open(config_file, 'w', encoding='UTF-8') as fh:
         ],
         'dicts': [
             {
-                'file': 's2twp.list',
+                'file': 's2twp.tlist',
                 'mode': 'join',
                 'src': [
-                    [
-                        'STPhrases.txt',
-                        'STCharacters.txt'
-                    ],
-                    [
-                        'TWPhrases.list',
-                        'TWVariants.txt'
-                    ]
-                ]
-            }
-        ]
+                    {
+                        'mode': 'load',
+                        'src': [
+                            'STPhrases.txt',
+                            'STCharacters.txt',
+                        ],
+                    },
+                    {
+                        'mode': 'load',
+                        'src': [
+                            'TWPhrases.list',
+                            'TWVariants.txt',
+                        ],
+                    },
+                ],
+            },
+        ],
     }, fh)
 StsMaker().make(config_file, quiet=True)
 """
@@ -47,20 +53,26 @@ with open(config_file, 'w', encoding='UTF-8') as fh:
         ],
         'dicts': [
             {
-                'file': 's2twp.list',
+                'file': 's2twp.tlist',
                 'mode': 'join',
                 'src': [
-                    [
-                        'STPhrases.txt',
-                        'STCharacters.txt'
-                    ],
-                    [
-                        'TWPhrases.list',
-                        'TWVariants.txt'
-                    ]
-                ]
-            }
-        ]
+                    {
+                        'mode': 'load',
+                        'src': [
+                            'STPhrases.txt',
+                            'STCharacters.txt',
+                        ],
+                    },
+                    {
+                        'mode': 'load',
+                        'src': [
+                            'TWPhrases.list',
+                            'TWVariants.txt',
+                        ],
+                    },
+                ],
+            },
+        ],
     }, fh)
 dict_file = StsMaker().make(config_file, quiet=True)
 """
@@ -80,20 +92,26 @@ with open(config_file, 'w', encoding='UTF-8') as fh:
         ],
         'dicts': [
             {
-                'file': 's2twp.list',
+                'file': 's2twp.tlist',
                 'mode': 'join',
                 'src': [
-                    [
-                        'STPhrases.txt',
-                        'STCharacters.txt'
-                    ],
-                    [
-                        'TWPhrases.list',
-                        'TWVariants.txt'
-                    ]
-                ]
-            }
-        ]
+                    {
+                        'mode': 'load',
+                        'src': [
+                            'STPhrases.txt',
+                            'STCharacters.txt',
+                        ],
+                    },
+                    {
+                        'mode': 'load',
+                        'src': [
+                            'TWPhrases.list',
+                            'TWVariants.txt',
+                        ],
+                    },
+                ],
+            },
+        ],
     }, fh)
 dict_file = StsMaker().make(config_file, quiet=True)
 converter = StsConverter(dict_file)
