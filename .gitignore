@@ -3,10 +3,10 @@ __pycache__/
 *.pyc
 
 # Distribution / packaging
-build/
-dist/
-*.egg-info/
-_public/
+/build/
+/dist/
+/*.egg-info/
+/_public/
 
 # Compiled dictionary
 *.list
