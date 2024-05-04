@@ -7,10 +7,11 @@ on:
     branches:
       - gh-pages
     paths:
-      - 'sts/data/**'
-      - '!sts/data/*'
-      - '!sts/data/scheme/**'
-      - '!sts/data/OpenCC/scheme/**'
+      - 'sts/data/htmlpage/*'
+      - 'sts/data/config/*'
+      - 'sts/data/dictionary/*'
+      - 'sts/data/external/*/config/*'
+      - 'sts/data/external/*/dictionary/*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -55,6 +56,10 @@ jobs:
         run: |
           python -m pip install . &&
           python -m pip install -r scripts/requirements.txt
+
+      - name: Fetch external resources
+        run: |
+          python scripts/fetch.py
 
       - name: Build static site contents
         run: |
