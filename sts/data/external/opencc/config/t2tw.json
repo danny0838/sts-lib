@@ -1,0 +1,12 @@
+{
+  "name": "Traditional Chinese to Traditional Chinese (Taiwan standard)",
+  "dicts": [
+    {
+      "file": "../dictionary/t2tw.tlist",
+      "mode": "load",
+      "src": [
+        "../dictionary/TWVariants.txt"
+      ]
+    }
+  ]
+}

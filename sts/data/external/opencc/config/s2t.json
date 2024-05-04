@@ -1,0 +1,13 @@
+{
+  "name": "Simplified Chinese to Traditional Chinese",
+  "dicts": [
+    {
+      "file": "../dictionary/s2t.tlist",
+      "mode": "load",
+      "src": [
+        "../dictionary/STPhrases.txt",
+        "../dictionary/STCharacters.txt"
+      ]
+    }
+  ]
+}

@@ -2,43 +2,14 @@
 """Build htmlpage"""
 import glob
 import os
-import re
 import shutil
-import tempfile
 
 import jinja2
-import requests
 
-from sts import StsMaker, Table, Trie
+from sts import StsMaker
 
 PUBLIC_DIR = '_public'
 
-MW_REF = 'master'
-MW_URL = f'https://raw.githubusercontent.com/wikimedia/mediawiki/{MW_REF}/includes/languages/data/ZhConversion.php'
-MW_DICTS = {
-    'zh2Hant': ['zh2Hant'],
-    'zh2Hans': ['zh2Hans'],
-    'zh2TW': ['zh2TW', 'zh2Hant'],
-    'zh2HK': ['zh2HK', 'zh2Hant'],
-    'zh2CN': ['zh2CN', 'zh2Hans'],
-}
-MW_DICT_PATTERN = re.compile(r'public static \$(\w+) = \[(.*?)\];', re.M + re.S)
-MW_DICT_SUBPATTERN = re.compile(r"'([^']*)' => '([^']*)',")
-
-NTW_REF = 'latest'
-NTW_URL_PREFIX = f'https://www.unpkg.com/tongwen-dict@{NTW_REF}/dist/'
-NTW_SRCS = [
-    's2t-char.min.json',
-    's2t-phrase.min.json',
-    't2s-char.min.json',
-    't2s-phrase.min.json',
-]
-NTW_DICTS = {
-    's2t': ['s2t-char'],
-    's2tp': ['s2t-char', 's2t-phrase'],
-    't2s': ['t2s-char'],
-    't2sp': ['t2s-char', 't2s-phrase'],
-}
 
 def check_update(file, ref_files):
     """Check if the file needs update."""
@@ -61,6 +32,18 @@ def render_on_demand(file, tpl, env, *args, **kwargs):
     print(f'building: {file}')
     with open(file, 'w', encoding='utf-8') as fh:
         tpl.stream(*args, **kwargs).dump(fh)
+
+
+def make_from_configs(config_dir, dest_dir, maker):
+    config_files = os.path.join(glob.escape(config_dir), '[!_]*.json')
+    for config_file in glob.iglob(config_files):
+        file = maker.make(config_file, quiet=True)
+        basename = os.path.basename(file)
+        dest = os.path.join(dest_dir, basename)
+
+        if not os.path.isfile(dest) or os.path.getmtime(file) > os.path.getmtime(dest):
+            print(f'updating: {dest}')
+            shutil.copyfile(file, dest)
 
 
 def main():
@@ -87,76 +70,23 @@ def main():
         tpl = env.get_template(fn)
         render_on_demand(file, tpl, env)
 
+    # -- compile dicts
     maker = StsMaker()
 
-    # -- compile *.tlist for opencc
+    config_dir = os.path.join(data_dir, 'external', 'opencc', 'config')
     dicts_dir = os.path.join(www_dir, 'dicts', 'opencc')
     os.makedirs(dicts_dir, exist_ok=True)
-    config_files = os.path.join(glob.escape(StsMaker.config_dir), '[!_]*.json')
-    for config_file in glob.iglob(config_files):
-        file = maker.make(config_file, quiet=True)
-        basename = os.path.basename(file)
-        dest = os.path.join(dicts_dir, basename)
+    make_from_configs(config_dir, dicts_dir, maker)
 
-        if not os.path.isfile(dest) or os.path.getmtime(file) > os.path.getmtime(dest):
-            print(f'updating: {dest}')
-            shutil.copyfile(file, dest)
-
-    # -- compile *.tlist for MediaWiki
-    print(f'fetching: {MW_URL}')
-    response = requests.get(MW_URL)
-    if not response.ok:
-        raise RuntimeError(f'failed to fetch: {MW_URL}')
-    text = response.text
-
+    config_dir = os.path.join(data_dir, 'external', 'mw', 'config')
     dicts_dir = os.path.join(www_dir, 'dicts', 'mw')
     os.makedirs(dicts_dir, exist_ok=True)
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        for match in MW_DICT_PATTERN.finditer(text):
-            name, data = match.group(1), match.group(2)
-            table = Table()
-            for m in MW_DICT_SUBPATTERN.finditer(data):
-                table.add(m.group(1), m.group(2), skip_check=True)
-            file = os.path.join(tmp_dir, f'{name}.list')
-            table.dump(file)
+    make_from_configs(config_dir, dicts_dir, maker)
 
-        for dst, srcs in MW_DICTS.items():
-            srcs = (os.path.join(tmp_dir, f'{src}.list') for src in srcs)
-            dest = os.path.join(dicts_dir, f'{dst}.tlist')
-            print(f'building: {dest}')
-            table = Trie()
-            for src in srcs:
-                table.load(src)
-            table.dumpjson(dest)
-
-    # -- compile *.tlist for tongwen-dict
+    config_dir = os.path.join(data_dir, 'external', 'tongwen', 'config')
     dicts_dir = os.path.join(www_dir, 'dicts', 'tongwen')
     os.makedirs(dicts_dir, exist_ok=True)
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        for src in NTW_SRCS:
-            url = f'{NTW_URL_PREFIX}{src}'
-            print(f'fetching: {url}')
-            response = requests.get(url, stream=True)
-            if not response.ok:
-                raise RuntimeError(f'failed to fetch: {url}')
-
-            # remove .min.json
-            fn, _ = os.path.splitext(src)
-            fn, _ = os.path.splitext(fn)
-
-            file = os.path.join(tmp_dir, f'{fn}.json')
-            with open(file, 'wb') as fh:
-                for chunk in response.iter_content(chunk_size=None):
-                    fh.write(chunk)
-
-        for dst, srcs in NTW_DICTS.items():
-            srcs = (os.path.join(tmp_dir, f'{src}.json') for src in srcs)
-            dest = os.path.join(dicts_dir, f'{dst}.tlist')
-            print(f'building: {dest}')
-            table = Trie()
-            for src in srcs:
-                table.load(src)
-            table.dumpjson(dest)
+    make_from_configs(config_dir, dicts_dir, maker)
 
 
 if __name__ == '__main__':

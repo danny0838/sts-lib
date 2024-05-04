@@ -1,0 +1,19 @@
+{
+  "name": "Simplified Chinese to Traditional Chinese (Hong Kong variant)",
+  "dicts": [
+    {
+      "file": "../dictionary/s2hk.tlist",
+      "mode": "join",
+      "src": [
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/STPhrases.txt",
+            "../dictionary/STCharacters.txt"
+          ]
+        },
+        "../dictionary/HKVariants.txt"
+      ]
+    }
+  ]
+}

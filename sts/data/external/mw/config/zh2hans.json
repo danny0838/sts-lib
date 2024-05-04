@@ -1,0 +1,11 @@
+{
+  "dicts": [
+    {
+      "file": "../dictionary/zh2hans.tlist",
+      "mode": "load",
+      "src": [
+        "../dictionary/zh2Hans.txt"
+      ]
+    }
+  ]
+}

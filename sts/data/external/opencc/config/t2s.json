@@ -1,0 +1,13 @@
+{
+  "name": "Traditional Chinese to Simplified Chinese",
+  "dicts": [
+    {
+      "file": "../dictionary/t2s.tlist",
+      "mode": "load",
+      "src": [
+        "../dictionary/TSPhrases.txt",
+        "../dictionary/TSCharacters.txt"
+      ]
+    }
+  ]
+}

@@ -12,3 +12,7 @@ __pycache__/
 *.list
 *.jlist
 *.tlist
+
+# Others
+/sts/data/external/*/*
+!/sts/data/external/*/config/

@@ -1,0 +1,42 @@
+{
+  "name": "Built-in dictionaries",
+  "dicts": [
+    {
+      "file": "../dictionary/TWPhrases.list",
+      "mode": "load",
+      "src": [
+        "../dictionary/TWPhrasesIT.txt",
+        "../dictionary/TWPhrasesName.txt",
+        "../dictionary/TWPhrasesOther.txt"
+      ]
+    },
+    {
+      "file": "../dictionary/TWPhrasesRev.list",
+      "mode": "swap",
+      "src": [
+        "../dictionary/TWPhrases.list"
+      ]
+    },
+    {
+      "file": "../dictionary/TWVariantsRev.list",
+      "mode": "swap",
+      "src": [
+        "../dictionary/TWVariants.txt"
+      ]
+    },
+    {
+      "file": "../dictionary/HKVariantsRev.list",
+      "mode": "swap",
+      "src": [
+        "../dictionary/HKVariants.txt"
+      ]
+    },
+    {
+      "file": "../dictionary/JPVariantsRev.list",
+      "mode": "swap",
+      "src": [
+        "../dictionary/JPVariants.txt"
+      ]
+    }
+  ]
+}

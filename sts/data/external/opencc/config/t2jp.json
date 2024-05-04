@@ -1,0 +1,12 @@
+{
+  "name": "Traditional Chinese Characters (Kyūjitai) to New Japanese Kanji (Shinjitai)",
+  "dicts": [
+    {
+      "file": "../dictionary/t2jp.tlist",
+      "mode": "load",
+      "src": [
+        "../dictionary/JPVariants.txt"
+      ]
+    }
+  ]
+}

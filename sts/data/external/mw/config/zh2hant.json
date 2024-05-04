@@ -1,0 +1,11 @@
+{
+  "dicts": [
+    {
+      "file": "../dictionary/zh2hant.tlist",
+      "mode": "load",
+      "src": [
+        "../dictionary/zh2Hant.txt"
+      ]
+    }
+  ]
+}
