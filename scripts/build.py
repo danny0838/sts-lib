@@ -40,16 +40,23 @@ NTW_DICTS = {
     't2sp': ['t2s-char', 't2s-phrase'],
 }
 
-
-def check_update(file, tpl):
+def check_update(file, ref_files):
     """Check if the file needs update."""
-    return not os.path.isfile(file) or os.path.getmtime(tpl.filename) > os.path.getmtime(file)
+    if not os.path.isfile(file):
+        return True
+
+    mtime = os.path.getmtime(file)
+    for ref_file in ref_files:
+        if os.path.getmtime(ref_file) > mtime:
+            return True
+
+    return False
 
 
-def render_on_demand(file, tpl, *args, **kwargs):
-    # @TODO: render only if the template or an included file is updated
-    # if not check_update(file, tpl):
-    #     return
+def render_on_demand(file, tpl, env, *args, **kwargs):
+    ref_files = (env.get_template(t).filename for t in env.list_templates())
+    if not check_update(file, ref_files):
+        return
 
     print(f'building: {file}')
     with open(file, 'w', encoding='utf-8') as fh:
@@ -68,19 +75,21 @@ def main():
     # build template for CLI -f htmlpage
     file = os.path.join(data_dir, 'htmlpage.tpl.html')
     tpl = env.get_template('index_single.html')
-    render_on_demand(file, tpl, single_page=True)
+    render_on_demand(file, tpl, env, single_page=True)
 
     # build static site contents under PUBLIC_DIR
     www_dir = os.path.join(root_dir, PUBLIC_DIR)
     os.makedirs(www_dir, exist_ok=True)
+
+    # -- build page
     for fn in ('index.html', 'index.css', 'index.js', 'sts.js'):
         file = os.path.join(www_dir, fn)
         tpl = env.get_template(fn)
-        render_on_demand(file, tpl)
+        render_on_demand(file, tpl, env)
 
-    # -- compile *.tlist for opencc
     maker = StsMaker()
 
+    # -- compile *.tlist for opencc
     dicts_dir = os.path.join(www_dir, 'dicts', 'opencc')
     os.makedirs(dicts_dir, exist_ok=True)
     config_files = os.path.join(glob.escape(StsMaker.config_dir), '[!_]*.json')
