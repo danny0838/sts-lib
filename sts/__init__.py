@@ -232,7 +232,7 @@ class StsDict():
     def __iter__(self):
         """Implementation of iter(self).
         """
-        yield from self._dict
+        return iter(self._dict)
 
     def __eq__(self, other):
         """Implementation of "==" operator.
@@ -784,8 +784,8 @@ class Trie(StsDict):
         """
         trie = self._dict
         try:
-            for k in self._split(key):
-                trie = trie[k]
+            for comp in Unicode.split(key):
+                trie = trie[comp]
             return trie['']
         except KeyError:
             raise KeyError(key)
@@ -808,15 +808,15 @@ class Trie(StsDict):
     def __iter__(self):
         """Implementation of iter(self).
         """
-        yield from self.keys()
+        return self.keys()
 
     def __delitem__(self, key):
         """Implementation of del self[key].
         """
         trie = self._dict
         try:
-            for k in self._split(key):
-                trie = trie[k]
+            for comp in Unicode.split(key):
+                trie = trie[comp]
             del trie['']
         except KeyError:
             raise KeyError(key)
@@ -879,14 +879,14 @@ class Trie(StsDict):
             values: a string or a list of strings.
             skip_check: True to skip checking duplicated values.
         """
-        values = [values] if isinstance(values, str) else values
+        values = (values,) if isinstance(values, str) else values
 
-        current = self._dict
-        for composite in Unicode.split(key):
-            current = current.setdefault(composite, {})
+        trie = self._dict
+        for comp in Unicode.split(key):
+            trie = trie.setdefault(comp, {})
 
-        list_ = current.setdefault('', [])
-        list_ += values if skip_check else [x for x in values if x not in list_]
+        list_ = trie.setdefault('', [])
+        list_ += values if skip_check else (x for x in values if x not in list_)
         return self
 
     def match(self, parts, pos, maxpos=math.inf):
