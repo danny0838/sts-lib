@@ -573,7 +573,11 @@ class StsDict():
             an StsDictMatch or None if no match.
         """
         parts = self._split(parts)
-        i = max(len(Unicode.split(key)) for key in self._dict)
+        try:
+            i = max(len(Unicode.split(key)) for key in self._dict)
+        except ValueError:
+            # self._dict is empty
+            i = 0
         i = min(i, min(len(parts), maxpos) - pos)
         while i >= 1:
             end = pos + i
