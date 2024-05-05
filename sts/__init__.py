@@ -519,7 +519,7 @@ class StsDict():
             stsdict:
                 奶娘 => 奶媽
             result:
-                妳娘 => 妳娘 奶媽
+                妳娘 => 你娘 奶媽
 
         Example:
             self:
@@ -528,18 +528,17 @@ class StsDict():
                 奶 => 妳
             stsdict:
                 奶娘 => 奶媽
-                妳娘 => 你娘
+                妳娘 => 妳媽
             result:
-                妳娘 => 你娘 奶媽
+                妳娘 => 妳媽 奶媽
         """
         conv = self.__class__()
         conv_minor = self.__class__()
         for key, values in self.items():
             for i, value in enumerate(values):
                 if i == 0:
-                    conv.add(value, [key])
-                else:
-                    conv_minor.add(value, [key])
+                    conv.add(value, key)
+                conv_minor.add(value, key)
 
         for key, values in stsdict.items():
             for newkey in conv.apply_enum(key, include_short=True, include_self=True):
@@ -552,7 +551,11 @@ class StsDict():
                 try:
                     assert newdict[newkey]
                 except (KeyError, AssertionError):
-                    newdict.add(newkey, newkey)
+                    newvalue = ''.join(
+                        v.values[0] if isinstance(v, StsDictConv) else v
+                        for v in self.apply(newkey)
+                    )
+                    newdict.add(newkey, newvalue)
                 newdict.add(newkey, values)
 
         return newdict
