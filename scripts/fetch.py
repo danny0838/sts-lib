@@ -9,6 +9,17 @@ import requests
 
 from sts import Table
 
+UNIHAN_VER = '15.1.0'
+UNIHAN_URL = f'https://www.unicode.org/Public/{UNIHAN_VER}/ucd/Unihan.zip'
+UNIHAN_TABLES = {
+    'kTraditionalVariant': 'TraditionalVariant',
+    'kSimplifiedVariant': 'SimplifiedVariant',
+    'kSemanticVariant': 'SemanticVariant',
+    'kSpecializedSemanticVariant': 'SpecializedSemanticVariant',
+    'kZVariant': 'ZVariant',
+    'kSpoofingVariant': 'SpoofingVariant',
+}
+
 OPENCC_VER = 'ver.1.1.7'  # e.g. 'ver.1.1.7', 'master'
 OPENCC_URL = f'https://github.com/BYVoid/OpenCC/archive/{OPENCC_VER}.zip'
 OPENCC_DIR_MAP = {
@@ -48,6 +59,56 @@ def fetch_on_demand(url, dest):
     with open(dest, 'wb') as fh:
         for chunk in response.iter_content(chunk_size=None):
             fh.write(chunk)
+
+
+def handle_unihan(root_dir):
+    file = os.path.join(root_dir, '_cache', f'Unihan-{UNIHAN_VER}.zip')
+    fetch_on_demand(UNIHAN_URL, file)
+
+    tables = {t: Table() for t in UNIHAN_TABLES.values()}
+
+    with zipfile.ZipFile(file) as zh:
+        zipinfo = zh.getinfo('Unihan_Variants.txt')
+        with zh.open(zipinfo) as fh:
+            for line in fh:
+                if line.startswith(b'#'):
+                    continue
+
+                line = line.rstrip(b'\n')
+                if not line:
+                    continue
+
+                line = line.decode('UTF-8')
+                try:
+                    code_from, rel, code_tos, *_ = line.split('\t')
+                except ValueError:
+                    continue
+
+                try:
+                    table = tables[UNIHAN_TABLES[rel]]
+                except KeyError:
+                    continue
+
+                key = chr(int(code_from[2:], 16))
+                values = [chr(int(c.split('<')[0][2:], 16)) for c in code_tos.split(' ')]
+
+                # The order of values seems randomized.
+                # Move key to first to prevent unexpected conversion.
+                # The order can be further decided by an upper dictionary.
+                try:
+                    values.remove(key)
+                except ValueError:
+                    pass
+                else:
+                    values.insert(0, key)
+
+                table.add(key, values)
+
+    for name, table in tables.items():
+        dest = os.path.join(root_dir, 'dictionary', f'{name}.txt')
+        print(f'updating: {dest}')
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        table.dump(dest)
 
 
 def handle_opencc(root_dir):
@@ -109,6 +170,7 @@ def main():
     root_dir = os.path.normpath(os.path.join(__file__, '..', '..'))
     data_dir = os.path.normpath(os.path.join(root_dir, 'sts', 'data'))
 
+    handle_unihan(os.path.join(data_dir, 'external', 'unihan'))
     handle_opencc(os.path.join(data_dir, 'external', 'opencc'))
     handle_mw(os.path.join(data_dir, 'external', 'mw'))
     handle_tongwen(os.path.join(data_dir, 'external', 'tongwen'))
