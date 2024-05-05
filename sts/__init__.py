@@ -485,12 +485,6 @@ class StsDict():
             for value in values:
                 newdict.add(key, stsdict.apply_enum(value))
 
-        """merge
-
-        Merge entries in stsdict.
-        """
-        newdict.update(stsdict)
-
         """prefix
 
         Convert each key of stsdict using reversed self, enumerating all
@@ -528,7 +522,7 @@ class StsDict():
                 奶 => 妳
             stsdict:
                 奶娘 => 奶媽
-                妳娘 => 妳媽
+                你娘 => 妳媽
             result:
                 妳娘 => 妳媽 奶媽
         """
@@ -542,11 +536,15 @@ class StsDict():
 
         for key, values in stsdict.items():
             for newkey in conv.apply_enum(key, include_short=True, include_self=True):
+                if key not in self.apply_enum(newkey):
+                    continue
                 newdict.add(newkey, values)
 
         for key, values in stsdict.items():
             for newkey in conv_minor.apply_enum(key, include_short=True, include_self=True):
                 if newkey == key:
+                    continue
+                if key not in self.apply_enum(newkey):
                     continue
                 try:
                     assert newdict[newkey]

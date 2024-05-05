@@ -693,32 +693,23 @@ class TestStsDict(unittest.TestCase):
                 }, stsdict)
 
                 stsdict = cls({'妳': ['你', '奶']})
-                stsdict2 = Table({'奶娘': ['奶媽'], '妳娘': []})
+                stsdict2 = Table({'奶娘': ['奶媽'], '你娘': []})
                 stsdict = stsdict.join(stsdict2)
                 self.assertEqual({
                     '妳': ['你', '奶'],
                     '奶娘': ['奶媽'],
                     '妳娘': ['你娘', '奶媽'],
+                    '你娘': [],
                 }, stsdict)
 
                 stsdict = cls({'妳': ['你', '奶']})
-                stsdict2 = Table({'奶娘': ['奶媽'], '妳娘': ['妳媽']})
+                stsdict2 = Table({'奶娘': ['奶媽'], '你娘': ['妳媽']})
                 stsdict = stsdict.join(stsdict2)
                 self.assertEqual({
                     '妳': ['你', '奶'],
                     '奶娘': ['奶媽'],
                     '妳娘': ['妳媽', '奶媽'],
-                }, stsdict)
-
-                stsdict = cls({'妳': ['你', '奶'], '娘': ['孃']})
-                stsdict2 = Table({'奶娘': ['奶媽'], '妳孃': ['妳媽']})
-                stsdict = stsdict.join(stsdict2)
-                self.assertEqual({
-                    '妳': ['你', '奶'],
-                    '娘': ['孃'],
-                    '奶娘': ['奶媽'],
-                    '妳孃': ['妳媽'],
-                    '妳娘': ['妳媽', '奶媽'],
+                    '你娘': ['妳媽'],
                 }, stsdict)
 
                 stsdict = cls({'妳': ['你', '奶'], '孃': ['娘']})
@@ -770,7 +761,7 @@ class TestStsDict(unittest.TestCase):
                 stsdict = stsdict.join(stsdict2)
                 self.assertEqual({
                     '干': ['幹', '乾', '干'],
-                    '白干': ['白做', '白干酒', '白乾杯'],
+                    '白干': ['白做', '白干酒'],
                     '白幹': ['白做'],
                     '白乾': ['白乾杯'],
                 }, stsdict)
@@ -779,6 +770,15 @@ class TestStsDict(unittest.TestCase):
                 stsdict2 = Table({'説': ['說']})
                 stsdict = stsdict.join(stsdict2)
                 self.assertEqual({'说': ['說'], '説': ['說']}, stsdict)
+
+                stsdict = cls({'数': ['數'], '据': ['據', '据'], '数据': ['資料']})
+                stsdict2 = Table({'大資料': ['大量資料'], '大數據': ['大數據']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({
+                    '数': ['數'], '据': ['據', '据'], '数据': ['資料'],
+                    '大数据': ['大量資料'], '大資料': ['大量資料'],
+                    '大数據': ['大數據'], '大數据': ['大數據'], '大數據': ['大數據'],
+                }, stsdict)
 
 
 class TestTable(unittest.TestCase):
