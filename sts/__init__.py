@@ -466,90 +466,96 @@ class StsDict():
         Returns:
             a new object with the same class.
         """
-        dict1 = self._join_postfix(stsdict)
-        dict2 = stsdict._join_prefix(self)
-        return dict1.update(dict2)
+        newdict = self.__class__()
 
-    def _join_prefix(self, stsdict):
-        """Prefix self with stsdict.
+        """postfix
 
-        Convert keys of self using the reversed stsdict, enumerating all
-        possible matches.
-
-        Yield a new key-value pair for the first value of an stsdict entry,
-        e.g.:
-
-            table:
-                註冊表 => 登錄檔
-            stsdict:
-                注 => 註 注
-            reversed stsdict:
-                註 => 注
-            table._join_prefix(stsdict):
-                注冊表 => 登錄檔
-                註冊表 => 登錄檔
-
-        Yield a new minor key-value pair for each minor value of an stsdict
-        entry, e.g.:
-
-            table:
-                註冊表 => 登錄檔
-            stsdict:
-                注 => 注 註
-            reversed stsdict:
-                註 => 注
-            table._join_prefix(stsdict):
-                註冊表 => 登錄檔
-                注冊表 => 注冊表 登錄檔
-
-        Returns:
-            a new object with the same class.
-        """
-        dict_ = self.__class__()
-        converter = self.__class__()
-        converter_minor = self.__class__()
-        for key, values in stsdict.items():
-            for i, value in enumerate(values):
-                if i == 0:
-                    converter.add(value, [key])
-                else:
-                    converter_minor.add(value, [key])
-        for key, values in self.items():
-            for newkey in converter.apply_enum(key, include_short=True, include_self=True):
-                dict_.add(newkey, values)
-            for newkey in converter_minor.apply_enum(key, include_short=True, include_self=True):
-                if newkey == key:
-                    continue
-                try:
-                    assert dict_[newkey]
-                except (KeyError, AssertionError):
-                    dict_.add(newkey, newkey)
-                dict_.add(newkey, values)
-        return dict_
-
-    def _join_postfix(self, stsdict):
-        """Postfix self with stsdict.
-
-        Convert values of self using stsdict, enumerating all maximal matches.
-        Plus all conversions of stsdict.
+        Convert values of self using stsdict, enumerating all longest
+        conversions.
 
         Example:
-            table:
+            self:
                 因为 => 因爲
             stsdict:
                 爲 => 為
-            table._join_postfix(stsdict):
+            result:
                 因为 => 因為
-                爲 => 為
-
-        Returns:
-            a new object with the same class.
         """
-        dict_ = self.__class__()
         for key, values in self.items():
             for value in values:
-                dict_.add(key, stsdict.apply_enum(value))
-        return dict_.update(stsdict)
+                newdict.add(key, stsdict.apply_enum(value))
+
+        """merge
+
+        Merge entries in stsdict.
+        """
+        newdict.update(stsdict)
+
+        """prefix
+
+        Convert each key of stsdict using reversed self, enumerating all
+        possible conversions.
+
+        Add a new key-value pair for the first value of an entry,
+
+        Example:
+            self:
+                纳 => 納
+            self reversed:
+                納 => 纳
+            stsdict:
+                納米 => 奈米
+            result:
+                纳米 => 奈米
+
+        Add a new minor key-value pair (which is never the first candidate) for
+        each minor value of an entry.
+
+        Example:
+            self:
+                妳 => 你 奶
+            self reversed:
+                奶 => 妳
+            stsdict:
+                奶娘 => 奶媽
+            result:
+                妳娘 => 妳娘 奶媽
+
+        Example:
+            self:
+                妳 => 你 奶
+            self reversed:
+                奶 => 妳
+            stsdict:
+                奶娘 => 奶媽
+                妳娘 => 你娘
+            result:
+                妳娘 => 你娘 奶媽
+        """
+        conv = self.__class__()
+        conv_minor = self.__class__()
+        for key, values in self.items():
+            for i, value in enumerate(values):
+                if i == 0:
+                    conv.add(value, [key])
+                else:
+                    conv_minor.add(value, [key])
+
+        for key, values in stsdict.items():
+            for newkey in conv.apply_enum(key, include_short=True, include_self=True):
+                newdict.add(newkey, values)
+
+        for key, values in stsdict.items():
+            for newkey in conv_minor.apply_enum(key, include_short=True, include_self=True):
+                if newkey == key:
+                    continue
+                try:
+                    assert newdict[newkey]
+                except (KeyError, AssertionError):
+                    newdict.add(newkey, newkey)
+                newdict.add(newkey, values)
+
+        return newdict
 
     def _split(self, parts):
         """Split parts into a list of Unicode composites.

@@ -664,40 +664,61 @@ class TestStsDict(unittest.TestCase):
                     stsdict.apply_enum('采信息', include_short=True, include_self=True),
                 )
 
-    def test_prefix(self):
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
-                stsdict = cls({'註冊表': ['登錄檔']})
-                stsdict2 = Table({'注': ['註', '注']})
-                stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual({'注冊表': ['登錄檔'], '註冊表': ['登錄檔']}, stsdict)
-
-                stsdict = cls({'註冊表': ['登錄檔']})
-                stsdict2 = Table({'注': ['注', '註']})
-                stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual({'注冊表': ['注冊表', '登錄檔'], '註冊表': ['登錄檔']}, dict(stsdict))
-
-                stsdict = cls({'注冊表': [], '註冊表': ['登錄檔']})
-                stsdict2 = Table({'注': ['注', '註']})
-                stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual({'注冊表': ['注冊表', '登錄檔'], '註冊表': ['登錄檔']}, stsdict)
-
-                stsdict = cls({'註冊表': ['登錄檔']})
-                stsdict2 = Table({'注': ['注', '註'], '册': ['冊'], '注册': ['註冊']})
-                stsdict = stsdict._join_prefix(stsdict2)
-                self.assertEqual({'注册表': ['登錄檔'], '註冊表': ['登錄檔'], '註册表': ['登錄檔'], '注冊表': ['注冊表', '登錄檔']}, stsdict)
-
-    def test_postfix(self):
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
-                stsdict = cls({'因为': ['因爲']})
-                stsdict2 = Table({'爲': ['為']})
-                stsdict = stsdict._join_postfix(stsdict2)
-                self.assertEqual({'因为': ['因為'], '爲': ['為']}, stsdict)
-
     def test_join(self):
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
+                # postfix
+                stsdict = cls({'因为': ['因爲']})
+                stsdict2 = Table({'爲': ['為']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({'因为': ['因為'], '爲': ['為']}, stsdict)
+
+                # prefix major
+                stsdict = cls({'纳': ['納']})
+                stsdict2 = Table({'納米': ['奈米']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({'纳': ['納'], '納米': ['奈米'], '纳米': ['奈米']}, stsdict)
+
+                # prefix minor
+                stsdict = cls({'妳': ['你', '奶']})
+                stsdict2 = Table({'奶娘': ['奶媽']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({
+                    '妳': ['你', '奶'],
+                    '奶娘': ['奶媽'],
+                    '妳娘': ['妳娘', '奶媽'],
+                }, stsdict)
+
+                stsdict = cls({'妳': ['你', '奶']})
+                stsdict2 = Table({'奶娘': ['奶媽'], '妳娘': []})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({
+                    '妳': ['你', '奶'],
+                    '奶娘': ['奶媽'],
+                    '妳娘': ['妳娘', '奶媽'],
+                }, stsdict)
+
+                stsdict = cls({'妳': ['你', '奶']})
+                stsdict2 = Table({'奶娘': ['奶媽'], '妳娘': ['你娘']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({
+                    '妳': ['你', '奶'],
+                    '奶娘': ['奶媽'],
+                    '妳娘': ['你娘', '奶媽'],
+                }, stsdict)
+
+                stsdict = cls({'妳': ['你', '奶'], '娘': ['孃']})
+                stsdict2 = Table({'奶娘': ['奶媽'], '妳孃': ['你娘']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({
+                    '妳': ['你', '奶'],
+                    '娘': ['孃'],
+                    '奶娘': ['奶媽'],
+                    '妳孃': ['你娘'],
+                    '妳娘': ['你娘', '奶媽'],
+                }, stsdict)
+
+                # complex cases
                 stsdict = cls({'则': ['則'], '达': ['達'], '规': ['規']})
                 stsdict2 = Table({'正則表達式': ['正規表示式'], '表達式': ['表示式']})
                 stsdict = stsdict.join(stsdict2)
@@ -722,21 +743,12 @@ class TestStsDict(unittest.TestCase):
                     '数據': ['資料'], '數据': ['資料'],
                 }, stsdict)
 
-                stsdict = cls({'妳': ['你', '奶']})
-                stsdict2 = Table({'奶媽': ['奶娘']})
-                stsdict = stsdict.join(stsdict2)
-                self.assertEqual({
-                    '妳': ['你', '奶'],
-                    '奶媽': ['奶娘'],
-                    '妳媽': ['妳媽', '奶娘'],
-                }, stsdict)
-
                 stsdict = cls({'汇': ['匯', '彙'], '编': ['編'], '汇编': ['彙編']})
                 stsdict2 = Table({'彙編': ['組譯']})
                 stsdict = stsdict.join(stsdict2)
                 self.assertEqual({
-                    '彙編': ['組譯'], '彙编': ['組譯'], '汇': ['匯', '彙'],
-                    '汇編': ['汇編', '組譯'], '汇编': ['組譯'], '编': ['編'],
+                    '汇': ['匯', '彙'], '编': ['編'], '汇编': ['組譯'],
+                    '彙編': ['組譯'], '彙编': ['組譯'], '汇編': ['汇編', '組譯'],
                 }, stsdict)
 
                 stsdict = cls({'干': ['幹', '乾', '干'], '白干': ['白幹', '白干']})
@@ -744,10 +756,15 @@ class TestStsDict(unittest.TestCase):
                 stsdict = stsdict.join(stsdict2)
                 self.assertEqual({
                     '干': ['幹', '乾', '干'],
-                    '白乾': ['白乾杯'],
                     '白干': ['白做', '白干酒', '白乾杯'],
-                    '白幹': ['白做']
+                    '白幹': ['白做'],
+                    '白乾': ['白乾杯'],
                 }, stsdict)
+
+                stsdict = cls({'说': ['說', '説']})
+                stsdict2 = Table({'説': ['說']})
+                stsdict = stsdict.join(stsdict2)
+                self.assertEqual({'说': ['說'], '説': ['說']}, stsdict)
 
 
 class TestTable(unittest.TestCase):
