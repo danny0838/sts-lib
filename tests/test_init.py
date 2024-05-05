@@ -668,22 +668,16 @@ class TestStsDict(unittest.TestCase):
                 stsdict = stsdict._join_prefix(stsdict2)
                 self.assertEqual({'注冊表': ['登錄檔'], '註冊表': ['登錄檔']}, stsdict)
 
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
                 stsdict = cls({'註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['注', '註']})
                 stsdict = stsdict._join_prefix(stsdict2)
                 self.assertEqual({'注冊表': ['注冊表', '登錄檔'], '註冊表': ['登錄檔']}, dict(stsdict))
 
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
                 stsdict = cls({'注冊表': [], '註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['注', '註']})
                 stsdict = stsdict._join_prefix(stsdict2)
                 self.assertEqual({'注冊表': ['注冊表', '登錄檔'], '註冊表': ['登錄檔']}, stsdict)
 
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
                 stsdict = cls({'註冊表': ['登錄檔']})
                 stsdict2 = Table({'注': ['注', '註'], '册': ['冊'], '注册': ['註冊']})
                 stsdict = stsdict._join_prefix(stsdict2)
@@ -710,8 +704,6 @@ class TestStsDict(unittest.TestCase):
                     '表达式': ['表示式'],
                 }, stsdict)
 
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
                 stsdict = cls({
                     '万用字元': ['萬用字元'], '数据': ['數據'],
                     '万': ['萬', '万'], '数': ['數'], '据': ['據', '据'], '问': ['問'], '题': ['題'],
@@ -726,8 +718,6 @@ class TestStsDict(unittest.TestCase):
                     '数據': ['資料'], '數据': ['資料'],
                 }, stsdict)
 
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
                 stsdict = cls({'妳': ['你', '奶']})
                 stsdict2 = Table({'奶媽': ['奶娘']})
                 stsdict = stsdict.join(stsdict2)
@@ -737,8 +727,6 @@ class TestStsDict(unittest.TestCase):
                     '妳媽': ['妳媽', '奶娘'],
                 }, stsdict)
 
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
                 stsdict = cls({'汇': ['匯', '彙'], '编': ['編'], '汇编': ['彙編']})
                 stsdict2 = Table({'彙編': ['組譯']})
                 stsdict = stsdict.join(stsdict2)
@@ -747,8 +735,6 @@ class TestStsDict(unittest.TestCase):
                     '汇編': ['汇編', '組譯'], '汇编': ['組譯'], '编': ['編'],
                 }, stsdict)
 
-        for cls in (StsDict, Table, Trie):
-            with self.subTest(type=cls):
                 stsdict = cls({'干': ['幹', '乾', '干'], '白干': ['白幹', '白干']})
                 stsdict2 = Table({'白干': ['白干酒'], '白幹': ['白做'], '白乾': ['白乾杯']})
                 stsdict = stsdict.join(stsdict2)
