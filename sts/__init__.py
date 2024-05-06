@@ -920,10 +920,12 @@ class Trie(StsDict):
             except KeyError:
                 break
             try:
-                match = trie['']
-            except KeyError:
+                values = trie['']
+                assert values
+            except (KeyError, AssertionError):
                 pass
             else:
+                match = values
                 match_end = i + 1
             i = i + 1
         if match:
