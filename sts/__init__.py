@@ -487,29 +487,20 @@ class StsDict():
 
         """prefix
 
-        Convert each key of stsdict using reversed self, enumerating all
-        possible conversions.
-
-        Add a new key-value pair for the first value of an entry,
+        Add every string that may become a stsdict key after converted by self
+        as a new key.
 
         Example:
             self:
                 纳 => 納
-            self reversed:
-                納 => 纳
             stsdict:
                 納米 => 奈米
             result:
                 纳米 => 奈米
 
-        Add a new minor key-value pair (which is never the first candidate) for
-        each minor value of an entry.
-
         Example:
             self:
                 妳 => 你 奶
-            self reversed:
-                奶 => 妳
             stsdict:
                 奶娘 => 奶媽
             result:
@@ -518,8 +509,6 @@ class StsDict():
         Example:
             self:
                 妳 => 你 奶
-            self reversed:
-                奶 => 妳
             stsdict:
                 奶娘 => 奶媽
                 你娘 => 妳媽
@@ -527,34 +516,31 @@ class StsDict():
                 妳娘 => 妳媽 奶媽
         """
         conv = self.__class__()
-        conv_minor = self.__class__()
         for key, values in self.items():
-            for i, value in enumerate(values):
-                if i == 0:
-                    conv.add(value, key)
-                conv_minor.add(value, key)
+            for value in values:
+                conv.add(value, key)
 
-        for key, values in stsdict.items():
+        map_keys = {}
+        for key in stsdict:
             for newkey in conv.apply_enum(key, include_short=True, include_self=True):
-                if key not in self.apply_enum(newkey):
-                    continue
-                newdict.add(newkey, values)
+                map_keys.setdefault(newkey, None)
 
-        for key, values in stsdict.items():
-            for newkey in conv_minor.apply_enum(key, include_short=True, include_self=True):
-                if newkey == key:
-                    continue
-                if key not in self.apply_enum(newkey):
-                    continue
+        for key in map_keys:
+            newkeys = self.apply_enum(key)
+            for newkey in newkeys:
                 try:
-                    assert newdict[newkey]
+                    values = stsdict[newkey]
+                    assert values
                 except (KeyError, AssertionError):
-                    newvalue = ''.join(
-                        v.values[0] if isinstance(v, StsDictConv) else v
-                        for v in self.apply(newkey)
-                    )
-                    newdict.add(newkey, newvalue)
-                newdict.add(newkey, values)
+                    pass
+                else:
+                    break
+            else:
+                continue
+
+            for newkey in newkeys:
+                values = stsdict.apply_enum(newkey)
+                newdict.add(key, values)
 
         return newdict
 
