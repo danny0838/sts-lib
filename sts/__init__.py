@@ -636,7 +636,7 @@ class StsDict():
         Returns:
             a list of possible conversions.
         """
-        text = parts
+        _parts = parts
         parts = self._split(parts)
 
         stack = [(parts, 0, 0)]
@@ -654,7 +654,7 @@ class StsDict():
         results = list(results)
 
         if not results:
-            results.append(text if isinstance(text, str) else ''.join(text))
+            results.append(_parts if isinstance(_parts, str) else ''.join(_parts))
 
         return results
 
