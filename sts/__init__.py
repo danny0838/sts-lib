@@ -688,17 +688,29 @@ class StsDict():
 
             i = match.end - 1
 
-        # add atomic stepping (length = 1) case if none
-        #
-        # e.g.
-        # table: 采信 => 採信, 信息 => 訊息
-        # text: ["采", "信", "息"]
-        #
-        # We get a match ["采", "信", "息"] but no atomic match available.
-        #                 ^^^^^^^^^^
-        #
-        # Add ["采", "信", "息"] so that "采訊息" is not missed.
-        #             ^
+        """Add an atomic stepping (index + 1) case if not presented.
+
+        Example:
+            table:
+                信息 => 訊息
+            data:
+                (['采', '信', '息'], 0, 0)
+
+            We get no match, which implies no atomic match (i.e. '采'). Add
+            data=(['采', '信', '息'], 0, 1) so that the possible conversion
+            ['采', '訊息'] is not missing.
+
+        Example:
+            table:
+                采信 => 採信
+                信息 => 訊息
+            data:
+                (['采', '信', '息'], 0, 0)
+
+            We get a match '采信' but no atomic match (i.e. '采'). Add
+            data=(['采', '信', '息'], 0, 1) so that the possible conversion
+            ['采', '訊息'] is not missing.
+        """
         if not has_atomic_match:
             stack.append((parts, matched, index + 1))
 
