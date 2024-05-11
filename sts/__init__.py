@@ -639,17 +639,18 @@ class StsDict():
         _parts = parts
         parts = self._split(parts)
 
-        stack = [(parts, 0, 0)]
+        total = len(parts)
+        stack = [([], 0, 0)]
         substack = []
         results = {}
         while stack:
-            (parts, matched, nextindex) = data = stack.pop()
-            if nextindex < len(parts):
-                self._apply_enum_sub(substack, data, include_short=include_short, include_self=include_self)
+            (newparts, nextindex, matched) = data = stack.pop()
+            if nextindex < total:
+                self._apply_enum_sub(parts, substack, data, include_short=include_short, include_self=include_self)
                 while substack:
                     stack.append(substack.pop())
             elif matched > 0:
-                results[''.join(parts)] = True
+                results[''.join(newparts)] = None
 
         results = list(results)
 
@@ -658,10 +659,10 @@ class StsDict():
 
         return results
 
-    def _apply_enum_sub(self, stack, data, include_short=False, include_self=False):
+    def _apply_enum_sub(self, parts, stack, data, include_short=False, include_self=False):
         """Helper function of apply_enum
         """
-        (parts, matched, index) = data
+        (newparts, index, matched) = data
         has_atomic_match = False
         i = math.inf
         while i > index:
@@ -680,8 +681,7 @@ class StsDict():
                     values = itertools.chain(values, (value,))
 
             for value in values:
-                result = parts[:index] + [value] + parts[match.end:]
-                stack.append((result, matched + 1, index + 1))
+                stack.append((newparts + [value], match.end, matched + 1))
 
             if not include_short:
                 return
@@ -693,26 +693,32 @@ class StsDict():
         Example:
             table:
                 信息 => 訊息
+            parts:
+                ['采', '信', '息']
             data:
-                (['采', '信', '息'], 0, 0)
+                ([], 0, 0)
 
             We get no match, which implies no atomic match (i.e. '采'). Add
-            data=(['采', '信', '息'], 0, 1) so that the possible conversion
-            ['采', '訊息'] is not missing.
+            data=([], 1, 0) so that the possible conversion ['采', '訊息'] is
+            not missing.
 
         Example:
             table:
                 采信 => 採信
                 信息 => 訊息
+            parts:
+                ['采', '信', '息']
             data:
-                (['采', '信', '息'], 0, 0)
+                ([], 0, 0)
 
             We get a match '采信' but no atomic match (i.e. '采'). Add
-            data=(['采', '信', '息'], 0, 1) so that the possible conversion
-            ['采', '訊息'] is not missing.
+            data=([], 1, 0) so that the possible conversion ['采', '訊息'] is
+            not missing.
         """
         if not has_atomic_match:
-            stack.append((parts, matched, index + 1))
+            # reuse newparts for better performance
+            newparts.append(parts[index])
+            stack.append((newparts, index + 1, matched))
 
 
 class Table(StsDict):
