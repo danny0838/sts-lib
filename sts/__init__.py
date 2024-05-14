@@ -529,8 +529,7 @@ class StsDict():
             newkeys = self.apply_enum(key)
             for newkey in newkeys:
                 try:
-                    values = stsdict[newkey]
-                    assert values
+                    assert stsdict[newkey]
                 except (KeyError, AssertionError):
                     pass
                 else:
