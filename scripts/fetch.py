@@ -118,13 +118,17 @@ def handle_opencc(root_dir):
     with zipfile.ZipFile(file) as zh:
         for zinfo in zh.infolist():
             # remove top dir from path
-            zinfo.filename = '/'.join(zinfo.filename.split('/')[1:])
+            subpath = '/'.join(zinfo.filename.split('/')[1:])
 
-            for src, dst in OPENCC_DIR_MAP.items():
-                if os.path.dirname(zinfo.filename) == src:
-                    zinfo.filename = f'{dst}/{os.path.basename(zinfo.filename)}'
-                    print(f'extracting: {zinfo.filename}')
-                    zh.extract(zinfo, root_dir)
+            dir, filename = os.path.split(subpath)
+            try:
+                newdir = OPENCC_DIR_MAP[dir]
+            except KeyError:
+                continue
+
+            zinfo.filename = f'{newdir}/{filename}'
+            print(f'extracting: {subpath} => {zinfo.filename}')
+            zh.extract(zinfo, root_dir)
 
 
 def handle_mw(root_dir):
