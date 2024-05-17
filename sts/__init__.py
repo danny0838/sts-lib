@@ -99,7 +99,9 @@ class Unicode():
         """Test if code is a valid "hanzi" in an IDS.
 
         IDS := Ideographic | Radical | CJK_Stroke | Private Use
-             | U+FF1F | IDS_BinaryOperator IDS IDS
+             | U+FF1F
+             | IDS_UnaryOperator IDS
+             | IDS_BinaryOperator IDS IDS
              | IDS_TrinaryOperator IDS IDS IDS
         """
         return (
@@ -135,7 +137,11 @@ class Unicode():
                 # ideographic variation indicator
                 is_ids = True
                 length += 1
-            elif 0x2FF0 <= code <= 0x2FF1 or 0x2FF4 <= code <= 0x2FFB:
+            elif 0x2FFE <= code <= 0x2FFF:
+                # IDS unary operator
+                is_ids = True
+                length += 1
+            elif 0x2FF0 <= code <= 0x2FF1 or 0x2FF4 <= code <= 0x2FFD or code == 0x31EF:
                 # IDS binary operator
                 is_ids = True
                 length += 2

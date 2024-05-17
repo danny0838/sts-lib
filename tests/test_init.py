@@ -122,8 +122,17 @@ class TestStreamList(unittest.TestCase):
 
 class TestUnicode(unittest.TestCase):
     def test_split_ids_basic(self):
-        self.assertEqual(['沙', '⿰虫风', '简', '转', '繁'], Unicode.split('沙⿰虫风简转繁'))
-        self.assertEqual(['沙', '⿱艹⿰虫风', '简', '转', '繁'], Unicode.split('沙⿱艹⿰虫风简转繁'))
+        for ids in (
+            '⿰木目', '⿱木口', '⿲彳氵亍', '⿳亠口小',
+            '⿴囗口', '⿵𠘨皇', '⿷匚斤', '⿸疒丙',
+            '⿹戈廾', '⿺走召', '⿻工从', '⿼叉丶',
+            '⿽⺀十', '⿺走召', '⿻工从', '⿼叉丶', '⿽水丶',
+            '⿾正', '⿿凹',
+            '㇯豕一',
+            '⿱艹⿰虫风', '⿱𡩧⿺進⿰貝招',
+        ):
+            with self.subTest(ids=ids):
+                self.assertEqual([ids], Unicode.split(ids))
 
         for coderange in (
             (0x20000, 0x2A6DF),  # Ext-B
