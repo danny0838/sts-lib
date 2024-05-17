@@ -27,16 +27,14 @@ root_dir = os.path.dirname(__file__)
 
 
 def setUpModule():
-    """Set up a temp directory for testing
-    """
+    """Set up a temp directory for testing"""
     global _tmpdir, tmpdir
     _tmpdir = tempfile.TemporaryDirectory(prefix='init-')
     tmpdir = _tmpdir.name
 
 
 def tearDownModule():
-    """Cleanup the temp directory
-    """
+    """Cleanup the temp directory"""
     _tmpdir.cleanup()
 
 

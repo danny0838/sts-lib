@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""An open library for flexible simplified-traditional Chinese text conversion.
-"""
+"""An open library for flexible simplified-traditional Chinese text conversion."""
 import html
 import itertools
 import json
@@ -91,8 +90,7 @@ class StreamList(list):
 
 
 class Unicode():
-    """Utilities for Unicode string handling.
-    """
+    """Utilities for Unicode string handling."""
     @staticmethod
     def composite_length(text, pos):
         """Get the length of the Unicode composite at pos.
@@ -178,8 +176,7 @@ class Unicode():
 
     @classmethod
     def split(cls, text):
-        """Split a text into a list of Unicode composites.
-        """
+        """Split a text into a list of Unicode composites."""
         i = 0
         total = len(text)
         result = []
@@ -210,33 +207,27 @@ class StsDict():
         self.update(dict(*args, **kwargs))
 
     def __repr__(self):
-        """Implementation of repr(self).
-        """
+        """Implementation of repr(self)."""
         return f'{self.__class__.__name__}({repr(list(self.items()))})'
 
     def __getitem__(self, key):
-        """Implementation of self[key].
-        """
+        """Implementation of self[key]."""
         return self._dict[key]
 
     def __contains__(self, item):
-        """Implementation of "item in self".
-        """
+        """Implementation of "item in self"."""
         return item in self._dict
 
     def __len__(self):
-        """Implementation of len(self).
-        """
+        """Implementation of len(self)."""
         return len(self._dict)
 
     def __iter__(self):
-        """Implementation of iter(self).
-        """
+        """Implementation of iter(self)."""
         return iter(self._dict)
 
     def __eq__(self, other):
-        """Implementation of "==" operator.
-        """
+        """Implementation of "==" operator."""
         if not isinstance(other, (dict, StsDict)):
             return False
 
@@ -257,23 +248,19 @@ class StsDict():
         return True
 
     def __delitem__(self, key):
-        """Implementation of del self[key].
-        """
+        """Implementation of del self[key]."""
         del self._dict[key]
 
     def keys(self):
-        """Get a generator of keys.
-        """
+        """Get a generator of keys."""
         yield from self._dict.keys()
 
     def values(self):
-        """Get a generator of values.
-        """
+        """Get a generator of values."""
         yield from self._dict.values()
 
     def items(self):
-        """Get a generator of key-values pairs.
-        """
+        """Get a generator of key-values pairs."""
         yield from self._dict.items()
 
     def add(self, key, values, skip_check=False):
@@ -659,8 +646,7 @@ class StsDict():
         return results
 
     def _apply_enum_sub(self, parts, stack, data, include_short=False, include_self=False):
-        """Helper function of apply_enum
-        """
+        """Helper function of apply_enum"""
         (newparts, index, matched) = data
         has_atomic_match = False
         i = math.inf
@@ -794,8 +780,7 @@ class Trie(StsDict):
     NOTE: The internal data format is different from base StsDict.
     """
     def __getitem__(self, key):
-        """Implementation of self[key].
-        """
+        """Implementation of self[key]."""
         trie = self._dict
         try:
             for comp in Unicode.split(key):
@@ -805,8 +790,7 @@ class Trie(StsDict):
             raise KeyError(key)
 
     def __contains__(self, item):
-        """Implementation of "item in self".
-        """
+        """Implementation of "item in self"."""
         try:
             self[item]
         except KeyError:
@@ -815,18 +799,15 @@ class Trie(StsDict):
             return True
 
     def __len__(self):
-        """Implementation of len(self).
-        """
+        """Implementation of len(self)."""
         return sum(1 for _ in self)
 
     def __iter__(self):
-        """Implementation of iter(self).
-        """
+        """Implementation of iter(self)."""
         return self.keys()
 
     def __delitem__(self, key):
-        """Implementation of del self[key].
-        """
+        """Implementation of del self[key]."""
         trie = self._dict
         try:
             for comp in Unicode.split(key):
@@ -836,8 +817,7 @@ class Trie(StsDict):
             raise KeyError(key)
 
     def keys(self):
-        """Get a generator of keys.
-        """
+        """Get a generator of keys."""
         trie = self._dict
         stack = [('', trie, iter(trie))]
         while stack:
@@ -853,8 +833,7 @@ class Trie(StsDict):
                 stack.pop()
 
     def values(self):
-        """Get a generator of values.
-        """
+        """Get a generator of values."""
         trie = self._dict
         stack = [(trie, iter(trie))]
         while stack:
@@ -870,8 +849,7 @@ class Trie(StsDict):
                 stack.pop()
 
     def items(self):
-        """Get a generator of key-values pairs.
-        """
+        """Get a generator of key-values pairs."""
         trie = self._dict
         stack = [('', trie, iter(trie))]
         while stack:
@@ -939,8 +917,7 @@ class Trie(StsDict):
 
 
 class StsMaker():
-    """A class for making dictionary file(s).
-    """
+    """A class for making dictionary file(s)."""
     config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
     dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
 
@@ -1397,8 +1374,7 @@ class StsMaker():
 
 
 class StsConverter():
-    """Convert a text using an stsdict.
-    """
+    """Convert a text using an stsdict."""
     exclude_return_group_pattern = re.compile(r'^return\d*$')
     template_placeholder_pattern = re.compile(r'%(\w*)%')
     htmlpage_template = os.path.join(os.path.dirname(__file__), 'data', 'htmlpage.tpl.html')
@@ -1459,8 +1435,7 @@ class StsConverter():
             yield from self.table.apply(t)
 
     def convert_formatted(self, text, format=None, exclude=None):
-        """Convert a text and yield each formatted part.
-        """
+        """Convert a text and yield each formatted part."""
         conv = self.convert(text, exclude=exclude)
         format = format if format is not None else 'txt'
         formatter = getattr(self, f'_convert_formatted_{format}')
