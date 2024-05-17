@@ -121,18 +121,28 @@ class TestStreamList(unittest.TestCase):
 
 
 class TestUnicode(unittest.TestCase):
-    def test_split(self):
+    def test_split_ids_basic(self):
         self.assertEqual(['沙', '⿰虫风', '简', '转', '繁'], Unicode.split('沙⿰虫风简转繁'))
         self.assertEqual(['沙', '⿱艹⿰虫风', '简', '转', '繁'], Unicode.split('沙⿱艹⿰虫风简转繁'))
+        self.assertEqual(['⿱𠀀𠀀'], Unicode.split('⿱𠀀𠀀'))
+
+    def test_split_ids_non_hanzi(self):
         self.assertEqual(['「', '⿰⿱⿲⿳', '」', '不', '影', '響'], Unicode.split('「⿰⿱⿲⿳」不影響'))
         self.assertEqual(['⿰⿱⿲⿳', ' ', '不', '影', '響'], Unicode.split('⿰⿱⿲⿳ 不影響'))
         self.assertEqual(['⿸⿹⿺⿻', '\n', '不', '影', '響'], Unicode.split('⿸⿹⿺⿻\n不影響'))
+
+    def test_split_ids_bad_length(self):
         self.assertEqual(['⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'], Unicode.split('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻長度不夠'))
-        self.assertEqual(['刀', '〾劍', ' ', '〾劍', '訢', ' ', '劍', '〾訢', ' ', '〾劍', '〾訢'], Unicode.split('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'))
+
+    def test_split_vs(self):
         self.assertEqual(['刀', '劍󠄁', ' ', '劍󠄃', '訢'], Unicode.split('刀劍󠄁 劍󠄃訢'))
         self.assertEqual(['刀', '劍󠄁󠄂', ' ', '劍󠄁󠄂', '訢'], Unicode.split('刀劍󠄁󠄂 劍󠄁󠄂訢'))
-        self.assertEqual(['⿱𠀀𠀀', '芀', '⿱〾艹劍󠄁', '無', '情'], Unicode.split('⿱𠀀𠀀芀⿱〾艹劍󠄁無情'))
 
+    def test_split_ivi(self):
+        self.assertEqual(['刀', '〾劍', ' ', '〾劍', '訢', ' ', '劍', '〾訢', ' ', '〾劍', '〾訢'], Unicode.split('刀〾劍 〾劍訢 劍〾訢 〾劍〾訢'))
+        self.assertEqual(['芀', '⿱〾艹劍󠄁', '無', '情'], Unicode.split('芀⿱〾艹劍󠄁無情'))
+
+    def test_split_other_composer(self):
         self.assertEqual(['A', '片', ' ', 'Å', '片', ' ', 'A̧', '片', ' ', 'Å̧', '片'], Unicode.split('A片 Å片 A̧片 Å̧片'))
         self.assertEqual(['á', 'é', 'í', 'ó', 'ú', 'ý'], Unicode.split('áéíóúý'))
         self.assertEqual(['á', 'é', 'í', 'ó', 'ú', 'ý'], Unicode.split('áéíóúý'))
