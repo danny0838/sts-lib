@@ -90,9 +90,31 @@ class StreamList(list):
 
 
 class Unicode():
-    """Utilities for Unicode string handling."""
-    @staticmethod
-    def composite_length(text, pos):
+    """Utilities for Unicode string handling.
+
+    We also allow IVI and VS in an IDS.
+    """
+    @classmethod
+    def is_valid_ids_hanzi(cls, code):
+        """Test if code is a valid "hanzi" in an IDS.
+
+        IDS := Ideographic | Radical | CJK_Stroke | Private Use
+             | U+FF1F | IDS_BinaryOperator IDS IDS
+             | IDS_TrinaryOperator IDS IDS IDS
+        """
+        return (
+            0x4E00 <= code <= 0x9FFF  # CJK unified
+            or 0x3400 <= code <= 0x4DBF or 0x20000 <= code <= 0x3FFFF  # Ext-A, ExtB+
+            or 0xF900 <= code <= 0xFAFF or 0x2F800 <= code <= 0x2FA1F  # Compatibility
+            or 0x2E80 <= code <= 0x2FDF  # Radical
+            or 0x31C0 <= code <= 0x31EF  # Stroke
+            or 0xE000 <= code <= 0xF8FF or 0xF0000 <= code <= 0x1FFFFF  # Private
+            or code == 0xFF1F  # ？
+            or 0xFE00 <= code <= 0xFE0F or 0xE0100 <= code <= 0xE01EF  # VS (non-standard)
+        )
+
+    @classmethod
+    def composite_length(cls, text, pos):
         """Get the length of the Unicode composite at pos.
 
         A unicode composite is a complex of characters with composers.
@@ -120,25 +142,10 @@ class Unicode():
                 # IDS trinary operator
                 is_ids = True
                 length += 3
-            elif is_ids and not (
-                0x4E00 <= code <= 0x9FFF  # CJK unified
-                or 0x3400 <= code <= 0x4DBF or 0x20000 <= code <= 0x3FFFF  # Ext-A, ExtB+
-                or 0xF900 <= code <= 0xFAFF or 0x2F800 <= code <= 0x2FA1F  # Compatibility
-                or 0x2E80 <= code <= 0x2FDF  # Radical
-                or 0x31C0 <= code <= 0x31EF  # Stroke
-                or 0xE000 <= code <= 0xF8FF or 0xF0000 <= code <= 0x1FFFFF  # Private
-                or code == 0xFF1F  # ？
-                or 0xFE00 <= code <= 0xFE0F or 0xE0100 <= code <= 0xE01EF  # VS
-            ):
+            elif is_ids and not cls.is_valid_ids_hanzi(code):
                 # check for a valid IDS to avoid a breaking on e.g.:
                 #
                 #     IDS包括⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，可用於…
-                #
-                # - IDS := Ideographic | Radical | CJK_Stroke | Private Use
-                #        | U+FF1F | IDS_BinaryOperator IDS IDS
-                #        | IDS_TrinaryOperator IDS IDS IDS
-                #
-                # - We also allow IVI and VS in an IDS.
                 break
 
             # check if the next char is a postfix composer
