@@ -104,8 +104,9 @@ class Unicode():
         """
         return (
             0x4E00 <= code <= 0x9FFF  # CJK unified
-            or 0x3400 <= code <= 0x4DBF or 0x20000 <= code <= 0x3FFFF  # Ext-A, ExtB+
-            or 0xF900 <= code <= 0xFAFF or 0x2F800 <= code <= 0x2FA1F  # Compatibility
+            or 0x3400 <= code <= 0x4DBF  # Ext-A
+            or 0xF900 <= code <= 0xFAFF  # CJK Compatibility Ideographs
+            or 0x20000 <= code <= 0x3FFFF  # ExtB+ (including CJK Compatibility Ideographs Supplement)
             or 0x2E80 <= code <= 0x2FDF  # Radical
             or 0x31C0 <= code <= 0x31EF  # Stroke
             or 0xE000 <= code <= 0xF8FF or 0xF0000 <= code <= 0x1FFFFF  # Private

@@ -124,7 +124,22 @@ class TestUnicode(unittest.TestCase):
     def test_split_ids_basic(self):
         self.assertEqual(['沙', '⿰虫风', '简', '转', '繁'], Unicode.split('沙⿰虫风简转繁'))
         self.assertEqual(['沙', '⿱艹⿰虫风', '简', '转', '繁'], Unicode.split('沙⿱艹⿰虫风简转繁'))
-        self.assertEqual(['⿱𠀀𠀀'], Unicode.split('⿱𠀀𠀀'))
+
+        for coderange in (
+            (0x20000, 0x2A6DF),  # Ext-B
+            (0x2A700, 0x2B73F),  # Ext-C
+            (0x2B740, 0x2B81F),  # Ext-D
+            (0x2B820, 0x2CEAF),  # Ext-E
+            (0x2CEB0, 0x2EBEF),  # Ext-F
+            (0x30000, 0x3134F),  # Ext-G
+            (0x31350, 0x323AF),  # Ext-H
+            (0x2EBF0, 0x2EE5D),  # Ext-I
+            (0xF900, 0xFAFF),    # CJK Compatibility Ideographs
+            (0x2F800, 0x2FA1F),  # CJK Compatibility Ideographs Supplement
+        ):
+            with self.subTest(coderange=coderange):
+                input = ''.join(('⿰', chr(coderange[0]), chr(coderange[1])))
+                self.assertEqual([input], Unicode.split(input))
 
     def test_split_ids_non_hanzi(self):
         self.assertEqual(['「', '⿰⿱⿲⿳', '」', '不', '影', '響'], Unicode.split('「⿰⿱⿲⿳」不影響'))
