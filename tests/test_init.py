@@ -182,6 +182,33 @@ class TestUnicode(unittest.TestCase):
             Unicode.split('Lorem ipsum dolor sit amet.'),
         )
 
+    def test_is_hanzi(self):
+        self.assertTrue(Unicode.is_hanzi(ord('⿰')))
+        self.assertTrue(Unicode.is_hanzi(ord('　')))
+        self.assertTrue(Unicode.is_hanzi(ord('〇')))
+        self.assertTrue(Unicode.is_hanzi(ord('あ')))
+        self.assertTrue(Unicode.is_hanzi(ord('ア')))
+        self.assertTrue(Unicode.is_hanzi(ord('ㄅ')))
+        self.assertTrue(Unicode.is_hanzi(ord('㆝')))
+        self.assertTrue(Unicode.is_hanzi(ord('ㆠ')))
+        self.assertTrue(Unicode.is_hanzi(ord('㋋')))
+        self.assertTrue(Unicode.is_hanzi(ord('！')))
+        self.assertTrue(Unicode.is_hanzi(ord('０')))
+        self.assertTrue(Unicode.is_hanzi(ord('Ａ')))
+        self.assertTrue(Unicode.is_hanzi(ord('ａ')))
+        self.assertTrue(Unicode.is_hanzi(ord('～')))
+
+        self.assertFalse(Unicode.is_hanzi(ord('.')))
+        self.assertFalse(Unicode.is_hanzi(ord('?')))
+        self.assertFalse(Unicode.is_hanzi(ord('·')))
+        self.assertFalse(Unicode.is_hanzi(ord('0')))
+        self.assertFalse(Unicode.is_hanzi(ord('9')))
+        self.assertFalse(Unicode.is_hanzi(ord('A')))
+        self.assertFalse(Unicode.is_hanzi(ord('Z')))
+        self.assertFalse(Unicode.is_hanzi(ord('a')))
+        self.assertFalse(Unicode.is_hanzi(ord('z')))
+        self.assertFalse(Unicode.is_hanzi(ord('À')))
+
 
 class TestStsDict(unittest.TestCase):
     def setUp(self):
@@ -2139,6 +2166,55 @@ class TestStsMaker(unittest.TestCase):
         with mock.patch('sts.StsDict.dump') as mocker:
             StsMaker().make(config_file, quiet=True)
             mocker.assert_called_with(mock.ANY, sort=mock.ANY, check=True)
+
+    def test_dict_auto_space(self):
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': 'dict.jlist',
+                        'mode': 'load',
+                        'src': [
+                            'dict.json',
+                        ],
+                        'auto_space': True,
+                    },
+                ],
+            }, fh)
+
+        with open(os.path.join(self.root, 'dict.json'), 'w', encoding='UTF-8') as fh:
+            json.dump({
+                '干姜': ['乾薑'],
+                '植物の优': ['植物の優'],
+                '０只': ['０隻'],
+                'Ｂ肝': ['Ｂ肝'],
+
+                '1只': ['1隻'],
+                '吃1只': ['吃1隻'],
+                'SQL注入': ['SQL隱碼攻擊'],
+            }, fh)
+
+        stsdict = StsMaker().make(config_file, quiet=True)
+        self.assertEqual(os.path.join(self.root, 'dict.jlist'), stsdict)
+        stsdict = Table.loadjson(stsdict)
+        self.assertEqual(
+            {
+                '干姜': ['乾薑'],
+                '植物の优': ['植物の優'],
+                '０只': ['０隻'],
+                'Ｂ肝': ['Ｂ肝'],
+
+                '1只': ['1隻'],
+                '吃1只': ['吃1隻'],
+                'SQL注入': ['SQL隱碼攻擊'],
+
+                '1 只': ['1 隻'],
+                '吃 1 只': ['吃 1 隻'],
+                'SQL 注入': ['SQL 隱碼攻擊'],
+            },
+            stsdict,
+        )
 
     def test_get_config_file(self):
         # absolute path

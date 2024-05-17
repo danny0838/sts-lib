@@ -6,6 +6,7 @@
   "dicts": [
     {
       "file": "../dictionary/s2twp.tlist",
+      "auto_space": true,
       "mode": "join",
       "src": [
         {

@@ -117,6 +117,26 @@ class Unicode():
         )
 
     @classmethod
+    def is_hanzi(cls, code):
+        """Test if code is a "hanzi" (which prefers no space)."""
+        return (
+            cls.is_valid_ids_hanzi(code)
+            or 0x2FF0 <= code <= 0x33FF  # IDS operator
+                                         # CJK Symbols and Punctuation (including IVI)
+                                         # Hiragana
+                                         # Katakana
+                                         # Bopomofo
+                                         # Hangul Compatibility Jamo
+                                         # Kanbun
+                                         # Bopomofo Extended
+                                         # (CJK Strokes)
+                                         # Katakana Phonetic Extensions
+                                         # Enclosed CJK Letters and Months
+                                         # CJK Compatibility
+            or 0xFF00 <= code <= 0xFFEF  # Halfwidth and Fullwidth Forms
+        )
+
+    @classmethod
     def composite_length(cls, text, pos):
         """Get the length of the Unicode composite at pos.
 
@@ -1074,6 +1094,7 @@ class StsMaker():
         mode = dict_scheme.setdefault('mode', 'load')
         dict_scheme['sort'] = bool(dict_scheme.get('sort'))
         dict_scheme['check'] = bool(dict_scheme.get('check'))
+        dict_scheme['auto_space'] = bool(dict_scheme.get('auto_space'))
 
         if mode == 'filter':
             method = dict_scheme.setdefault('method', 'remove_key_values')
@@ -1140,6 +1161,9 @@ class StsMaker():
             raise ValueError(f'Specified mode is not supported: {mode}')
         else:
             table = func(dict_scheme)
+
+        if dict_scheme['auto_space']:
+            self._make_dict_auto_space(table)
 
         if dest:
             os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -1300,6 +1324,31 @@ class StsMaker():
                     pass
             if not t:
                 del table[k]
+
+    def _make_dict_auto_space(self, table):
+        extra_table = Table()
+        for key, values in table.items():
+            newkey = self._make_dict_auto_space_make_spaced(key)
+            if newkey != key and newkey not in table:
+                newvalues = [self._make_dict_auto_space_make_spaced(v) for v in values]
+                extra_table.add(newkey, newvalues)
+        for key, values in extra_table.items():
+            table.add(key, values, skip_check=True)
+
+    @staticmethod
+    def _make_dict_auto_space_make_spaced(text):
+        last_is_hanzi = None
+        rv = []
+        parts = Unicode.split(text)
+        for part in parts:
+            is_hanzi = all(Unicode.is_hanzi(ord(c)) for c in part)
+            if last_is_hanzi is None:
+                last_is_hanzi = is_hanzi
+            elif last_is_hanzi != is_hanzi:
+                rv.append(' ')
+                last_is_hanzi = is_hanzi
+            rv.append(part)
+        return ''.join(rv)
 
     def get_config_file(self, config, base_dir=None):
         """Calculate the path of a config file.

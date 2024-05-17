@@ -6,6 +6,7 @@
   "dicts": [
     {
       "file": "../dictionary/hk2s.tlist",
+      "auto_space": true,
       "mode": "join",
       "src": [
         {

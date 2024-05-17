@@ -6,6 +6,7 @@
   "dicts": [
     {
       "file": "../dictionary/hk2t.tlist",
+      "auto_space": true,
       "mode": "load",
       "src": [
         "../dictionary/HKVariantsRevPhrases.txt",

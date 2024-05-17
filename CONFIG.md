@@ -53,6 +53,9 @@
  *     when the output is a plain text table file and the source files contain
  *     untrusted JSON or YAML data that may include a char like " ", "\t",
  *     "\n", etc. in the dictionary.
+ * @property {boolean} [auto_space] - true to automatically add spaced version
+ *     at non-Hanzi borders for the output dictionary. (e.g. add
+ *     `"SQL 注入" => "SQL 隱碼攻擊"` for `"SQL注入" => "SQL隱碼攻擊"`)
  * @property {string[]} [placeholders] - strings to be expanded using other
  *     dicts. (for "expand" mode)
  * @property {string} [method=remove_key_values] - how to filter (for "filter"

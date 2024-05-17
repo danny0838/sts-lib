@@ -6,6 +6,7 @@
   "dicts": [
     {
       "file": "../dictionary/tw2sp.tlist",
+      "auto_space": true,
       "mode": "join",
       "src": [
         {

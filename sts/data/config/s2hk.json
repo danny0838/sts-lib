@@ -3,6 +3,7 @@
   "dicts": [
     {
       "file": "../dictionary/s2hk.tlist",
+      "auto_space": true,
       "mode": "join",
       "src": [
         {

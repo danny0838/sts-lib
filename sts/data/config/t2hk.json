@@ -3,6 +3,7 @@
   "dicts": [
     {
       "file": "../dictionary/t2hk.tlist",
+      "auto_space": true,
       "mode": "load",
       "src": [
         "../dictionary/HKVariants.txt"

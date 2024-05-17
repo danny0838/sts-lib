@@ -3,6 +3,7 @@
   "dicts": [
     {
       "file": "../dictionary/t2s.tlist",
+      "auto_space": true,
       "mode": "load",
       "src": [
         "../dictionary/TSPhrases.txt",
