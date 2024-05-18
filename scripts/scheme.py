@@ -14,6 +14,7 @@ scheme_trad_table = {
     'src': os.path.join(root, 'sts', 'data', 'scheme', 'traditional.tsv'),
     'fields': ['trad', 'vars', 'cn', 'tw', 'hk', 'jp', 'jpg', 'notes'],
     'fields_as_list': {'vars', 'cn', 'tw', 'hk', 'jp', 'jpg'},
+    'has_header': True,
 }
 
 scheme_st_multi_table = {
@@ -38,6 +39,7 @@ class CharTable(dict):
         self.fields = scheme['fields']
         self.fields_as_list = scheme.get('fields_as_list', set())
         self.dialect = scheme.get('dialect', 'char-table')
+        self.has_header = scheme.get('has_header', False)
 
     @contextmanager
     def open(self, mode='r'):
@@ -48,15 +50,27 @@ class CharTable(dict):
         elif mode == 'w':
             with open(self.src, 'w', encoding='UTF-8') as fh:
                 writer = csv.DictWriter(fh, fieldnames=self.fields, extrasaction='ignore', dialect=self.dialect)
+                if self.has_header:
+                    writer.writeheader()
                 yield writer
         else:
             raise ValueError(f'unsupported mode: {mode}')
 
     def _open_reader(self, reader):
+        # skip an optional header row
+        if self.has_header:
+            reader = self._open_iterrows(reader)
+
         for row in reader:
             for field in self.fields_as_list:
                 row[field] = [v for v in row[field].split(' ') if v]
             yield row
+
+    def _open_iterrows(self, reader):
+        header = next(reader, None)
+        if header and list(header.values()) != self.fields:
+            yield header
+        yield from reader
 
     def load(self):
         with self.open() as reader:
