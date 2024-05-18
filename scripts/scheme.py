@@ -4,6 +4,7 @@ import argparse
 import csv
 import os
 from contextlib import contextmanager
+from functools import reduce
 from textwrap import dedent
 
 root = os.path.normpath(os.path.join(__file__, '..', '..'))
@@ -202,6 +203,31 @@ def merge_STCharacters():  # noqa: N802
 def merge_TSCharacters():  # noqa: N802
     table = CharTable(scheme_trad_table).load()
 
+    table_st = {}
+    for trad, entry in table.items():
+        for simp in entry['cn']:
+            table_st.setdefault(simp, []).append(trad)
+
+    def find_newtrad_reducer(acc, cur):
+        for k in list(acc):
+            if k not in cur:
+                del acc[k]
+        return acc
+
+    def find_newtrad(simps):
+        # search for a common traditional char of simps
+        newtrads_dicts = [dict.fromkeys(table_st.get(simp, [])) for simp in simps]
+        newtrads = reduce(find_newtrad_reducer, newtrads_dicts)
+        if newtrads:
+            return next(iter(newtrads))
+
+        # search for a simp that is defined as a traditional char
+        for simp in simps:
+            if simp in table:
+                return simp
+
+        return None
+
     with CharTable(
         src=os.path.join(root, 'sts', 'data', 'dictionary', 'TSCharacters.txt'),
         fields=['trad', 'simps'],
@@ -213,9 +239,18 @@ def merge_TSCharacters():  # noqa: N802
             try:
                 entry = table[trad]
             except KeyError:
-                pass
-            else:
-                entry['cn'] = list(dict.fromkeys(simps + entry['cn']))
+                # trad is not defined as traditional and may be a variant of
+                # another traditional char. Try to find the appropriate
+                # traditional char.
+                newtrad = find_newtrad(simps)
+                if newtrad:
+                    entry = table[newtrad]
+                    print(f'taking {newtrad} as traditional and {trad} as variant')
+                    if trad not in entry['vars']:
+                        entry['vars'].append(trad)
+                else:
+                    continue
+            entry['cn'] = list(dict.fromkeys(simps + entry['cn']))
 
     table.save()
 
