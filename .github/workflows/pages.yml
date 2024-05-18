@@ -63,7 +63,7 @@ jobs:
 
       - name: Build static site contents
         run: |
-          python scripts/build.py
+          python scripts/build.py site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

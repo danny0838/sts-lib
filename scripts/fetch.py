@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fetch and update external resources"""
+"""Fetch and update external resources."""
+import argparse
 import json
 import os
 import re
@@ -170,7 +171,7 @@ def handle_tongwen(root_dir):
             json.dump(data, fh, indent=2, ensure_ascii=False, check_circular=False)
 
 
-def main():
+def fetch():
     root_dir = os.path.normpath(os.path.join(__file__, '..', '..'))
     data_dir = os.path.normpath(os.path.join(root_dir, 'sts', 'data'))
 
@@ -178,6 +179,16 @@ def main():
     handle_opencc(os.path.join(data_dir, 'external', 'opencc'))
     handle_mw(os.path.join(data_dir, 'external', 'mw'))
     handle_tongwen(os.path.join(data_dir, 'external', 'tongwen'))
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    return parser.parse_args(argv)
+
+
+def main():
+    parse_args()
+    fetch()
 
 
 if __name__ == '__main__':

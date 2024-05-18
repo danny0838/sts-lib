@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Build htmlpage"""
+"""Build template files and/or static website."""
+import argparse
 import glob
 import os
 import shutil
+import textwrap
 
 import jinja2
 
@@ -46,7 +48,7 @@ def make_from_configs(config_dir, dest_dir, maker):
             shutil.copyfile(file, dest)
 
 
-def main():
+def build(entities=None):
     root_dir = os.path.normpath(os.path.join(__file__, '..', '..'))
     data_dir = os.path.normpath(os.path.join(root_dir, 'sts', 'data'))
     tpl_dir = os.path.normpath(os.path.join(data_dir, 'htmlpage'))
@@ -55,38 +57,66 @@ def main():
         loader=jinja2.FileSystemLoader(tpl_dir),
     )
 
-    # build template for CLI -f htmlpage
-    file = os.path.join(data_dir, 'htmlpage.tpl.html')
-    tpl = env.get_template('index_single.html')
-    render_on_demand(file, tpl, env, single_page=True)
+    # build template files
+    if not entities or 'templates' in entities:
+        # build template for CLI -f htmlpage
+        file = os.path.join(data_dir, 'htmlpage.tpl.html')
+        tpl = env.get_template('index_single.html')
+        render_on_demand(file, tpl, env, single_page=True)
 
     # build static site contents under PUBLIC_DIR
-    www_dir = os.path.join(root_dir, PUBLIC_DIR)
-    os.makedirs(www_dir, exist_ok=True)
+    if not entities or 'site' in entities:
+        www_dir = os.path.join(root_dir, PUBLIC_DIR)
+        os.makedirs(www_dir, exist_ok=True)
 
-    # -- build page
-    for fn in ('index.html', 'index.css', 'index.js', 'sts.js'):
-        file = os.path.join(www_dir, fn)
-        tpl = env.get_template(fn)
-        render_on_demand(file, tpl, env)
+        # build page
+        for fn in ('index.html', 'index.css', 'index.js', 'sts.js'):
+            file = os.path.join(www_dir, fn)
+            tpl = env.get_template(fn)
+            render_on_demand(file, tpl, env)
 
-    # -- compile dicts
-    maker = StsMaker()
+        # compile dicts
+        maker = StsMaker()
 
-    config_dir = os.path.join(data_dir, 'external', 'opencc', 'config')
-    dicts_dir = os.path.join(www_dir, 'dicts', 'opencc')
-    os.makedirs(dicts_dir, exist_ok=True)
-    make_from_configs(config_dir, dicts_dir, maker)
+        config_dir = os.path.join(data_dir, 'external', 'opencc', 'config')
+        dicts_dir = os.path.join(www_dir, 'dicts', 'opencc')
+        os.makedirs(dicts_dir, exist_ok=True)
+        make_from_configs(config_dir, dicts_dir, maker)
 
-    config_dir = os.path.join(data_dir, 'external', 'mw', 'config')
-    dicts_dir = os.path.join(www_dir, 'dicts', 'mw')
-    os.makedirs(dicts_dir, exist_ok=True)
-    make_from_configs(config_dir, dicts_dir, maker)
+        config_dir = os.path.join(data_dir, 'external', 'mw', 'config')
+        dicts_dir = os.path.join(www_dir, 'dicts', 'mw')
+        os.makedirs(dicts_dir, exist_ok=True)
+        make_from_configs(config_dir, dicts_dir, maker)
 
-    config_dir = os.path.join(data_dir, 'external', 'tongwen', 'config')
-    dicts_dir = os.path.join(www_dir, 'dicts', 'tongwen')
-    os.makedirs(dicts_dir, exist_ok=True)
-    make_from_configs(config_dir, dicts_dir, maker)
+        config_dir = os.path.join(data_dir, 'external', 'tongwen', 'config')
+        dicts_dir = os.path.join(www_dir, 'dicts', 'tongwen')
+        os.makedirs(dicts_dir, exist_ok=True)
+        make_from_configs(config_dir, dicts_dir, maker)
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=__doc__,
+        epilog=textwrap.dedent(
+            f"""\
+            supported entities:
+            * templates: template files for e.g. "htmlpage" format
+            * site: build an AJAX-powered static site at "{PUBLIC_DIR}" directory
+            """
+        ),
+    )
+    parser.add_argument(
+        'entity', metavar='entity', nargs='*',
+        choices=['templates', 'site'],
+        help="""what to build (default: all)""",
+    )
+    return parser.parse_args(argv)
+
+
+def main():
+    args = parse_args()
+    build(args.entity)
 
 
 if __name__ == '__main__':
