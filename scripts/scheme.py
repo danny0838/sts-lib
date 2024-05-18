@@ -94,6 +94,8 @@ class CharTable(dict):
 
 def tidy_trad_table():
     table = CharTable(scheme_trad_table).load()
+    for entry in table.values():
+        entry['vars'] = [v for v in entry['vars'] if v not in table]
     table.save()
     return table
 
