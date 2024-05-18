@@ -396,7 +396,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 吳		吴					
 吶		呐					
 呂		吕					
-呆	獃						
+呆	獃	呆					
 周		周					
 咨		咨					
 咸		咸					
@@ -507,7 +507,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 埬		𪣆					
 埰		采					
 執		执					
-埼	碕						
+埼	碕	埼					
 堅		坚					
 堊		垩					
 堖		垴					
@@ -535,7 +535,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 墳		坟					
 墶		垯					
 墾		垦					
-壇		坛					
+壇	墰 壜 罎	坛					
 壈		𡒄					
 壋		垱					
 壎		埙					
@@ -747,7 +747,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 彈		弹					
 彌		弥					
 彎		弯					
-彔		录					
+彔	録	录					
 彙		汇					
 彝	彞						
 彠		彟					
@@ -854,7 +854,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 折		折					
 抵		抵					
 拋	抛	抛					
-拐		拐					
+拐	枴	拐					
 挂		挂					
 挆	挅						
 挨		挨					
@@ -954,7 +954,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 敓		敚					
 敗		败					
 敘		叙					
-教	敎						
+教	敎	教					
 敵		敌					
 數		数					
 斂		敛					
@@ -983,7 +983,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 暫		暂					
 暱		昵					
 曄		晔					
-曆		历					
+曆	厤	历					
 曇		昙					
 曉		晓					
 曊		𪰶					
@@ -993,7 +993,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 曥		𣆐					
 曨		昽					
 曬	晒	晒					
-曲		曲					
+曲	麯	曲					
 書		书					
 會		会					
 朥		𦛨					
@@ -1012,7 +1012,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 板		板					
 极		极					
 柜		柜					
-查	査						
+查	査	查					
 柵		栅					
 柺	枴	拐					
 栗		栗					
@@ -1118,7 +1118,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 櫬		榇					
 櫱		蘖					
 櫳		栊					
-櫸		榉					
+櫸	欅	榉					
 櫻		樱					
 欄		栏					
 欇		𪳍					
@@ -1138,7 +1138,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 歐		欧					
 歟		欤					
 歡		欢					
-歲		岁					
+歲	嵗 𡻕	岁					
 歷		历					
 歸		归					
 歿		殁					
@@ -1168,7 +1168,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 氳		氲					
 氾		泛					
 汎		泛					
-污	汙 汚						
+污	汙 汚	污					
 決		决					
 沈		沈					
 沒		没					
@@ -1189,7 +1189,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 淒		凄					
 淚		泪					
 淥		渌					
-淨		净					
+淨	凈	净					
 淩		凌					
 淪		沦					
 淵		渊					
@@ -1212,7 +1212,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 溡		𪶄					
 溫		温					
 溮		浉					
-溯	泝						
+溯	泝 遡	溯					
 溳		涢					
 溼	濕	湿					
 滄		沧					
@@ -1382,7 +1382,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 牴		牴 抵					
 牽		牵					
 犖		荦					
-犛		牦					
+犛	氂	牦					
 犞		𪺭					
 犢		犊					
 犧		牺					
@@ -1834,7 +1834,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 縎		𦈔					
 縐		绉					
 縑		缣					
-縕		缊 緼					
+縕	緼	缊 緼					
 縗		缞					
 縛		缚					
 縝		缜					
@@ -2060,7 +2060,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 蔦		茑					
 蔭		荫					
 蔯		𫈟					
-蔿		𫇭					
+蔿	蒍	𫇭					
 蕁		荨					
 蕆		蒇					
 蕎		荞					
@@ -2549,7 +2549,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 跖		跖					
 跡		迹					
 跺	跥						
-踊	踴						
+踊	踴	踊					
 踐		践					
 蹌		跄					
 蹔		𫏐					
@@ -2643,7 +2643,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 輻		辐					
 輾		辗					
 輿		舆					
-轀		辒 輼					
+轀	輼	辒 輼					
 轂		毂					
 轄		辖					
 轅		辕					
@@ -2675,7 +2675,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 連		连					
 週		周					
 進		进					
-逾	踰						
+逾	踰	逾					
 遊		游					
 運		运					
 過		过					
@@ -2984,7 +2984,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 鎩		铩					
 鎪		锼					
 鎬		镐					
-鎮		镇					
+鎮	鎭	镇					
 鎯		𨱍					
 鎰		镒					
 鎲		镋					
@@ -3172,7 +3172,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 隸		隶					
 隻		只					
 雋		隽					
-雕		雕					
+雕	彫 琱	雕					
 雖		虽					
 雙		双					
 雛		雏					
@@ -3196,7 +3196,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 靚		靓					
 靜		静					
 靝		靔					
-面		面					
+面	麫	面					
 靦		腼 䩄					
 靧		𫖃					
 靨		靥					
@@ -3610,7 +3610,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 鰩		鳐					
 鰫		𫚦					
 鰭		鳍					
-鰮		鳁					
+鰮	鰛	鳁					
 鰱		鲢					
 鰲		鳌					
 鰳		鳓					
@@ -3803,7 +3803,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 麥		麦					
 麨		𪎊					
 麩		麸					
-麪		面 麺					
+麪	麵	面 麺					
 麬		𤿲					
 麲		𪎉					
 麳		𪎌					
@@ -3938,7 +3938,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 𤒎		𤊀					
 𤒻		𪹹					
 𤓌		𪹠					
-𤓎		𤎺					
+𤓎	㸇	𤎺					
 𤓩		𤊰					
 𤘀		𪺣					
 𤛮		𤙯					
