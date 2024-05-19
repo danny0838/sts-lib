@@ -576,7 +576,6 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 奧		奥			奥		
 奩		奁					
 奪		夺					
-奬					奨		
 奮		奋					
 奸		奸					
 奼		姹					
@@ -749,6 +748,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 廩		廪					
 廬		庐 𪪏					
 廳		厅			庁		
+弁		弁			弁		
 弒		弑					
 弔		吊					
 弦		弦					
@@ -1443,7 +1443,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 獄		狱					
 獅		狮					
 獊		𪺷					
-獎	奬 𤟌 㢡	奖					
+獎	奬 𤟌 㢡	奖			奨		
 獨		独			独		
 獩		𤞃					
 獪		狯					
@@ -1514,7 +1514,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 畼		𪽈					
 疇		畴					
 疊		叠			畳		
-疎					疏		
+疏	疎	疏			疎 疏		
 症		症					
 痙		痉					
 痠		酸					
@@ -2750,11 +2750,10 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 過		过					
 達		达					
 違		违					
-遙		遥					
+遙	遥	遥			遥 遙		
 遜		逊					
 遞		递			逓		
 遠		远					
-遥					遙		
 適		适					
 遱		𫐷					
 遲		迟			遅		
