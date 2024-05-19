@@ -4,7 +4,7 @@ import argparse
 import glob
 import os
 import shutil
-import textwrap
+from textwrap import dedent
 
 import jinja2
 
@@ -98,11 +98,11 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=__doc__,
-        epilog=textwrap.dedent(
+        epilog=dedent(
             f"""\
             supported entities:
-            * templates: template files for e.g. "htmlpage" format
-            * site: build an AJAX-powered static site at "{PUBLIC_DIR}" directory
+              - templates: template files for e.g. "htmlpage" format
+              - site: build an AJAX-powered static site at "{PUBLIC_DIR}" directory
             """
         ),
     )
