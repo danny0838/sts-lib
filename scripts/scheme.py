@@ -249,7 +249,8 @@ def merge_TSCharacters():  # noqa: N802
                     if trad not in entry['vars']:
                         entry['vars'].append(trad)
                 else:
-                    continue
+                    print(f'adding {trad} as new traditional')
+                    entry = table[trad] = {'trad': trad, 'cn': simps}
             entry['cn'] = list(dict.fromkeys(simps + entry['cn']))
 
     table.save()
