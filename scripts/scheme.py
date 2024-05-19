@@ -371,7 +371,7 @@ def merge_tgh_t2s():
         try:
             entry = trad_table[trad]
         except KeyError:
-            pass
+            trad_table[trad] = {'trad': trad, 'cn': [std]}
         else:
             if std not in entry['cn']:
                 entry['cn'].append(std)
