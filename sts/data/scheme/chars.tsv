@@ -927,7 +927,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 據		据					
 擟		𪭧					
 擠		挤					
-擡			抬				
+擡		抬	抬				
 擣		捣 𢭏					
 擫		𢬍					
 擬		拟					
@@ -1042,7 +1042,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 棟		栋					
 棡		㭎					
 棧		栈					
-棱			稜				
+棱		棱	稜				
 棲		栖					
 棶		梾					
 椏		桠					
@@ -1185,7 +1185,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 沖		冲					
 沾		沾					
 況		况					
-泄			洩				
+泄		泄	洩				
 泛		泛					
 注		注					
 洩		泄					
@@ -1484,7 +1484,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 痙		痉					
 痠		酸					
 痮		𪽪					
-痹	痺		痺				
+痹	痺	痹	痺				
 痾		疴					
 瘂		痖					
 瘋		疯					
@@ -3829,7 +3829,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 麬		𤿲					
 麲		𪎉					
 麳		𪎌					
-麴	麯	曲 麹 𱋐					
+麴	麯	曲 麹 𱋐	麴 麯				
 麷		𫜑					
 麼	麽	么 麽					
 黃		黄					
