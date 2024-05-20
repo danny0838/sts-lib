@@ -118,6 +118,28 @@ def tidy_tables():
     tidy_ts_multi_table()
 
 
+def merge_STCharacters_to_st_multi():  # noqa: N802
+    table = CharTable(scheme_st_multi_table).load()
+
+    with CharTable(
+        src=os.path.join(root, 'sts', 'data', 'dictionary', 'STCharacters.txt'),
+        fields=['simp', 'trads'],
+        fields_as_list={'trads'},
+    ).open() as reader:
+        for row in reader:
+            simp = row['simp']
+            trads = row['trads']
+            try:
+                entry = table[simp]
+            except KeyError:
+                if len(trads) > 1:
+                    table[simp] = {'simp': simp, 'trads': trads}
+            else:
+                entry['trads'] = trads
+
+    table.save()
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -130,7 +152,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='tidy_tables',
+        'method', nargs='?', default='merge_STCharacters_to_st_multi',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
