@@ -12,7 +12,7 @@ root = os.path.normpath(os.path.join(__file__, '..', '..'))
 csv.register_dialect('char-table', delimiter='\t', lineterminator='\n', quoting=csv.QUOTE_NONE)
 
 scheme_trad_table = {
-    'src': os.path.join(root, 'sts', 'data', 'scheme', 'traditional.tsv'),
+    'src': os.path.join(root, 'sts', 'data', 'scheme', 'chars.tsv'),
     'fields': ['trad', 'vars', 'cn', 'tw', 'hk', 'jp', 'jpg', 'notes'],
     'fields_as_list': {'vars', 'cn', 'tw', 'hk', 'jp', 'jpg'},
     'has_header': True,
@@ -20,13 +20,13 @@ scheme_trad_table = {
 }
 
 scheme_st_multi_table = {
-    'src': os.path.join(root, 'sts', 'data', 'scheme', 'st_multi.tsv'),
+    'src': os.path.join(root, 'sts', 'data', 'scheme', 'chars_s2t.tsv'),
     'fields': ['simp', 'trads', 'notes', 'examples'],
     'fields_as_list': {'trads'},
 }
 
 scheme_ts_multi_table = {
-    'src': os.path.join(root, 'sts', 'data', 'scheme', 'ts_multi.tsv'),
+    'src': os.path.join(root, 'sts', 'data', 'scheme', 'chars_t2s.tsv'),
     'fields': ['trad', 'simps', 'notes', 'examples'],
     'fields_as_list': {'simps'},
 }
