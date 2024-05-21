@@ -6,6 +6,6 @@ dicts:
   auto_space: true
   mode: load
   src:
-  - ../dictionary/JPShinjitaiPhrases.txt
-  - ../dictionary/JPShinjitaiCharacters.txt
+  - ../dictionary/JPVariantsRevPhrases.txt
+  - ../dictionary/JPVariantsRev.txt
   - ../dictionary/JPVariantsRev.list
