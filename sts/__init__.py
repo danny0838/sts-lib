@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """An open library for flexible simplified-traditional Chinese text conversion."""
+__version__ = '0.32.0'
+
 import html
 import itertools
 import json
@@ -45,9 +47,6 @@ except ImportError:
             setattr(self, attr_name, value)
 
         return _lazyprop
-
-
-__version__ = '0.32.0'
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
