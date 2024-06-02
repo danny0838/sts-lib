@@ -78,6 +78,11 @@ def build(entities=None):
         # compile dicts
         maker = StsMaker()
 
+        config_dir = os.path.join(data_dir, 'config')
+        dicts_dir = os.path.join(www_dir, 'dicts', 'sts')
+        os.makedirs(dicts_dir, exist_ok=True)
+        make_from_configs(config_dir, dicts_dir, maker)
+
         config_dir = os.path.join(data_dir, 'external', 'opencc', 'config')
         dicts_dir = os.path.join(www_dir, 'dicts', 'opencc')
         os.makedirs(dicts_dir, exist_ok=True)

@@ -36,6 +36,31 @@
   </section>
   <section>
     <select name="method">
+      <optgroup label="簡繁祕書/正體">
+        <option value="sts/s2t">簡體轉正體</option>
+        <option value="sts/tw2t">臺灣繁體轉正體</option>
+        <option value="sts/hk2t">香港繁體轉正體</option>
+        <option value="sts/jp2t">日本新字體轉正體</option>
+      </optgroup>
+      <optgroup label="簡繁祕書/臺灣">
+        <option value="sts/s2tw">簡體轉臺灣繁體</option>
+        <option value="sts/s2twp" selected>簡體轉臺灣繁體（含詞）</option>
+        <option value="sts/t2tw">正體轉臺灣繁體</option>
+      </optgroup>
+      <optgroup label="簡繁祕書/香港">
+        <option value="sts/s2hk">簡體轉香港繁體</option>
+        <option value="sts/t2hk">正體轉香港繁體</option>
+      </optgroup>
+      <optgroup label="簡繁祕書/簡體（中國）">
+        <option value="sts/t2s">正體轉簡體</option>
+        <option value="sts/tw2s">臺灣繁體轉簡體</option>
+        <option value="sts/tw2sp">臺灣繁體轉簡體（含詞）</option>
+        <option value="sts/hk2s">香港繁體轉簡體</option>
+      </optgroup>
+      <optgroup label="簡繁祕書/日本">
+        <option value="sts/t2jp">正體轉日本新字體</option>
+      </optgroup>
+
       <optgroup label="OpenCC/正體">
         <option value="opencc/s2t">oc/簡體轉正體</option>
         <option value="opencc/tw2t">oc/臺灣繁體轉正體</option>
@@ -44,7 +69,7 @@
       </optgroup>
       <optgroup label="OpenCC/臺灣">
         <option value="opencc/s2tw">oc/簡體轉臺灣繁體</option>
-        <option value="opencc/s2twp" selected>oc/簡體轉臺灣繁體（含詞）</option>
+        <option value="opencc/s2twp">oc/簡體轉臺灣繁體（含詞）</option>
         <option value="opencc/t2tw">oc/正體轉臺灣繁體</option>
       </optgroup>
       <optgroup label="OpenCC/香港">
