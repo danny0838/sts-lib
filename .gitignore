@@ -14,5 +14,4 @@ __pycache__/
 *.tlist
 
 # Others
-/sts/data/external/*/*
-!/sts/data/external/*/config/
+/sts/data/external/*/_cache/

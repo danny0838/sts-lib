@@ -57,10 +57,6 @@ jobs:
           python -m pip install . &&
           python -m pip install -r scripts/requirements.txt
 
-      - name: Fetch external resources
-        run: |
-          python scripts/fetch.py
-
       - name: Build static site contents
         run: |
           python scripts/build.py site
