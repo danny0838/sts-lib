@@ -386,7 +386,7 @@ def merge_jp_std():
                 try:
                     entry = trad_table[std]
                 except KeyError:
-                    continue
+                    entry = trad_table[trad] = {'trad': trad, 'jp': [std]}
                 else:
                     print(f"""taking "{std}" instead of "{trad}" as traditional (the former is defined as a standard)""")
                     if std not in entry['jp']:
