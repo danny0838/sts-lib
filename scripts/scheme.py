@@ -339,6 +339,71 @@ def merge_tgh_t2s():
     trad_table.save()
 
 
+def merge_jp_std():
+    trad_table = CharTable(scheme_trad_table).load()
+
+    trad_table_v2t = {}
+    for trad, entry in trad_table.items():
+        for var in entry['vars']:
+            if var != trad and var not in trad_table:
+                trad_table_v2t[var] = trad
+
+    jp_std2trad = {}
+
+    with CharTable(
+        src=os.path.join(root, 'sts', 'data', 'scheme', 'jp_jouyou.tsv'),
+        fields=['std', 'olds', 'year'],
+        fields_as_list={'olds'},
+    ).open() as reader:
+        for row in reader:
+            std = row['std']
+            trads = row['olds']
+            jp_std2trad.setdefault(std, []).extend(trads)
+
+    with CharTable(
+        src=os.path.join(root, 'sts', 'data', 'scheme', 'jp_jinmeiyou.tsv'),
+        fields=['std'],
+    ).open() as reader:
+        for row in reader:
+            std = row['std']
+            jp_std2trad.setdefault(std, [])
+
+    for std, trads in jp_std2trad.items():
+        old = None
+        for trad in trads:
+            try:
+                newtrad = trad_table_v2t[trad]
+            except KeyError:
+                pass
+            else:
+                print(f"""taking "{newtrad}" instead of "{trad}" as traditional (the latter is defined as a variant)""")
+                old = trad
+                trad = newtrad
+
+            try:
+                entry = trad_table[trad]
+            except KeyError:
+                try:
+                    entry = trad_table[std]
+                except KeyError:
+                    continue
+                else:
+                    print(f"""taking "{std}" instead of "{trad}" as traditional (the former is defined as a standard)""")
+                    if std not in entry['jp']:
+                        entry['jp'].append(std)
+                    if trad not in entry['jpg']:
+                        entry['jpg'].append(trad)
+                    continue
+
+            if std not in entry['jp']:
+                entry['jp'].append(std)
+
+            if old and old not in entry['jpg']:
+                entry['jpg'].append(old)
+
+    trad_table.save()
+
+
 def make_dicts():
     """Validate scheme files and make dictionary files from them."""
     def validate_t2x_multi(x, table_main_t2x):
@@ -502,7 +567,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_tgh_t2s',
+        'method', nargs='?', default='merge_jp_std',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
