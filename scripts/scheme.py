@@ -404,7 +404,7 @@ def merge_jp_std():
     trad_table.save()
 
 
-def make_dicts():
+def make_dicts(force_std=False):
     """Validate scheme files and make dictionary files from them."""
     def validate_t2x_multi(x, table_main_t2x):
         src = os.path.join(root, 'sts', 'data', 'scheme', f'chars_t2{x}.tsv')
@@ -540,17 +540,60 @@ def make_dicts():
                 if trads:
                     writer.writerow({'std': std, 'trads': ' '.join(trads)})
 
+    def hook_t2s_force_std(table_t2x):
+        tgh_stds = set()
+        with CharTable(
+            src=os.path.join(root, 'sts', 'data', 'scheme', 'cn_tgh_list.tsv'),
+            fields=['id', 'std'],
+        ).open() as reader:
+            for row in reader:
+                tgh_stds.add(row['std'])
+
+        for stds in table_t2x.values():
+            stds[:] = (std for std in stds if std in tgh_stds)
+
+    def hook_t2jp_force_std(table_t2x):
+        jp_stds = set()
+
+        with CharTable(
+            src=os.path.join(root, 'sts', 'data', 'scheme', 'jp_jouyou.tsv'),
+            fields=['std', 'old', 'year'],
+        ).open() as reader:
+            for row in reader:
+                jp_stds.add(row['std'])
+
+        with CharTable(
+            src=os.path.join(root, 'sts', 'data', 'scheme', 'jp_jinmeiyou.tsv'),
+            fields=['std'],
+            fields_as_list={'std'},
+        ).open() as reader:
+            for row in reader:
+                jp_stds.update(row['std'])
+
+        with CharTable(
+            src=os.path.join(root, 'sts', 'data', 'scheme', 'jp_hyougai.tsv'),
+            fields=['id', 'stds', 'simps', 'sf'],
+            fields_as_list={'stds', 'simps'},
+        ).open() as reader:
+            for row in reader:
+                jp_stds.update(row['stds'] + row['simps'])
+
+        for stds in table_t2x.values():
+            stds[:] = (std for std in stds if std in jp_stds)
+
     # load and validate main table
     table_main = tidy_trad_table()
 
     # validate multi table and make dict files
-    make_t2x_dict('TSCharacters.txt', 's', ['cn'])
+    make_t2x_dict('TSCharacters.txt', 's', ['cn'],
+                  hook_t2s_force_std if force_std else None)
     make_x2t_dict('STCharacters.txt', 's', ['cn'])
     make_t2x_dict('TWVariants.txt', 'tw', ['tw'])
     make_x2t_dict('TWVariantsRev.txt', 'tw', ['tw'])
     make_t2x_dict('HKVariants.txt', 'hk', ['hk'])
     make_x2t_dict('HKVariantsRev.txt', 'hk', ['hk'])
-    make_t2x_dict('JPVariants.txt', 'jp', ['jp'])
+    make_t2x_dict('JPVariants.txt', 'jp', ['jp'],
+                  hook_t2jp_force_std if force_std else None)
     make_x2t_dict('JPVariantsRev.txt', 'jp', ['jp'])
 
 
@@ -567,7 +610,7 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
-        'method', nargs='?', default='merge_jp_std',
+        'method', nargs='?', default='make_dicts',
         help="""method to execute (default: %(default)s)""",
     )
     return parser.parse_args(argv)
