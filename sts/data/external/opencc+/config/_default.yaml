@@ -44,7 +44,11 @@ dicts:
   src:
   - ../dictionary/TSCharacters.txt
   - ../../opencc/dictionary/TSCharactersExt.txt
-  - ../../opencc/dictionary/TSCharacters.txt
+  - mode: filter
+    method: remove_key_values
+    src:
+    - ../../opencc/dictionary/TSCharacters.txt
+    - ../dictionary/TSCharactersRemove.txt
 - file: ../dictionary/TWPhrases.list
   mode: load
   src:
