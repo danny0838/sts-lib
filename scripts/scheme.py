@@ -328,53 +328,13 @@ def merge_tgh_t2s():
 
     trad_table = CharTable(scheme_trad_table).load()
 
-    trad_table_v2t = {}
-    trad_table_s2t = {}
-    for trad, entry in trad_table.items():
-        for var in entry['vars']:
-            if var != trad and var not in trad_table:
-                trad_table_v2t[var] = trad
-        for simp in entry['cn']:
-            if simp != trad and simp not in trad_table:
-                trad_table_s2t[simp] = trad
-
     for trad, entry in tgh_table.items():
         trad = entry['trad']
-        vars = entry['vars']
         std = entry['std']
 
-        try:
-            newtrad = trad_table_v2t[trad]
-        except KeyError:
-            pass
-        else:
-            print(f"""taking "{newtrad}" instead of "{trad}" as traditional (the latter is defined as a variant)""")
-            vars = [v for v in ([trad] + vars) if v != newtrad]
-            trad = newtrad
-
-        try:
-            newtrad = trad_table_s2t[trad]
-        except KeyError:
-            pass
-        else:
-            print(f"""taking "{newtrad}" instead of "{trad}" as traditional (the latter is defined as a simplified)""")
-            vars = [v for v in ([trad] + vars) if v != newtrad]
-            trad = newtrad
-
-        if trad not in trad_table:
-            for var in vars:
-                if var in trad_table:
-                    print(f"""taking "{var}" instead of "{trad}" as traditional (the former is defined as a standard)""")
-                    trad = var
-                    break
-
-        try:
-            entry = trad_table[trad]
-        except KeyError:
-            trad_table[trad] = {'trad': trad, 'cn': [std]}
-        else:
-            if std not in entry['cn']:
-                entry['cn'].append(std)
+        if trad == std:
+            if trad not in trad_table:
+                trad_table[trad] = {'trad': trad, 'cn': [std]}
 
     trad_table.save()
 
