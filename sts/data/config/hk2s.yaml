@@ -9,7 +9,7 @@ dicts:
   - mode: load
     src:
     - ../dictionary/HKVariantsRevPhrases.txt
-    - ../dictionary/HKVariantsRev.list
+    - ../dictionary/HKVariantsRev.txt
   - mode: load
     src:
     - ../dictionary/TSPhrases.txt

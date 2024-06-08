@@ -9,7 +9,7 @@ dicts:
   - mode: load
     src:
     - ../dictionary/TWVariantsRevPhrases.txt
-    - ../dictionary/TWVariantsRev.list
+    - ../dictionary/TWVariantsRev.txt
   - mode: load
     src:
     - ../dictionary/TSPhrases.txt
