@@ -14,7 +14,7 @@
           "src": [
             "../dictionary/TWPhrasesRev.txt",
             "../dictionary/TWVariantsRevPhrases.txt",
-            "../dictionary/TWVariantsRev.list"
+            "../dictionary/TWVariantsRev.txt"
           ]
         },
         {
