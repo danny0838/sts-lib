@@ -8,4 +8,3 @@ dicts:
   src:
   - ../dictionary/JPVariantsRevPhrases.txt
   - ../dictionary/JPVariantsRev.txt
-  - ../dictionary/JPVariantsRev.list
