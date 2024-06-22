@@ -13,7 +13,13 @@
             "../dictionary/STCharacters.txt"
           ]
         },
-        "../dictionary/HKVariants.txt"
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/HKVariants.txt",
+            "../dictionary/HKVariantsPhrases.txt"
+          ]
+        }
       ]
     }
   ]
