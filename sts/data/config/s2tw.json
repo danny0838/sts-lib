@@ -13,7 +13,13 @@
             "../dictionary/STCharacters.txt"
           ]
         },
-        "../dictionary/TWVariants.txt"
+        {
+          "mode": "load",
+          "src": [
+            "../dictionary/TWVariants.txt",
+            "../dictionary/TWVariantsPhrases.txt"
+          ]
+        }
       ]
     }
   ]

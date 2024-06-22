@@ -20,7 +20,8 @@
           "mode": "load",
           "src": [
             "../dictionary/TWPhrases.list",
-            "../dictionary/TWVariants.txt"
+            "../dictionary/TWVariants.txt",
+            "../dictionary/TWVariantsPhrases.txt"
           ]
         }
       ]
