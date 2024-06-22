@@ -5,3 +5,4 @@ dicts:
   mode: load
   src:
   - ../dictionary/HKVariants.txt
+  - ../dictionary/HKVariantsPhrases.txt

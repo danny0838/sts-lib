@@ -5,3 +5,4 @@ dicts:
   mode: load
   src:
   - ../dictionary/JPVariants.txt
+  - ../dictionary/JPVariantsPhrases.txt

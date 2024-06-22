@@ -5,3 +5,4 @@ dicts:
   mode: load
   src:
   - ../dictionary/TWVariants.txt
+  - ../dictionary/TWVariantsPhrases.txt

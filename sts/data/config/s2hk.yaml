@@ -8,4 +8,7 @@ dicts:
     src:
     - ../dictionary/STPhrases.txt
     - ../dictionary/STCharacters.txt
-  - ../dictionary/HKVariants.txt
+  - mode: load
+    src:
+    - ../dictionary/HKVariants.txt
+    - ../dictionary/HKVariantsPhrases.txt
