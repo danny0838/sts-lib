@@ -14,3 +14,4 @@ dicts:
     src:
     - ../dictionary/TWPhrases.txt
     - ../dictionary/TWVariants.txt
+    - ../dictionary/TWVariantsPhrases.txt
