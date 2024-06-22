@@ -4145,8 +4145,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 灡		㳕					
 灣		湾			湾		
 灤		滦					
-灧		滟					
-灩	灎	滟					
+灩	灎 灧	滟					
 火		火					
 灰		灰					
 灸		灸					
@@ -6124,7 +6123,6 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 艱		艰					
 色		色					
 艴		艴					
-艷		艳			艶		
 艽		艽					
 艾		艾					
 艿		艿					
@@ -7129,7 +7127,7 @@ trad	vars	cn	tw	hk	jp	jpg	notes
 豌		豌					
 豎	竪	竖					
 豐		丰			豊		
-豔	豓	艳					
+豔	𧰟 艷 艶	艳			艶	艷	
 豕		豕					
 豚		豚					
 象		象					
