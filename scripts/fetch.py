@@ -27,7 +27,7 @@ OPENCC_DIR_MAP = {
     'data/dictionary': 'dictionary',
 }
 
-MW_VER = '1.41.1'  # e.g. '1.41.1', 'master'
+MW_VER = '1.42.1'  # e.g. '1.41.1', 'master'
 MW_URL = f'https://raw.githubusercontent.com/wikimedia/mediawiki/{MW_VER}/includes/languages/data/ZhConversion.php'
 MW_DICT_PATTERN = re.compile(r'public static \$(\w+) = \[(.*?)\];', re.M + re.S)
 MW_DICT_SUBPATTERN = re.compile(r"'([^']*)' => '([^']*)',")
