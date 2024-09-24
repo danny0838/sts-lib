@@ -10,7 +10,7 @@ import requests
 
 from sts import Table
 
-UNIHAN_VER = '15.1.0'
+UNIHAN_VER = '16.0.0'
 UNIHAN_URL = f'https://www.unicode.org/Public/{UNIHAN_VER}/ucd/Unihan.zip'
 UNIHAN_TABLES = {
     'kTraditionalVariant': 'TraditionalVariant',
