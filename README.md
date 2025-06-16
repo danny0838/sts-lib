@@ -1,5 +1,10 @@
 # STS 簡繁祕書
 
+![PyPI version](https://img.shields.io/pypi/v/sts-lib)
+![Python Versions](https://img.shields.io/pypi/pyversions/sts-lib)
+![Status](https://img.shields.io/pypi/status/sts-lib)
+![License](https://img.shields.io/github/license/danny0838/sts-lib)
+
 STS (Simplified-Traditional Secretary) is an open library for flexible simplified-traditional Chinese text conversion.
 
 簡繁祕書是開源、輕巧、有彈性的中文簡繁轉換工具，也支援異體字轉換及地區慣用詞轉換。
