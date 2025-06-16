@@ -32,7 +32,7 @@ MW_URL = f'https://raw.githubusercontent.com/wikimedia/mediawiki/{MW_VER}/includ
 MW_DICT_PATTERN = re.compile(r'public static \$(\w+) = \[(.*?)\];', re.M + re.S)
 MW_DICT_SUBPATTERN = re.compile(r"'([^']*)' => '([^']*)',")
 
-NTW_VER = '1.0.1'  # e.g. '1.0.1', 'latest'
+NTW_VER = '1.0.2'  # e.g. '1.0.1', 'latest'
 NTW_URL_PREFIX = f'https://www.unpkg.com/tongwen-dict@{NTW_VER}/dist/'
 NTW_SRCS = [
     's2t-char.min.json',
