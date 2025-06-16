@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 
 # Distribution / packaging
+/.tox/
 /build/
 /dist/
 /*.egg-info/
