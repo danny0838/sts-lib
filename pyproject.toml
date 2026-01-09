@@ -1,0 +1,149 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sts-lib"
+requires-python = "~=3.8"
+description = "An open library for flexible simplified-traditional Chinese text conversion."
+readme = "README.md"
+
+# Use dynamic license (and provide it in setup.py) since the format introduced
+# by PEP 639 requires setuptools>=77.0.3, which does not support Python 3.8.
+# ref: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license
+dynamic = [
+    "license",
+    "version",
+]
+
+authors = [
+    {name = "Danny Lin", email = "danny0838@gmail.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/danny0838/sts-lib"
+
+[project.scripts]
+sts = "sts.cli:main"
+
+[project.optional-dependencies]
+yaml = [
+    "pyyaml>=5.0",
+]
+
+[dependency-groups]
+lint = [
+    "flake8>=6.1",
+    "Flake8-pyproject>=1.2.3",
+    "pep8-naming>=0.13.2",
+    "flake8-comprehensions>=3.8",
+    "flake8-quotes>=3.4",
+    "flake8-bugbear>=22.6.22",
+    "flake8-isort>=5.0",
+    "isort>=5.9.2",
+]
+build = [
+    "jinja2",
+    "requests",
+]
+dev = [
+    "tox>=4.21.2",
+    {include-group = "lint"},
+    {include-group = "build"},
+]
+
+[tool.setuptools.packages.find]
+include = ["sts*"]
+
+[tool.setuptools.package-data]
+sts = [
+    "data/*.html",
+    "data/config/*.json",
+    "data/dictionary/*.txt",
+    "data/scheme/*.txt",
+]
+
+[tool.setuptools.dynamic.version]
+attr = "sts.__version__"
+
+[tool.flake8]
+exclude = [
+    ".git",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "setup.py",
+]
+max-line-length = 160
+
+# Flake8 Rules
+# https://www.flake8rules.com/
+
+# W503: Line break occurred before a binary operator
+ignore = [
+    "W503",
+]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+
+# skip directories included by default
+# ref: https://pycqa.github.io/isort/docs/configuration/options.html
+
+[tool.tox]
+env_list = ["py314", "py313", "py312", "py311", "py310", "py39", "py38"]
+min_version = "4.22"
+
+[tool.tox.env_run_base]
+description = "run unit tests"
+package = "editable"
+extras = ["yaml"]
+pass_env = ["STS_RUN_SLOW_TESTS"]
+commands = [["python", "-m", "unittest", {replace = "posargs", extend = true}]]
+
+[tool.tox.env.release]
+description = "build and release to PyPI"
+package = "skip"
+deps = [
+    "build",
+    "twine>=4.0",
+]
+pass_env = [
+    "TWINE_USERNAME",
+    "TWINE_PASSWORD",
+]
+commands = [
+    # Purge previously built files by bdist (wheel) to prevent deleted files
+    # being included in the package.
+    ["python", "-c", "import shutil; shutil.rmtree('build', ignore_errors=True)"],
+
+    ["python", "-m", "build", "--sdist", "--wheel"],
+    ["python", "-m", "twine", "upload", "--skip-existing", "dist/*"],
+]
+
+[tool.tox.env.lint]
+description = "lint source code"
+package = "skip"
+dependency_groups = ["lint"]
+commands = [["flake8", {replace = "posargs", default = ["."], extend = true}]]
+
+[tool.tox.env.isort]
+description = "sort imports for the source code"
+package = "skip"
+dependency_groups = ["lint"]
+commands = [["isort", {replace = "posargs", default = ["."], extend = true}]]

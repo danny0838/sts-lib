@@ -1,12 +1,11 @@
 .gitattributes text
 .gitignore text
-*.cfg text
 *.css text
 *.html text
 *.in text
-*.ini text
 *.js text
 *.json text
 *.md text
 *.py text
+*.toml text
 *.txt text
