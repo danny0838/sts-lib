@@ -28,12 +28,12 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 
 安裝 Python >= 3.8 ([官網](https://www.python.org/))，然後在命令列輸入以下指令安裝（或升級至）最新版本：
 ```
-pip install -U sts-lib
+python -m pip install -U sts-lib
 ```
 
 > 若要支援 YAML 格式，須額外安裝 PyYAML 套件，或改用以下指令安裝：
 > ```
-> pip install -U sts-lib[yaml]
+> python -m pip install -U sts-lib[yaml]
 > ```
 
 ### Command Line
