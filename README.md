@@ -26,7 +26,7 @@ STS (Simplified-Traditional Secretary) is an open library for flexible simplifie
 
 ### Installation 安裝
 
-安裝 Python >= 3.7 ([官網](https://www.python.org/))，然後在命令列輸入以下指令安裝（或升級至）最新版本：
+安裝 Python >= 3.8 ([官網](https://www.python.org/))，然後在命令列輸入以下指令安裝（或升級至）最新版本：
 ```
 pip install -U sts-lib
 ```
