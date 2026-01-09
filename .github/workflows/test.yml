@@ -1,0 +1,87 @@
+name: Run Tests
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#concurrency
+  # https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Check code syntax and styling
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: pip install --group lint
+
+      - name: Verify no code issue
+        run: flake8 .
+
+  test:
+    name: Test ${{ matrix.os }}-${{ matrix.pyver }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        pyver: ['3.14', '3.13', '3.12', '3.11', '3.10', '3.9', '3.8']
+        arch: [x64]
+        include:
+          - os: windows-latest
+            pyver: '3.14'
+            arch: x86
+          - os: ubuntu-latest
+            pyver: '3.14'
+            arch: x64
+          - os: macos-latest
+            pyver: '3.14'
+            arch: arm64
+
+          # other Python implementations
+          - os: ubuntu-latest
+            pyver: '3.14t'
+            arch: x64
+          - os: ubuntu-latest
+            pyver: 'pypy-3.11'
+            arch: x64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.pyver }}
+          architecture: ${{ matrix.arch }}
+
+      - name: Install package
+        run: pip install .[yaml]
+
+      - name: Run tests
+        run: python -m unittest
+
+      - name: Ensure all dependency can be installed
+        if: matrix.pyver != '3.8'
+        run: pip install --group dev
+
+      - name: Ensure all dependency can be installed (py38)
+        if: matrix.pyver == '3.8'
+        run: |
+          pip install dependency-groups
+          dependency-groups dev -o requirements.txt
+          pip install -r requirements.txt
