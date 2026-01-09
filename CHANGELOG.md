@@ -2,6 +2,11 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.35.0] - 2026-01-09
+* Dropped support for Python 3.7.
+* Reworked package management using `pyproject.toml`.
+* Miscellaneous improvements to the internal code, development tools, and CI/CD workflows.
+
 ## [0.32.0] - 2024-05-18
 * Added support of `auto_space` config.
 * Added support of new IDC in Unicode 15.1.
