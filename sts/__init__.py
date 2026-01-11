@@ -11,42 +11,7 @@ import re
 import sys
 from collections import namedtuple
 from contextlib import nullcontext
-
-try:
-    from functools import cached_property
-except ImportError:
-    # polyfill for Python < 3.8
-    def cached_property(fn):
-        """Lazy property decorator
-
-        Defines a lazy property that is evaluated only for the first time,
-        and can be modified (set) or invalidated (del).
-
-        Modified from: https://github.com/sorin/lazyprop
-        """
-        attr_name = '_lazy_' + fn.__name__
-
-        @property
-        def _lazyprop(self):
-            try:
-                return getattr(self, attr_name)
-            except AttributeError:
-                value = fn(self)
-                setattr(self, attr_name, value)
-                return value
-
-        @_lazyprop.deleter
-        def _lazyprop(self):
-            try:
-                delattr(self, attr_name)
-            except AttributeError:
-                pass
-
-        @_lazyprop.setter
-        def _lazyprop(self, value):
-            setattr(self, attr_name, value)
-
-        return _lazyprop
+from functools import cached_property
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
