@@ -250,15 +250,15 @@ class StsDict():
         del self._dict[key]
 
     def keys(self):
-        """Get a generator of keys."""
+        """Generate keys."""
         yield from self._dict.keys()
 
     def values(self):
-        """Get a generator of values."""
+        """Generate values."""
         yield from self._dict.values()
 
     def items(self):
-        """Get a generator of key-values pairs."""
+        """Generate key-values pairs."""
         yield from self._dict.items()
 
     def add(self, key, values, skip_check=False):
@@ -729,13 +729,7 @@ class Table(StsDict):
             if length < self.key_head_length:
                 continue
             head = ''.join(parts[:self.key_head_length])
-            try:
-                length_last = dict_[head]
-            except KeyError:
-                dict_[head] = length
-            else:
-                if length > length_last:
-                    dict_[head] = length
+            dict_[head] = max(dict_.get(head, 0), length)
         return dict_
 
     def match(self, parts, pos, maxpos=math.inf):
@@ -815,52 +809,40 @@ class Trie(StsDict):
             raise KeyError(key)
 
     def keys(self):
-        """Get a generator of keys."""
+        """Generate keys."""
         trie = self._dict
-        stack = [('', trie, iter(trie))]
+        stack = [('', trie)]
         while stack:
-            key, trie, it = stack[-1]
-            for comp in it:
+            key, trie = stack.pop()
+            for comp in reversed(trie):
                 if comp == '':
                     yield key
                 else:
-                    trie = trie[comp]
-                    stack.append((key + comp, trie, iter(trie)))
-                    break
-            else:
-                stack.pop()
+                    stack.append((key + comp, trie[comp]))
 
     def values(self):
-        """Get a generator of values."""
+        """Generate values."""
         trie = self._dict
-        stack = [(trie, iter(trie))]
+        stack = [trie]
         while stack:
-            trie, it = stack[-1]
-            for comp in it:
+            trie = stack.pop()
+            for comp in reversed(trie):
                 if comp == '':
                     yield trie[comp]
                 else:
-                    trie = trie[comp]
-                    stack.append((trie, iter(trie)))
-                    break
-            else:
-                stack.pop()
+                    stack.append(trie[comp])
 
     def items(self):
-        """Get a generator of key-values pairs."""
+        """Generate key-values pairs."""
         trie = self._dict
-        stack = [('', trie, iter(trie))]
+        stack = [('', trie)]
         while stack:
-            key, trie, it = stack[-1]
-            for comp in it:
+            key, trie = stack.pop()
+            for comp in reversed(trie):
                 if comp == '':
                     yield key, trie[comp]
                 else:
-                    trie = trie[comp]
-                    stack.append((key + comp, trie, iter(trie)))
-                    break
-            else:
-                stack.pop()
+                    stack.append((key + comp, trie[comp]))
 
     def add(self, key, values, skip_check=False):
         """Add a key-values pair to this dictionary.
@@ -891,10 +873,10 @@ class Trie(StsDict):
         parts = self._split(parts)
         trie = self._dict
         i = pos
-        total = min(len(parts), maxpos)
+        end = min(len(parts), maxpos)
         match = None
         match_end = None
-        while i < total:
+        while i < end:
             try:
                 trie = trie[parts[i]]
             except KeyError:

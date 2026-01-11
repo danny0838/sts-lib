@@ -208,10 +208,10 @@
       input = this.normalize(input)
       let trie = this.dict;
       let i = pos;
-      let total = Math.min(input.length, maxpos);
+      let end = Math.min(input.length, maxpos);
       let match = null;
       let matchEnd = null;
-      while (i < total) {
+      while (i < end) {
         trie = trie[input[i]];
         if (!trie) {
           break;
