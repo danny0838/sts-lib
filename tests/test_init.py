@@ -247,6 +247,13 @@ class TestStsDict(unittest.TestCase):
                 with self.assertRaises(KeyError):
                     stsdict['豆乾']
 
+                # IDS/VS
+                stsdict = cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+                self.assertEqual(['𩵚'], stsdict['⿰鱼土'])
+                self.assertEqual(['劍󠄁'], stsdict['劒󠄁'])
+                with self.assertRaises(KeyError):
+                    stsdict['劒']
+
     def test_contains(self):
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
@@ -255,6 +262,12 @@ class TestStsDict(unittest.TestCase):
                 self.assertTrue('豆干' in stsdict)
                 self.assertFalse('豆' in stsdict)
                 self.assertFalse('豆乾' in stsdict)
+
+                # IDS/VS
+                stsdict = cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+                self.assertTrue('⿰鱼土' in stsdict)
+                self.assertTrue('劒󠄁' in stsdict)
+                self.assertFalse('劒' in stsdict)
 
     def test_len(self):
         for cls in (StsDict, Table, Trie):
@@ -270,6 +283,10 @@ class TestStsDict(unittest.TestCase):
             with self.subTest(type=cls):
                 stsdict = cls({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
                 self.assertEqual({'干', '姜', '干姜'}, set(stsdict))
+
+                # IDS/VS
+                stsdict = cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+                self.assertEqual({'⿰鱼土', '劒󠄁'}, set(stsdict))
 
     def test_eq(self):
         for cls in (StsDict, Table, Trie):
@@ -333,11 +350,21 @@ class TestStsDict(unittest.TestCase):
                 with self.assertRaises(KeyError):
                     del stsdict['干']
 
+                # IDS/VS
+                stsdict = cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+                del stsdict['⿰鱼土']
+                del stsdict['劒󠄁']
+                self.assertEqual(set(), set(stsdict))
+
     def test_keys(self):
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
                 stsdict = cls({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
                 self.assertEqual({'干', '姜', '干姜'}, set(stsdict.keys()))
+
+                # IDS/VS
+                stsdict = cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+                self.assertEqual({'⿰鱼土', '劒󠄁'}, set(stsdict.keys()))
 
     def test_values(self):
         for cls in (StsDict, Table, Trie):
@@ -345,11 +372,19 @@ class TestStsDict(unittest.TestCase):
                 stsdict = cls({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
                 self.assertEqual({('幹', '乾', '干'), ('姜', '薑'), ('乾薑',)}, {tuple(x) for x in stsdict.values()})
 
+                # IDS/VS
+                stsdict = cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+                self.assertEqual({('𩵚',), ('劍󠄁',)}, {tuple(x) for x in stsdict.values()})
+
     def test_items(self):
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
                 stsdict = cls({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
                 self.assertEqual({'干': ['幹', '乾'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, dict(stsdict.items()))
+
+                # IDS/VS
+                stsdict = cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+                self.assertEqual({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']}, dict(stsdict.items()))
 
     def test_add(self):
         for cls in (StsDict, Table, Trie):
@@ -682,12 +717,12 @@ class TestStsDict(unittest.TestCase):
         fo.seek(0)
         self.assertEqual({'干': {'': ['干', '榦'], '姜': {'': ['乾薑']}}, '姜': {'': ['姜', '薑']}}, json.load(fo))
 
-        # IDS/VS: should be Unicode composite based
+        # IDS/VS: should be Unicode char based
         stsdict = Trie({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
         fo = io.StringIO()
         stsdict.dumpjson(fo)
         fo.seek(0)
-        self.assertEqual({'⿰鱼土': {'': ['𩵚']}, '劒󠄁': {'': ['劍󠄁']}}, json.load(fo))
+        self.assertEqual({'⿰': {'鱼': {'土': {'': ['𩵚']}}}, '劒': {'󠄁': {'': ['劍󠄁']}}}, json.load(fo))
 
     def test_dumpjson_file(self):
         tempfile = os.path.join(self.root, 'test.tmp')

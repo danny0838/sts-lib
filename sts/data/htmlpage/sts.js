@@ -129,8 +129,8 @@
 
     get(key) {
       let trie = this.dict;
-      for (const comp of Unicode.split(key)) {
-        trie = trie[comp];
+      for (const chr of key) {
+        trie = trie[chr];
         if (typeof trie === 'undefined') {
           return null;
         }
@@ -143,11 +143,11 @@
       const substack = [];
       while (stack.length) {
         let [key, trie] = stack.pop();
-        for (let comp in trie) {
-          if (comp === '') {
-            yield [key, trie[comp]];
+        for (let chr in trie) {
+          if (chr === '') {
+            yield [key, trie[chr]];
           } else {
-            substack.push([key + comp, trie[comp]]);
+            substack.push([key + chr, trie[chr]]);
           }
         }
         while (substack.length) {
@@ -162,11 +162,11 @@
       }
 
       let current = this.dict;
-      for (const comp of Unicode.split(key)) {
-        if (typeof current[comp] === 'undefined') {
-          current[comp] = {};
+      for (const chr of key) {
+        if (typeof current[chr] === 'undefined') {
+          current[chr] = {};
         }
-        current = current[comp];
+        current = current[chr];
       }
 
       if (typeof current[''] === 'undefined') {
@@ -188,8 +188,8 @@
 
     delete(key) {
       let trie = this.dict;
-      for (const comp of Unicode.split(key)) {
-        trie = trie[comp];
+      for (const chr of key) {
+        trie = trie[chr];
         if (typeof trie === 'undefined') {
           return;
         }
@@ -211,10 +211,12 @@
       let end = Math.min(input.length, maxpos);
       let match = null;
       let matchEnd = null;
-      while (i < end) {
-        trie = trie[input[i]];
-        if (!trie) {
-          break;
+      outer: while (i < end) {
+        for (const chr of input[i]) {
+          trie = trie[chr];
+          if (!trie) {
+            break outer;
+          }
         }
         const values = trie[''];
         if (values) {

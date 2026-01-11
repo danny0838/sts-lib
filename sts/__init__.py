@@ -799,8 +799,8 @@ class Trie(StsDict):
         """Implementation of self[key]."""
         trie = self._dict
         try:
-            for comp in Unicode.split(key):
-                trie = trie[comp]
+            for char in key:
+                trie = trie[char]
             return trie['']
         except KeyError:
             raise KeyError(key)
@@ -826,8 +826,8 @@ class Trie(StsDict):
         """Implementation of del self[key]."""
         trie = self._dict
         try:
-            for comp in Unicode.split(key):
-                trie = trie[comp]
+            for char in key:
+                trie = trie[char]
             del trie['']
         except KeyError:
             raise KeyError(key)
@@ -838,11 +838,11 @@ class Trie(StsDict):
         stack = [('', trie)]
         while stack:
             key, trie = stack.pop()
-            for comp in reversed(trie):
-                if comp == '':
+            for char in reversed(trie):
+                if char == '':
                     yield key
                 else:
-                    stack.append((key + comp, trie[comp]))
+                    stack.append((key + char, trie[char]))
 
     def values(self):
         """Generate values."""
@@ -850,11 +850,11 @@ class Trie(StsDict):
         stack = [trie]
         while stack:
             trie = stack.pop()
-            for comp in reversed(trie):
-                if comp == '':
-                    yield trie[comp]
+            for char in reversed(trie):
+                if char == '':
+                    yield trie[char]
                 else:
-                    stack.append(trie[comp])
+                    stack.append(trie[char])
 
     def items(self):
         """Generate key-values pairs."""
@@ -862,11 +862,11 @@ class Trie(StsDict):
         stack = [('', trie)]
         while stack:
             key, trie = stack.pop()
-            for comp in reversed(trie):
-                if comp == '':
-                    yield key, trie[comp]
+            for char in reversed(trie):
+                if char == '':
+                    yield key, trie[char]
                 else:
-                    stack.append((key + comp, trie[comp]))
+                    stack.append((key + char, trie[char]))
 
     def add(self, key, values, skip_check=False):
         """Add a key-values pair to this dictionary.
@@ -878,8 +878,8 @@ class Trie(StsDict):
         values = (values,) if isinstance(values, str) else values
 
         trie = self._dict
-        for comp in Unicode.split(key):
-            trie = trie.setdefault(comp, {})
+        for char in key:
+            trie = trie.setdefault(char, {})
 
         list_ = trie.setdefault('', [])
         list_ += values if skip_check else (x for x in values if x not in list_)
@@ -902,7 +902,8 @@ class Trie(StsDict):
         match_end = None
         while i < end:
             try:
-                trie = trie[parts[i]]
+                for char in parts[i]:
+                    trie = trie[char]
             except KeyError:
                 break
             try:
