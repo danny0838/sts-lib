@@ -18,7 +18,7 @@ StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
 StsConvExclude = namedtuple('StsConvExclude', ['text'])
 
 
-def file_input(file, encoding='UTF-8', newline=None):
+def file_input(file, encoding='UTF-8-SIG', newline=None):
     try:
         return open(file, 'r', encoding=encoding, newline=newline)
     except TypeError:

@@ -2850,6 +2850,14 @@ class TestStsConverter(unittest.TestCase):
             result = fh.read()
         self.assertEqual("""乾柴烈火 發財圓夢""", result)
 
+        # UTF-8 BOM should be preserved by default
+        with open(tempfile, 'w', encoding='UTF-8-SIG') as fh:
+            fh.write("""干柴烈火 发财圆梦""")
+        converter.convert_file(tempfile, tempfile2)
+        with open(tempfile2, 'r', encoding='UTF-8') as fh:
+            result = fh.read()
+        self.assertEqual("""\ufeff乾柴烈火 發財圓夢""", result)
+
         with open(tempfile, 'w', encoding='GBK') as fh:
             fh.write("""干柴烈火 发财圆梦""")
         converter.convert_file(tempfile, tempfile2, input_encoding='GBK', output_encoding='Big5')
