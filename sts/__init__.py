@@ -723,11 +723,6 @@ class Table(StsDict):
     improve performance on text conversion than base StsDict.
 
     The internal data format is same as base StsDict.
-
-    NOTE: The cache will not update after generated, and therefore the
-    dictionary should not be modified after performing a text matching or
-    conversion (match, apply, apply_enum, etc.) to avoid an unexpected
-    behavior.
     """
     key_head_length = 2
 
@@ -743,6 +738,23 @@ class Table(StsDict):
             head = ''.join(parts[:self.key_head_length])
             dict_[head] = max(dict_.get(head, 0), length)
         return dict_
+
+    def add(self, key, values, skip_check=False):
+        try:
+            del self.key_map
+        except AttributeError:
+            pass
+        return super().add(key, values, skip_check)
+
+    def update(self, stsdict, skip_check=False):
+        try:
+            del self.key_map
+        except AttributeError:
+            pass
+        fn = super().add
+        for key, values in stsdict.items():
+            fn(key, values, skip_check)
+        return self
 
     def match(self, parts, pos, maxpos=math.inf):
         """Match a unicode composite at pos.

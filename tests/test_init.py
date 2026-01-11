@@ -936,15 +936,13 @@ class TestTable(unittest.TestCase):
         self.assertEqual({'干姜': 2}, dict_)
         self.assertIs(dict_, stsdict.key_map)
 
-        # setter
-        stsdict.key_map = {'干不': 3}
-        self.assertEqual({'干不': 3}, stsdict.key_map)
-
-        # deleter
+        # should update automatically after changed
         stsdict.add('了', ['了', '瞭'])
         stsdict.add('不了解', ['不瞭解'])
-        del stsdict.key_map
         self.assertEqual({'干姜': 2, '不了': 3}, stsdict.key_map)
+
+        stsdict.update({'我不了解': ['我不瞭解']})
+        self.assertEqual({'干姜': 2, '不了': 3, '我不': 4}, stsdict.key_map)
 
 
 class TestStsMaker(unittest.TestCase):
