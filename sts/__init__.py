@@ -18,6 +18,20 @@ StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
 StsConvExclude = namedtuple('StsConvExclude', ['text'])
 
 
+def file_input(file, encoding='UTF-8', newline=None):
+    try:
+        return open(file, 'r', encoding=encoding, newline=newline)
+    except TypeError:
+        return nullcontext(sys.stdin if file is None else file)
+
+
+def file_output(file, encoding='UTF-8', newline=''):
+    try:
+        return open(file, 'w', encoding=encoding, newline=newline)
+    except TypeError:
+        return nullcontext(sys.stdout if file is None else file)
+
+
 class StreamList(list):
     """Convert an iterable into a serializable "list".
 
@@ -285,7 +299,10 @@ class StsDict():
 
     def load(self, file, type=None):
         """Add all key-values pairs from a dict file."""
-        t = os.path.splitext(file)[1][1:].lower() if type is None else type
+        if type is None and isinstance(file, str):
+            t = os.path.splitext(file)[1][1:].lower()
+        else:
+            t = type
         if t in ('json', 'jlist'):
             self._load_json(file)
         elif t in ('yaml', 'yml'):
@@ -295,7 +312,7 @@ class StsDict():
         return self
 
     def _load_plain(self, file):
-        with open(file, 'r', encoding='UTF-8') as fh:
+        with file_input(file) as fh:
             for line in fh:
                 line = line.rstrip('\n')
                 try:
@@ -308,7 +325,7 @@ class StsDict():
                     self.add(key, values.split(' '))
 
     def _load_json(self, file):
-        with open(file, 'r', encoding='UTF-8') as fh:
+        with file_input(file) as fh:
             data = json.load(fh)
             if not isinstance(data, dict):
                 data = dict(data)
@@ -320,7 +337,7 @@ class StsDict():
         except ModuleNotFoundError:
             raise RuntimeError('install PyYAML module to support loading .yaml files')
 
-        with open(file, 'r', encoding='UTF-8') as fh:
+        with file_input(file) as fh:
             data = yaml.safe_load(fh)
             if not isinstance(data, dict):
                 data = dict(data)
@@ -330,17 +347,13 @@ class StsDict():
         """Dump key-values pairs to a plain-dict file.
 
         Args:
-            file: path of file to save. Use stdout if None.
+            file: file to save as a path-like, file-like, or None for stdout.
             sort: True to sort the output.
         """
         it = self.items()
         if sort:
             it = sorted(it)
-        with (
-            open(file, 'w', encoding='UTF-8', newline='')
-            if file
-            else nullcontext(sys.stdout)
-        ) as fh:
+        with file_output(file) as fh:
             for key, values in it:
                 if check:
                     for badchar in '\t\n\r':
@@ -361,10 +374,13 @@ class StsDict():
 
         NOTE: The input data format may vary across subclasses.
 
+        Args:
+            file: file to load as a path-like, file-like, or None for stdin.
+
         Returns:
             a new object with the same class.
         """
-        with open(file, 'r', encoding='UTF-8') as fh:
+        with file_input(file) as fh:
             stsdict = cls()
             stsdict._dict = json.load(fh)
         return stsdict
@@ -375,15 +391,11 @@ class StsDict():
         NOTE: The output data format may vary across subclasses.
 
         Args:
-            file: path of file to save. Use stdout if None.
+            file: file to save as a path-like, file-like, or None for stdout.
             indent: indent the output with a specified integer.
             sort: True to sort the output.
         """
-        with (
-            open(file, 'w', encoding='UTF-8', newline='')
-            if file
-            else nullcontext(sys.stdout)
-        ) as fh:
+        with file_output(file) as fh:
             json.dump(
                 self._dict, fh, indent=indent, sort_keys=sort,
                 separators=(',', ':') if indent is None else None,
@@ -1543,22 +1555,14 @@ class StsConverter():
         """Convert input and write to output.
 
         Args:
-            input: a file path or None for stdin.
-            output: a file path or None for stdout.
+            input: a path-like, file-like, or None for stdin.
+            output: a path-like, file-like, or None for stdout.
         """
-        with (
-            open(input, 'r', encoding=input_encoding, newline='')
-            if input
-            else nullcontext(sys.stdin)
-        ) as fh:
+        with file_input(input, encoding=input_encoding, newline='') as fh:
             text = fh.read()
 
         conv = self.convert_formatted(text, format=format, exclude=exclude)
 
-        with (
-            open(output, 'w', encoding=output_encoding, newline='')
-            if output
-            else nullcontext(sys.stdout)
-        ) as fh:
+        with file_output(output, encoding=output_encoding, newline='') as fh:
             for part in conv:
                 fh.write(part)

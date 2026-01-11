@@ -562,6 +562,22 @@ class TestStsDict(unittest.TestCase):
                 self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
     def test_dump(self):
+        fo = io.StringIO()
+        for cls in (StsDict, Table, Trie):
+            with self.subTest(type=cls):
+                stsdict = cls({'干': ['干', '榦'], '姜': ['姜', '薑']})
+
+                fo.seek(0)
+                stsdict.dump(fo)
+                text = fo.getvalue()
+                self.assertEqual('干\t干 榦\n姜\t姜 薑\n', text)
+
+                fo.seek(0)
+                stsdict.dump(fo, sort=True)
+                text = fo.getvalue()
+                self.assertEqual('姜\t姜 薑\n干\t干 榦\n', text)
+
+    def test_dump_file(self):
         tempfile = os.path.join(self.root, 'test.tmp')
         for cls in (StsDict, Table, Trie):
             with self.subTest(type=cls):
@@ -617,6 +633,19 @@ class TestStsDict(unittest.TestCase):
                     self.assertNotEqual(stsdict, stsdict2)
 
     def test_loadjson(self):
+        fi = io.StringIO('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
+        stsdict = StsDict().loadjson(fi)
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
+
+        fi = io.StringIO('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
+        stsdict = Table().loadjson(fi)
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
+
+        fi = io.StringIO('{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}')
+        stsdict = Trie().loadjson(fi)
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
+
+    def test_loadjson_file(self):
         tempfile = os.path.join(self.root, 'test.tmp')
 
         with open(tempfile, 'w', encoding='UTF-8') as fh:
@@ -635,6 +664,25 @@ class TestStsDict(unittest.TestCase):
         self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, stsdict)
 
     def test_dumpjson(self):
+        stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        fo = io.StringIO()
+        stsdict.dumpjson(fo)
+        fo.seek(0)
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, json.load(fo))
+
+        stsdict = Table({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        fo = io.StringIO()
+        stsdict.dumpjson(fo)
+        fo.seek(0)
+        self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, json.load(fo))
+
+        stsdict = Trie({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        fo = io.StringIO()
+        stsdict.dumpjson(fo)
+        fo.seek(0)
+        self.assertEqual({'干': {'': ['干', '榦'], '姜': {'': ['乾薑']}}, '姜': {'': ['姜', '薑']}}, json.load(fo))
+
+    def test_dumpjson_file(self):
         tempfile = os.path.join(self.root, 'test.tmp')
 
         stsdict = StsDict({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
@@ -2809,37 +2857,35 @@ class TestStsConverter(unittest.TestCase):
             result = fh.read()
         self.assertEqual("""乾柴烈火 發財圓夢""", result)
 
-    def test_convert_file_stdin(self):
-        tempfile2 = os.path.join(self.root, 'test2.tmp')
-
+    def test_convert_file_fh(self):
         converter = StsConverter(self.sample_s2t_dict)
+        fi = io.StringIO("""干柴烈火 发财圆梦""")
+        fo = io.StringIO()
+        converter.convert_file(fi, fo)
+        result = fo.getvalue()
+        self.assertEqual("""乾柴烈火 發財圓夢""", result)
 
+    def test_convert_file_stdin(self):
+        converter = StsConverter(self.sample_s2t_dict)
+        fo = io.StringIO()
         with mock.patch('sys.stdin', io.StringIO("""干柴烈火 发财圆梦""")):
-            converter.convert_file(None, tempfile2)
-        with open(tempfile2, 'r', encoding='UTF-8') as fh:
-            result = fh.read()
+            converter.convert_file(None, fo)
+        result = fo.getvalue()
         self.assertEqual("""乾柴烈火 發財圓夢""", result)
 
     def test_convert_file_stdout(self):
-        tempfile = os.path.join(self.root, 'test.tmp')
-
         converter = StsConverter(self.sample_s2t_dict)
-
-        with open(tempfile, 'w', encoding='UTF-8') as fh:
-            fh.write("""干柴烈火 发财圆梦""")
-
+        fi = io.StringIO("""干柴烈火 发财圆梦""")
         with redirect_stdout(io.StringIO()) as fh:
-            converter.convert_file(tempfile)
-
+            converter.convert_file(fi)
         self.assertEqual("""乾柴烈火 發財圓夢""", fh.getvalue())
 
     def test_convert_file_options(self):
         converter = StsConverter(Table())
-
-        with mock.patch('sts.StsConverter.convert_formatted') as mocker, \
-             mock.patch('sys.stdin', io.StringIO('干姜')):
+        fi = io.StringIO('干姜')
+        with mock.patch('sts.StsConverter.convert_formatted') as mocker:
             regex = re.compile(r'<!--(.*?)-->')
-            converter.convert_file(None, format='html', exclude=regex)
+            converter.convert_file(fi, format='html', exclude=regex)
             mocker.assert_called_with('干姜', format='html', exclude=regex)
 
 
