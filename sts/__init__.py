@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """An open library for flexible simplified-traditional Chinese text conversion."""
-__version__ = '0.35.0'
+__version__ = '0.35.1'
 
 import html
 import itertools
