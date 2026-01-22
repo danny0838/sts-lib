@@ -522,6 +522,21 @@ class TestStsDict(unittest.TestCase):
                 stsdict.load(tempfile)
                 self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
+                # comment line
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""干\t幹 乾\n# 註解\n姜\t姜 薑""")
+
+                stsdict = cls()
+                stsdict.load(tempfile)
+                self.assertEqual({'干': ['幹', '乾'], '姜': ['姜', '薑']}, stsdict)
+
+                with open(tempfile, 'w', encoding='UTF-8') as fh:
+                    fh.write("""# 註解\n干\t幹 乾\n""")
+
+                stsdict = cls()
+                stsdict.load(tempfile)
+                self.assertEqual({'干': ['幹', '乾']}, stsdict)
+
     def test_load_json(self):
         for cls, ext in itertools.product((StsDict, Table, Trie), ('json', 'jlist')):
             with self.subTest(type=cls, ext=ext):

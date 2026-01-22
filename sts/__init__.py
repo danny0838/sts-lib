@@ -315,12 +315,16 @@ class StsDict():
         with file_input(file) as fh:
             for line in fh:
                 line = line.rstrip('\n')
+
+                # skip comment (OpenCC >= 1.2.0) or empty line
+                if not line or line.startswith('#'):
+                    continue
+
                 try:
                     key, values, *_ = line.split('\t')
                 except ValueError:
-                    # no '\t', treat as key => [key] except for empty line
-                    if line:
-                        self.add(line, line)
+                    # no '\t', treat as key => [key]
+                    self.add(line, line)
                 else:
                     self.add(key, values.split(' '))
 
