@@ -1068,6 +1068,26 @@ document.addEventListener('DOMContentLoaded', function (event) {
       elem.setCustomValidity('');
     });
   }
+
+  const params = new URL(location).searchParams;
+  {
+    for (const key of [
+      'input',
+      'method',
+      'convert-file-method',
+      'convert-file-charset',
+      'custom-dict',
+      'exclude-pattern',
+    ]) {
+      const value = params.get(key);
+      if (value !== null) {
+        form[key].value = value;
+      }
+    }
+    if (params.get('input') !== null) {
+      form.querySelector('input[type="submit"]').click();
+    }
+  }
 });
 
 {%- endif %}
