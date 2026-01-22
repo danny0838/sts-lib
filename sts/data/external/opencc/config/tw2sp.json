@@ -11,7 +11,7 @@
         {
           "mode": "load",
           "src": [
-            "../dictionary/TWPhrasesRev.list",
+            "../dictionary/TWPhrasesRev.txt",
             "../dictionary/TWVariantsRevPhrases.txt",
             "../dictionary/TWVariantsRev.list"
           ]
