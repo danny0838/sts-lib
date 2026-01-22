@@ -1,0 +1,70 @@
+name: Release package
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        type: choice
+        options:
+          - development
+          - production
+        default: production
+
+permissions:
+  # for updating tag/release
+  contents: write
+
+jobs:
+  main:
+    name: Configure and create tag/release
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Configure and verify
+        id: config
+        env:
+          TIMEZONE: ${{ vars.TIMEZONE || 'UTC' }}
+        run: |
+          VERSION=$(grep -oP "^__version__\s*=\s*['\"]\K[^'\"]+" sts/__init__.py)
+
+          EXPECTED_LINE="## [$VERSION] - $(TZ="$TIMEZONE" date +%Y-%m-%d)"
+          if ! grep -Fxq "$EXPECTED_LINE" CHANGELOG.md; then
+            echo "❌ Missing expected changelog line: $EXPECTED_LINE"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git tag
+        run: |
+          git tag --force ${{ steps.config.outputs.version }}
+          git push origin ${{ steps.config.outputs.version }}
+
+  upload_pypi:
+    name: Upload to PyPI
+    runs-on: ubuntu-latest
+    needs: main
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install --group dev
+
+      - name: Upload to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: tox -e release
