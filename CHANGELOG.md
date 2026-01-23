@@ -2,6 +2,11 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.37.0] - 2026-01-23
+* Added support of the comment format since OpenCC 1.2.0.
+* Added support of `--dict` (`-d`) option for `convert` subcommand.
+* Miscellaneous improvements to the internal code.
+
 ## [0.36.0] - 2026-01-22
 * Rework `Trie` to be Unicode char based.
 * Support pre-defined query using URL parameters for the web converter.
@@ -21,7 +26,7 @@
 * Support dismissing a word and re-convert as a shorter word.
 
 ## [0.29.0] - 2024-04-25
-* `¦rµü` (without `\t`) in a plain text dictionary is now treated as `¦rµü\t¦rµü`.
+* `?r??` (without `\t`) in a plain text dictionary is now treated as `?r??\t?r??`.
 
 ## [0.28.0] - 2024-04-24
 * Removed `remove_keys` and `remove_values` modes, and merged them into `filter` mode.
