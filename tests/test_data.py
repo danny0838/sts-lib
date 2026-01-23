@@ -66,7 +66,7 @@ class TestConfigs(unittest.TestCase):
         self._test_config('t2s')
 
     def test_config_tw2t(self):
-        self._test_config('hk2t')
+        self._test_config('tw2t')
 
     def test_config_s2tw(self):
         self._test_config('s2tw')
