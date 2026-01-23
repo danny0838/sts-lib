@@ -40,7 +40,7 @@ body > footer { margin-top: 1em; text-align: center; font-size: small; }
 .popup a:hover { background-color: #ccc; }
 .popup a:not([tabindex="0"])::before { content: attr(tabindex) "."; }
 </style>
-<script>
+<script type="module">
 function* walkThroughAnchors(anchor, direction) {
   let a = anchor;
   if (direction > 0) {

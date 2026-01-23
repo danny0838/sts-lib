@@ -1,3 +1,9 @@
+{% if not single_page -%}
+
+import {Unicode, StsDict} from "./sts.js";
+
+{% endif -%}
+
 function* walkThroughAnchors(anchor, direction) {
   let a = anchor;
   if (direction > 0) {
@@ -219,7 +225,7 @@ function editContext(anchor) {
 
 async function dismissPhrase(anchor) {
   const origTextNode = anchor.querySelector('del').firstChild;
-  const origComps = sts.Unicode.split(origTextNode.nodeValue);
+  const origComps = Unicode.split(origTextNode.nodeValue);
   if (!(origComps.length >= 2)) { return; }
 
   removePopup();
@@ -800,7 +806,7 @@ async function loadDict(mode, customDict) {
   }
 
   const url = `dicts/${mode}.tlist`;
-  const dict = await sts.StsDict.load(url);
+  const dict = await StsDict.load(url);
   const regexLine = /\n|\r\n?/;
   const regexSep = /[ \t]+/;
   if (customDict) {
