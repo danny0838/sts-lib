@@ -63,19 +63,22 @@ def make(args):
 
 
 def convert(args):
-    """Convert text using the given config.
+    """Convert text using the given config or dictionary.
     """
     inputs = args['file']
     outputs = args['output']
     force_stdout = args['stdout']
     config = args['config']
+    dict_ = args['dict']
     format = args['format']
     exclude = args['exclude']
     input_encoding = args['in_enc']
     output_encoding = args['out_enc']
 
-    stsdict = StsMaker().make(config, quiet=True)
-    converter = StsConverter(stsdict)
+    if dict_ is None:
+        dict_ = StsMaker().make(config, quiet=True)
+
+    converter = StsConverter(dict_)
 
     # read STDIN if no input file is specified
     if not len(inputs):
@@ -118,6 +121,8 @@ def parse_args(argv=None):
                                 help="""the config for conversion, either a built-in config name or the path to a custom JSON file
 (built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t)
 (default: %(default)s)""")
+    parser_convert.add_argument('-d', '--dict',
+                                help="""the dictionary file for conversion (overrides --config)""")
     parser_convert.add_argument('-f', '--format', default='txt',
                                 choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
                                 help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
