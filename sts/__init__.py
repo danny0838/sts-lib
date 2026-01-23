@@ -516,10 +516,7 @@ class StsDict():
             result:
                 妳娘 => 妳媽 奶媽
         """
-        conv = self.__class__()
-        for key, values in self.items():
-            for value in values:
-                conv.add(value, key)
+        conv = self.swap()
 
         map_keys = {}
         for key in stsdict:
@@ -1230,7 +1227,6 @@ class StsMaker():
         dicts, comb, map_ph_to_dict_idx, map_ph_to_comb_idx = context
         rv = []
         stack = [(parts, 0)]
-        substack = []
         while stack:
             parts, idx = stack.pop()
             try:
@@ -1246,11 +1242,9 @@ class StsMaker():
             ph = ''.join(part.key)
             dict_idx = map_ph_to_dict_idx[ph]
             comb_idx = map_ph_to_comb_idx[ph]
-            for value in dicts[dict_idx][comb[comb_idx]]:
+            for value in reversed(dicts[dict_idx][comb[comb_idx]]):
                 newparts = parts[:idx] + [value] + parts[idx + 1:]
-                substack.append((newparts, idx + 1))
-            while substack:
-                stack.append(substack.pop())
+                stack.append((newparts, idx + 1))
         return rv
 
     def _make_dict_mode_filter(self, dict_scheme):
