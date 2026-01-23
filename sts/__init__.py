@@ -947,7 +947,7 @@ class StsMaker():
             quiet: truthy to skip reporting details
 
         Returns:
-            a str for the path of the last generated dictionary file
+            a str for the path of the last generated dictionary file or None
         """
         # locate and load the config file
         config_file = self.get_config_file(config_name, base_dir=base_dir)
@@ -964,6 +964,7 @@ class StsMaker():
                 self.make(cf, base_dir=config_dir, skip_requires=skip_requires, quiet=quiet)
 
         # make the requested dicts
+        dest = None
         for dict_scheme in config['dicts']:
             if isinstance(dict_scheme, str):
                 dest = dict_scheme
