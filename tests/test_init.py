@@ -2657,7 +2657,7 @@ class TestStsConverter(unittest.TestCase):
             fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
         converter = StsConverter(tempfile)
         self.assertEqual({'干': ['幹', '乾', '干'], '干姜': ['乾薑']}, converter.table)
-        self.assertIs(Table, type(converter.table))
+        self.assertIs(Trie, type(converter.table))
 
         # file as str (.jlist)
         tempfile = os.path.join(self.root, 'test.jlist')
@@ -2665,7 +2665,7 @@ class TestStsConverter(unittest.TestCase):
             fh.write("""{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}""")
         converter = StsConverter(tempfile)
         self.assertEqual({'干': ['干', '榦'], '姜': ['姜', '薑'], '干姜': ['乾薑']}, converter.table)
-        self.assertIs(Table, type(converter.table))
+        self.assertIs(Trie, type(converter.table))
 
         # file as str (.tlist)
         tempfile = os.path.join(self.root, 'test.tlist')
@@ -2681,7 +2681,7 @@ class TestStsConverter(unittest.TestCase):
             fh.write("""干\t幹 乾 干\n干姜\t乾薑""")
         converter = StsConverter(tempfile)
         self.assertEqual({'干': ['幹', '乾', '干'], '干姜': ['乾薑']}, converter.table)
-        self.assertIs(Table, type(converter.table))
+        self.assertIs(Trie, type(converter.table))
 
         # StsDict
         stsdict = Trie({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})

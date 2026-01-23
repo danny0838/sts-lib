@@ -1421,19 +1421,18 @@ class StsConverter():
         """Initialize a converter.
 
         Args:
-            stsdict: an StsDict or a str, bytes or os.PathLike object for a
-                dictionary file
+            stsdict: an StsDict or a path-like object for a dictionary file.
         """
         if isinstance(stsdict, StsDict):
             self.table = stsdict
         else:
             _, ext = os.path.splitext(stsdict)
             if ext.lower() == '.jlist':
-                self.table = Table.loadjson(stsdict)
+                self.table = Trie().load(stsdict, 'jlist')
             elif ext.lower() == '.tlist':
                 self.table = Trie.loadjson(stsdict)
             else:  # default: list
-                self.table = Table().load(stsdict)
+                self.table = Trie().load(stsdict, 'plain')
 
     def convert(self, text, exclude=None):
         """Convert a text and yield each part.
