@@ -1,6 +1,6 @@
 {% if not single_page -%}
 
-import {Unicode, StsDict} from "./sts.js";
+import {Unicode, StsDict} from "./sts.mjs";
 
 {% endif -%}
 

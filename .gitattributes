@@ -6,6 +6,7 @@
 *.js text
 *.json text
 *.md text
+*.mjs text
 *.py text
 *.toml text
 *.txt text
