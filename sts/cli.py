@@ -63,7 +63,7 @@ def make(args):
 
 
 def convert(args):
-    """Convert a file using the given config.
+    """Convert text using the given config.
     """
     inputs = args['file']
     outputs = args['output']
@@ -115,7 +115,7 @@ def parse_args(argv=None):
     parser_convert.add_argument('file', nargs='*',
                                 help="""file(s) to convert (default: STDIN)""")
     parser_convert.add_argument('-c', '--config', default='s2t',
-                                help="""the config to use, either a built-in config name or a path to a custom JSON file
+                                help="""the config for conversion, either a built-in config name or the path to a custom JSON file
 (built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t)
 (default: %(default)s)""")
     parser_convert.add_argument('-f', '--format', default='txt',
@@ -129,7 +129,7 @@ def parse_args(argv=None):
     parser_convert.add_argument('--out-enc', default='UTF-8', metavar='ENCODING',
                                 help="""encoding for output (default: %(default)s)""")
     parser_convert.add_argument('-o', '--output', default=[], action='append',
-                                help="""path to output (for the corresponding input) (default: to input)""")
+                                help="""path to output (for each corresponding input) (default: to input)""")
     parser_convert.add_argument('--stdout', default=False, action='store_true',
                                 help="""write all converted text to STDOUT instead""")
 
