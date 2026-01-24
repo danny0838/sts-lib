@@ -11,7 +11,8 @@ from unittest import mock
 
 import yaml
 
-from sts import (
+from sts import __version__
+from sts.common import (
     StreamList,
     StsConverter,
     StsDict,
@@ -20,7 +21,6 @@ from sts import (
     Trie,
     Unicode,
 )
-from sts import __version__
 
 root_dir = os.path.dirname(__file__)
 
@@ -2261,7 +2261,7 @@ class TestStsMaker(unittest.TestCase):
         with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
             fh.write('干\t幹 乾 干')
 
-        with mock.patch('sts.StsDict.dump') as mocker:
+        with mock.patch('sts.common.StsDict.dump') as mocker:
             StsMaker().make(config_file, quiet=True)
             mocker.assert_called_with(mock.ANY, sort=mock.ANY, check=True)
 
@@ -2877,12 +2877,12 @@ class TestStsConverter(unittest.TestCase):
     def test_convert_text_options(self):
         converter = StsConverter(Table())
 
-        with mock.patch('sts.StsConverter.convert_formatted') as mocker:
+        with mock.patch('sts.common.StsConverter.convert_formatted') as mocker:
             regex = re.compile(r'<!--(.*?)-->')
             converter.convert_text('乾柴', format='json', exclude=regex)
             mocker.assert_called_with('乾柴', format='json', exclude=regex)
 
-        with mock.patch('sts.StsConverter.convert_formatted') as mocker:
+        with mock.patch('sts.common.StsConverter.convert_formatted') as mocker:
             regex = re.compile(r'<!--(.*?)-->')
             converter.convert_text('程序', 'txtm', regex)
             mocker.assert_called_with('程序', format='txtm', exclude=regex)
@@ -2941,7 +2941,7 @@ class TestStsConverter(unittest.TestCase):
     def test_convert_file_options(self):
         converter = StsConverter(Table())
         fi = io.StringIO('干姜')
-        with mock.patch('sts.StsConverter.convert_formatted') as mocker:
+        with mock.patch('sts.common.StsConverter.convert_formatted') as mocker:
             regex = re.compile(r'<!--(.*?)-->')
             converter.convert_file(fi, format='html', exclude=regex)
             mocker.assert_called_with('干姜', format='html', exclude=regex)

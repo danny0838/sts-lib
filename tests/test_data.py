@@ -4,7 +4,7 @@ import unittest
 
 import yaml
 
-from sts import StsConverter, StsMaker
+from sts.common import StsConverter, StsMaker
 
 from . import slow_test
 

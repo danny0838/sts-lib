@@ -4,9 +4,9 @@ import os
 import re
 import sys
 
-from . import StsConverter, StsMaker, Table
 from . import __doc__ as _doc
 from . import __version__
+from .common import StsConverter, StsMaker, Table
 
 
 def sort(args):
