@@ -1,0 +1,27 @@
+cases:
+  - id: BYVoid_OpenCC_Issue_475_s2twp
+    input: 正则表达式
+    expected:
+      s2twp: 正規表示式
+      s2tw: 正則表達式
+      s2hk: 正則表達式
+      s2t: 正則表達式
+  - id: BYVoid_OpenCC_Issue_475_tw2sp
+    input: 正規表示式
+    expected:
+      tw2sp: 正则表达式
+      tw2s: 正规表示式
+      t2s: 正规表示式
+  - id: BYVoid_OpenCC_Issue_475_s2twp_卷积
+    input: 卷积
+    expected:
+      s2twp: [['卷積', '摺積']]
+      s2tw: [['卷', '捲'], ['積']]
+      s2hk: [['卷', '捲'], ['積']]
+      s2t: [['卷', '捲'], ['積']]
+  - id: BYVoid_OpenCC_Issue_475_tw2sp_卷积
+    input: 摺積
+    expected:
+      tw2sp: 卷积
+      tw2s: 折积
+      t2s: 折积

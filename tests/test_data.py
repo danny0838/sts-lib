@@ -1,4 +1,4 @@
-import glob
+import json
 import os
 import unittest
 
@@ -11,106 +11,113 @@ from . import slow_test
 root_dir = os.path.dirname(__file__)
 
 
-class TestConfigs(unittest.TestCase):
-    @slow_test()
+@slow_test()
+class TestMake(unittest.TestCase):
+    def _clear_generated_dicts(self, config_dir):
+        dicts_dir = os.path.normpath(os.path.join(config_dir, '..', 'dictionary'))
+        with os.scandir(dicts_dir) as it:
+            for entry in it:
+                if not entry.is_file:
+                    continue
+                if not os.path.splitext(entry)[1].lower() in ('.tlist', '.jlist'):
+                    continue
+
+                os.remove(entry)
+
+    def _test_make_config_files(self, config_dir):
+        with os.scandir(config_dir) as it:
+            for entry in it:
+                if not entry.is_file:
+                    continue
+                if not os.path.splitext(entry)[1].lower() == '.json':
+                    continue
+
+                with self.subTest(config=entry.path):
+                    self._clear_generated_dicts(config_dir)
+                    StsMaker().make(entry, quiet=True)
+
     def test_make(self):
         """Check if built-in configs can be made independently."""
-        def check_data_dir(data_dir):
-            try:
-                it = os.scandir(os.path.join(data_dir, 'config'))
-            except OSError:
-                return
-            with it as it:
-                for file in it:
-                    if not os.path.splitext(file)[1] == '.json':
-                        continue
+        config_dir = StsMaker.config_dir
+        self._test_make_config_files(config_dir)
 
-                    with self.subTest(config=file.path):
-                        clear_dicts(data_dir)
-                        StsMaker().make(file, quiet=True)
+    def test_make_external(self):
+        """Check if external configs can be made independently."""
+        with os.scandir(os.path.join(StsMaker.data_dir, 'external')) as it:
+            for entry in it:
+                config_dir = os.path.join(entry, 'config')
+                if not os.path.isdir(config_dir):
+                    continue
 
-        def clear_dicts(data_dir):
-            try:
-                it = os.scandir(os.path.join(data_dir, 'dictionary'))
-            except OSError:
-                return
-            with it as it:
-                for file in it:
-                    if not os.path.splitext(file)[1] in ('.tlist', '.jlist'):
-                        continue
+                self._test_make_config_files(config_dir)
 
-                    os.remove(file)
 
-        for data_dir in [
-            StsMaker.data_dir,
-            *glob.glob(os.path.join(glob.escape(os.path.join(StsMaker.data_dir, 'external')), '*')),
-        ]:
-            check_data_dir(data_dir)
+class TestConfigs(unittest.TestCase):
+    def _iter_testcase_files(self, ref_dir):
+        with os.scandir(ref_dir) as it:
+            for entry in it:
+                if not entry.is_file:
+                    continue
+                if not os.path.splitext(entry)[1].lower() in ('.yaml', '.json'):
+                    continue
+                yield entry
 
-    def _test_config(self, config):
-        test_file = os.path.join(root_dir, 'test_data_config', f'{config}.yaml')
+    def _test_against_testcase_file(self, test_file, config_dir=None, converters=None):
         with open(test_file, encoding='utf-8') as fh:
-            data = yaml.safe_load(fh)
-
-        dict_ = StsMaker().make(config, quiet=True)
-        converter = StsConverter(dict_)
-        for test in data['tests']:
-            if 'group' in test:
-                group = test['group']
-                subtests = test['tests']
-                with self.subTest(group=group):
-                    for subtest in subtests:
-                        self._test_config_test(converter, subtest)
+            if os.path.splitext(test_file)[1].lower() == '.json':
+                data = json.load(fh)
             else:
-                with self.subTest(msg=test['texts'][1]):
-                    self._test_config_test(converter, test)
+                data = yaml.safe_load(fh)
 
-    def _test_config_test(self, converter, test):
-        input, expected = test['texts']
+        for i, case in enumerate(data['cases']):
+            self._test_against_case(i, case, config_dir, converters)
+
+    def _test_against_case(self, i, case, config_dir, converters):
+        input = case['input']
+        for config, expected in case['expected'].items():
+            if config_dir is not None:
+                config = os.path.join(config_dir, f'{config}.json')
+            with self.subTest(id=case.get('id', i), input=input, config=config):
+                self._test_against_config(config, input, expected, converters)
+
+    def _test_against_config(self, config, input, expected, converters):
+        try:
+            converter = converters[config]
+        except KeyError:
+            dict_ = StsMaker().make(config, quiet=True)
+            converter = converters[config] = StsConverter(dict_)
+
         if isinstance(expected, str):
-            self.assertEqual(expected, converter.convert_text(input))
+            output = converter.convert_text(input)
         else:
-            output = [list(x) if isinstance(x, tuple) else x for x in converter.convert(input)]
-            self.assertEqual(expected, output)
+            output = [x if isinstance(x, str) else x.values for x in converter.convert(input)]
 
-    def test_config_s2t(self):
-        self._test_config('s2t')
+        self.assertEqual(expected, output)
 
-    def test_config_t2s(self):
-        self._test_config('t2s')
+    def test_configs(self):
+        """Test configs with files at tests/test_data_configs/*.{yaml,json}"""
+        converters = {}
+        test_dir = os.path.join(root_dir, 'test_data_configs')
+        for entry in self._iter_testcase_files(test_dir):
+            with self.subTest(src=entry.name):
+                self._test_against_testcase_file(entry, converters=converters)
 
-    def test_config_tw2t(self):
-        self._test_config('tw2t')
+    def test_configs_external(self):
+        """Test external configs with files at sts/data/external/*/tests/*.{yaml,json}"""
+        converters = {}
+        with os.scandir(os.path.join(StsMaker.data_dir, 'external')) as it:
+            for entry in it:
+                config_dir = os.path.join(entry, 'config')
+                if not os.path.isdir(config_dir):
+                    continue
 
-    def test_config_s2tw(self):
-        self._test_config('s2tw')
+                test_dir = os.path.join(entry, 'tests')
+                if not os.path.isdir(test_dir):
+                    continue
 
-    def test_config_tw2s(self):
-        self._test_config('tw2s')
-
-    def test_config_s2twp(self):
-        self._test_config('s2twp')
-
-    def test_config_tw2sp(self):
-        self._test_config('tw2sp')
-
-    def test_config_t2hk(self):
-        self._test_config('t2hk')
-
-    def test_config_hk2t(self):
-        self._test_config('hk2t')
-
-    def test_config_s2hk(self):
-        self._test_config('s2hk')
-
-    def test_config_hk2s(self):
-        self._test_config('hk2s')
-
-    def test_config_t2jp(self):
-        self._test_config('t2jp')
-
-    def test_config_jp2t(self):
-        self._test_config('jp2t')
+                for entry in self._iter_testcase_files(test_dir):
+                    with self.subTest(src=entry.path):
+                        self._test_against_testcase_file(entry, config_dir=config_dir, converters=converters)
 
 
 if __name__ == '__main__':

@@ -25,6 +25,7 @@ OPENCC_VER = 'ver.1.2.0'  # e.g. 'ver.1.1.7', 'master'
 OPENCC_URL = f'https://github.com/BYVoid/OpenCC/archive/{OPENCC_VER}.zip'
 OPENCC_DIR_MAP = {
     'data/dictionary': 'dictionary',
+    'test/testcases': 'tests',
 }
 
 MW_VER = '1.43.1'  # e.g. '1.41.1', 'master'
@@ -121,9 +122,12 @@ def handle_opencc(root_dir):
             # remove top dir from path
             subpath = '/'.join(zinfo.filename.split('/')[1:])
 
-            dir, filename = os.path.split(subpath)
+            if not os.path.splitext(subpath)[1].lower() in ('.txt', '.json'):
+                continue
+
+            dir_, filename = os.path.split(subpath)
             try:
-                newdir = OPENCC_DIR_MAP[dir]
+                newdir = OPENCC_DIR_MAP[dir_]
             except KeyError:
                 continue
 
