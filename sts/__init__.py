@@ -905,8 +905,9 @@ class Trie(StsDict):
 
 class StsMaker():
     """A class for making dictionary file(s)."""
-    config_dir = os.path.join(os.path.dirname(__file__), 'data', 'config')
-    dictionary_dir = os.path.join(os.path.dirname(__file__), 'data', 'dictionary')
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    config_dir = os.path.join(data_dir, 'config')
+    dictionary_dir = os.path.join(data_dir, 'dictionary')
 
     def make(self, config_name, base_dir=None,
              skip_check=False, skip_requires=False, quiet=False):

@@ -1,5 +1,5 @@
+import glob
 import os
-import re
 import unittest
 
 import yaml
@@ -15,23 +15,37 @@ class TestConfigs(unittest.TestCase):
     @slow_test()
     def test_make(self):
         """Check if built-in configs can be made independently."""
-        def clear_generated_dicts():
-            with os.scandir(dict_dir) as it:
+        def check_data_dir(data_dir):
+            try:
+                it = os.scandir(os.path.join(data_dir, 'config'))
+            except OSError:
+                return
+            with it as it:
                 for file in it:
-                    if dict_pattern.search(file.path):
-                        os.remove(file)
+                    if not os.path.splitext(file)[1] == '.json':
+                        continue
 
-        config_dir = StsMaker.config_dir
-        dict_dir = StsMaker.dictionary_dir
-        config_pattern = re.compile(r'\.json$', re.I)
-        dict_pattern = re.compile(r'\.(?:[jt]?list)$', re.I)
-        for file in os.listdir(config_dir):
-            if not config_pattern.search(file):
-                continue
+                    with self.subTest(config=file.path):
+                        clear_dicts(data_dir)
+                        StsMaker().make(file, quiet=True)
 
-            with self.subTest(config=file):
-                clear_generated_dicts()
-                StsMaker().make(file, quiet=True)
+        def clear_dicts(data_dir):
+            try:
+                it = os.scandir(os.path.join(data_dir, 'dictionary'))
+            except OSError:
+                return
+            with it as it:
+                for file in it:
+                    if not os.path.splitext(file)[1] in ('.tlist', '.jlist'):
+                        continue
+
+                    os.remove(file)
+
+        for data_dir in [
+            StsMaker.data_dir,
+            *glob.glob(os.path.join(glob.escape(os.path.join(StsMaker.data_dir, 'external')), '*')),
+        ]:
+            check_data_dir(data_dir)
 
     def _test_config(self, config):
         test_file = os.path.join(root_dir, 'test_data_config', f'{config}.yaml')
