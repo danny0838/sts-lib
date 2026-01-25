@@ -378,21 +378,18 @@
       }
     },
     {
-      "xfail": true,
       "input": "唱歌后",
       "expected": {
         "s2t": "唱歌後"
       }
     },
     {
-      "xfail": true,
       "input": "女王后",
       "expected": {
         "s2t": "女王後"
       }
     },
     {
-      "xfail": true,
       "input": "告诉国王后",
       "expected": {
         "s2t": "告訴國王後"
@@ -405,7 +402,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "那天隔天后",
       "expected": {
         "s2t": "那天隔天後"
@@ -418,7 +414,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "婚后光子",
       "expected": {
         "s2t": "婚后光子"
@@ -437,28 +432,24 @@
       }
     },
     {
-      "xfail": true,
       "input": "电影后来",
       "expected": {
         "s2t": "電影後來"
       }
     },
     {
-      "xfail": true,
       "input": "摄影后制",
       "expected": {
         "s2t": "攝影後製"
       }
     },
     {
-      "xfail": true,
       "input": "埋葬了我的祖母后",
       "expected": {
         "s2t": "埋葬了我的祖母後"
       }
     },
     {
-      "xfail": true,
       "input": "是我等战王后裔的夙愿",
       "expected": {
         "s2t": "是我等戰王後裔的夙願"
