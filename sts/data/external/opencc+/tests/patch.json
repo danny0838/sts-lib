@@ -276,10 +276,9 @@
       }
     },
     {
-      "xfail": true,
       "input": "喂喂鸽子",
-      "expected": {
-        "s2t": "餵餵鴿子"
+      "expected_raw": {
+        "s2t": [["喂喂", "餵餵"], ["鴿"], "子"]
       }
     },
     {
@@ -295,66 +294,57 @@
       }
     },
     {
-      "xfail": true,
       "input": "让他自己喂",
       "expected": {
         "s2t": "讓他自己餵"
       }
     },
     {
-      "xfail": true,
       "input": "如果不喂",
       "expected": {
         "s2t": "如果不餵"
       }
     },
     {
-      "xfail": true,
       "input": "我来喂吧",
       "expected": {
         "s2t": "我來餵吧"
       }
     },
     {
-      "xfail": true,
       "input": "多给我喂玉米",
       "expected": {
         "s2t": "多給我餵玉米"
       }
     },
     {
-      "xfail": true,
       "input": "喂他吃安眠药",
       "expected": {
         "s2t": "餵他喫安眠藥"
       }
     },
     {
-      "xfail": true,
       "input": "喂个几次",
       "expected": {
         "s2t": "餵個幾次"
       }
     },
     {
-      "xfail": true,
       "input": "早晚喂两次",
       "expected": {
         "s2t": "早晚餵兩次"
       }
     },
     {
-      "xfail": true,
       "input": "你该去喂喂他",
       "expected": {
         "s2t": "你該去餵餵他"
       }
     },
     {
-      "xfail": true,
       "input": "我也想喂喂它呢",
-      "expected": {
-        "s2t": "我也想餵餵它呢"
+      "expected_raw": {
+        "s2t": ["我", "也", "想", ["喂喂", "餵餵"], ["它", "牠"], "呢"]
       }
     },
     {
@@ -364,7 +354,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "把鸽子喂得圆滚滚",
       "expected": {
         "s2t": "把鴿子餵得圓滾滾"
@@ -377,7 +366,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "我喂水产市场买的新鲜虾蟹",
       "expected": {
         "s2t": "我餵水產市場買的新鮮蝦蟹"
