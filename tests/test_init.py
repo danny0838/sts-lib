@@ -957,7 +957,7 @@ class TestStsDict(unittest.TestCase):
 
 
 class TestTable(unittest.TestCase):
-    def test_key_map_basic(self):
+    def test_head_map_basic(self):
         # basic
         stsdict = Table({
             '干': ['幹', '乾'],
@@ -966,7 +966,7 @@ class TestTable(unittest.TestCase):
             '干不了': ['幹不了'],
             '姜': ['姜', '薑'],
         })
-        self.assertEqual({'干姜': 2, '干不': 3}, stsdict.key_map)
+        self.assertEqual({'干姜': 2, '干不': 3}, stsdict.head_map)
 
         stsdict = Table({
             '干不干净': ['乾不乾淨'],
@@ -975,26 +975,26 @@ class TestTable(unittest.TestCase):
             '干不下': ['幹不下'],
             '干不了': ['幹不了'],
         })
-        self.assertEqual({'干不': 4, '干姜': 2}, stsdict.key_map)
+        self.assertEqual({'干不': 4, '干姜': 2}, stsdict.head_map)
 
         # IDS
         stsdict = Table({'⿰虫风': ['𧍯'], '沙⿰虫风': ['沙虱']})
-        self.assertEqual({'沙⿰虫风': 2}, stsdict.key_map)
+        self.assertEqual({'沙⿰虫风': 2}, stsdict.head_map)
 
-    def test_key_map_cache(self):
+    def test_head_map_cache(self):
         # getter
         stsdict = Table({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-        dict_ = stsdict.key_map
+        dict_ = stsdict.head_map
         self.assertEqual({'干姜': 2}, dict_)
-        self.assertIs(dict_, stsdict.key_map)
+        self.assertIs(dict_, stsdict.head_map)
 
         # should update automatically after changed
         stsdict.add('了', ['了', '瞭'])
         stsdict.add('不了解', ['不瞭解'])
-        self.assertEqual({'干姜': 2, '不了': 3}, stsdict.key_map)
+        self.assertEqual({'干姜': 2, '不了': 3}, stsdict.head_map)
 
         stsdict.update({'我不了解': ['我不瞭解']})
-        self.assertEqual({'干姜': 2, '不了': 3, '我不': 4}, stsdict.key_map)
+        self.assertEqual({'干姜': 2, '不了': 3, '我不': 4}, stsdict.head_map)
 
 
 class TestStsMaker(unittest.TestCase):

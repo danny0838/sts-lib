@@ -730,7 +730,7 @@ class Table(StsDict):
     key_head_length = 2
 
     @cached_property
-    def key_map(self):
+    def head_map(self):
         """Get a dict of the first N parts to max length."""
         dict_ = {}
         for key in self._dict:
@@ -744,14 +744,14 @@ class Table(StsDict):
 
     def add(self, key, values, skip_check=False):
         try:
-            del self.key_map
+            del self.head_map
         except AttributeError:
             pass
         return super().add(key, values, skip_check)
 
     def update(self, stsdict, skip_check=False):
         try:
-            del self.key_map
+            del self.head_map
         except AttributeError:
             pass
         fn = super().add
@@ -761,7 +761,7 @@ class Table(StsDict):
 
     def _match(self, parts, pos, maxpos=math.inf):
         try:
-            i = self.key_map[''.join(parts[pos:pos + self.key_head_length])]
+            i = self.head_map[''.join(parts[pos:pos + self.key_head_length])]
         except KeyError:
             i = self.key_head_length - 1
         i = min(i, min(len(parts), maxpos) - pos)
