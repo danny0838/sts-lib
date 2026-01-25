@@ -5199,7 +5199,6 @@
       }
     },
     {
-      "xfail": true,
       "input": "今周刊",
       "expected": {
         "s2twp": "今周刊"
