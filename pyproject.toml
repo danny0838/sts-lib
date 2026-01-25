@@ -55,14 +55,14 @@ lint = [
     "flake8-isort>=5.0",
     "isort>=5.9.2",
 ]
-build = [
-    "jinja2",
-    "requests",
-]
 dev = [
     "tox>=4.21.2",
     {include-group = "lint"},
-    {include-group = "build"},
+]
+scripts = [
+    "sts-lib",
+    "jinja2",
+    "requests",
 ]
 
 [tool.setuptools.packages.find]
