@@ -7,6 +7,7 @@ import re
 import zipfile
 
 import requests
+import yaml
 
 from sts import Table
 
@@ -41,6 +42,16 @@ NTW_SRCS = [
     't2s-char.min.json',
     't2s-phrase.min.json',
 ]
+
+FANHUAJI_VER = '58502aea63ca2e5f5e06a2f8b3ea4041b6fc5708'
+FANHUAJI_URL = f'https://gist.githubusercontent.com/n6333373/f06a3aa27fcde0ba31c5955cfc33ca85/raw/{FANHUAJI_VER}/converter_testbench.yaml'
+FANHUAJI_CONVERTER_MAP = {
+    'Simplified': 't2s',
+    'Traditional': 's2t',
+    'China': 'tw2sp',
+    'Taiwan': 's2twp',
+    'Hongkong': None,
+}
 
 REQUEST_HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -175,6 +186,44 @@ def handle_tongwen(root_dir):
             json.dump(data, fh, indent=2, ensure_ascii=False, check_circular=False)
 
 
+def _fanhuaji_convert_tests(data):
+    results = []
+
+    for group in data:
+        common = group['commons']
+
+        if common['options'] != {'modules': {'*': 0}}:
+            raise ValueError(f'Unknown options: {common["options"]}')
+
+        config = FANHUAJI_CONVERTER_MAP[common['converter']]
+        if not config:
+            continue
+
+        for test in group['tests']:
+            input, expected = test['texts']
+            results.append({
+                'input': input,
+                'expected': {
+                    config: expected,
+                },
+            })
+
+    return {'cases': results}
+
+
+def handle_fanhuaji(root_dir):
+    file = os.path.join(root_dir, '_cache', f'{FANHUAJI_VER}.yaml')
+    fetch_on_demand(FANHUAJI_URL, file)
+
+    dest = os.path.join(root_dir, 'tests', 'testcases.json')
+    print(f'updating: {dest}')
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    with open(file, encoding='UTF-8') as fh:
+        data = yaml.safe_load(fh)
+    with open(dest, 'w', encoding='UTF-8') as fh:
+        json.dump(_fanhuaji_convert_tests(data), fh, indent=2, ensure_ascii=False, check_circular=False)
+
+
 def fetch():
     root_dir = os.path.normpath(os.path.join(__file__, '..', '..'))
     data_dir = os.path.normpath(os.path.join(root_dir, 'sts', 'data'))
@@ -183,6 +232,7 @@ def fetch():
     handle_opencc(os.path.join(data_dir, 'external', 'opencc'))
     handle_mw(os.path.join(data_dir, 'external', 'mw'))
     handle_tongwen(os.path.join(data_dir, 'external', 'tongwen'))
+    handle_fanhuaji(os.path.join(data_dir, 'external', 'fanhuaji'))
 
 
 def parse_args(argv=None):

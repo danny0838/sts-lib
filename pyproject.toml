@@ -60,7 +60,7 @@ dev = [
     {include-group = "lint"},
 ]
 scripts = [
-    "sts-lib",
+    "sts-lib[yaml]",
     "jinja2",
     "requests",
 ]
