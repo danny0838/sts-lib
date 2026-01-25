@@ -541,28 +541,30 @@ class StsDict():
 
         return newdict
 
-    def _split(self, parts):
-        """Split parts into a list of Unicode composites.
+    def _split(self, text):
+        """Split text into a list of Unicode composites.
 
         With automatic type handling.
         """
-        if isinstance(parts, str):
-            return Unicode.split(parts)
-        elif isinstance(parts, list):
-            return parts
+        if isinstance(text, str):
+            return Unicode.split(text)
+        elif isinstance(text, list):
+            return text
         else:
-            return list(parts)
+            return list(text)
 
-    def match(self, parts, pos, maxpos=math.inf):
+    def match(self, text, pos, maxpos=math.inf):
         """Match a unicode composite at pos.
 
         Args:
-            parts: a string or iterable parts to be matched.
+            text: a string or iterable parts to be matched.
 
         Returns:
             an StsDictMatch or None if no match.
         """
-        parts = self._split(parts)
+        return self._match(self._split(text), pos, maxpos)
+
+    def _match(self, parts, pos, maxpos=math.inf):
         try:
             i = max(len(Unicode.split(key)) for key in self._dict)
         except ValueError:
@@ -584,21 +586,23 @@ class StsDict():
             i -= 1
         return None
 
-    def apply(self, parts):
+    def apply(self, text):
         """Convert text using the dictionary.
 
         Args:
-            parts: a string or iterable parts to be converted.
+            text: a string or iterable parts to be converted.
 
         Yields:
             the next converted part as an StsDictConv, or an unmatched part as
             a str.
         """
-        parts = self._split(parts)
+        return self._apply(self._split(text))
+
+    def _apply(self, parts):
         i = 0
         total = len(parts)
         while i < total:
-            match = self.match(parts, i)
+            match = self._match(parts, i)
             if match is not None:
                 yield match.conv
                 i = match.end
@@ -606,7 +610,7 @@ class StsDict():
                 yield parts[i]
                 i += 1
 
-    def apply_enum(self, parts, include_short=False, include_self=False):
+    def apply_enum(self, text, include_short=False, include_self=False):
         """Enumerate all possible conversions of text.
 
         Example:
@@ -626,16 +630,14 @@ class StsDict():
                 ['看鐘用藥', '看鐘用药', '看鐘用葯', '看鍾用藥', '看鍾用药', '看鍾用葯', '看钟用藥', '看钟用药', '看钟用葯']
 
         Args:
-            parts: a string or iterable parts to be converted.
+            text: a string or iterable parts to be converted.
             include_short: include non-maximal-match conversions
             include_self: include source for every match
 
         Returns:
             a list of possible conversions.
         """
-        _parts = parts
-        parts = self._split(parts)
-
+        parts = self._split(text)
         total = len(parts)
         stack = [([], 0, 0)]
         substack = []
@@ -652,7 +654,7 @@ class StsDict():
         results = list(results)
 
         if not results:
-            results.append(_parts if isinstance(_parts, str) else ''.join(_parts))
+            results.append(text if isinstance(text, str) else ''.join(text))
 
         return results
 
@@ -662,7 +664,7 @@ class StsDict():
         has_atomic_match = False
         i = math.inf
         while i > index:
-            match = self.match(parts, index, i)
+            match = self._match(parts, index, i)
 
             if match is None:
                 break
@@ -757,16 +759,7 @@ class Table(StsDict):
             fn(key, values, skip_check)
         return self
 
-    def match(self, parts, pos, maxpos=math.inf):
-        """Match a unicode composite at pos.
-
-        Args:
-            parts: a string or iterable parts to be matched.
-
-        Returns:
-            an StsDictMatch or None if no match.
-        """
-        parts = self._split(parts)
+    def _match(self, parts, pos, maxpos=math.inf):
         try:
             i = self.key_map[''.join(parts[pos:pos + self.key_head_length])]
         except KeyError:
@@ -886,16 +879,7 @@ class Trie(StsDict):
         list_ += values if skip_check else (x for x in values if x not in list_)
         return self
 
-    def match(self, parts, pos, maxpos=math.inf):
-        """Match a unicode composite at pos.
-
-        Args:
-            parts: a string or iterable parts to be matched.
-
-        Returns:
-            an StsDictMatch or None if no match.
-        """
-        parts = self._split(parts)
+    def _match(self, parts, pos, maxpos=math.inf):
         trie = self._dict
         i = pos
         end = min(len(parts), maxpos)
