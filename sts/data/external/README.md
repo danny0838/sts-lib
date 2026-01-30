@@ -1,0 +1,5 @@
+- `unihan/dictionary`: from [Unihan database](https://www.unicode.org/Public/), under [Unicode-3.0 License](https://github.com/unicode-org/unihan-database/blob/main/LICENSE).
+- `opencc/dictionary`: from [OpenCC](https://github.com/BYVoid/OpenCC) under [Apache-2.0 License](https://github.com/BYVoid/OpenCC/blob/master/LICENSE).
+- `mw/dictionary`: from [MediaWiki](https://github.com/wikimedia/mediawiki), under [GNU GPLv2 license](https://github.com/wikimedia/mediawiki/blob/master/COPYING).
+- `tongwen/dictionary`: from [tongwen-dict](https://github.com/tongwentang/tongwen-dict), under [MIT license](https://github.com/tongwentang/tongwen-dict/blob/main/LICENSE).
+- `fanhuaji/tests`: from [繁化姬](https://gist.github.com/n6333373/f06a3aa27fcde0ba31c5955cfc33ca85), under WTFPL license.
