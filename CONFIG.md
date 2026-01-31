@@ -9,11 +9,11 @@
  * @typedef {Object} configScheme
  * @property {string} [name] - name/description of the config
  * @property {string[]} [requires] - required configs, which are made before
- *     making from this config, as an absolute path, or a path relative to the
- *     directory of this config file, or the basename of a built-in config file
- *     (with or without extension ".json", ".yaml", ".yml")
+ *   making from this config, as an absolute path, or a path relative to the
+ *   directory of this config file, or the basename of a built-in config file
+ *   (with or without extension ".json", ".yaml", ".yml")
  * @property {srcDictScheme[]} dicts - schemes of each dictionary file to be
- *     generated or loaded.
+ *   generated or loaded.
  */
 
 /**
@@ -29,45 +29,45 @@
 /**
  * @typedef {Object} dictScheme
  * @property {string} [file] - path of the dictionary file to generate, as an
- *     absolute path, or a path relative to the directory of this config file.
- *     It should be a .tlist (compiled trie), .jlist (compiled table), or .list
- *     (plain text table). An unknown file extension is treated as .list. `src`
- *     must exist when omitted.
+ *   absolute path, or a path relative to the directory of this config file.
+ *   It should be a .tlist (compiled trie), .jlist (compiled table), or .list
+ *   (plain text table). An unknown file extension is treated as .list. `src`
+ *   must exist when omitted.
  * @property {string} [mode=load] - the mode to handle the loaded dicts.
- *     - "load" to simply merge the loaded keys and values;
- *     - "swap" to reverse the dict (i.e. use the values as keys and the keys
- *       as values);
- *     - "join" to chain dicts (a conversion using a dict joining dict1 and
- *       dict2 works like a conversion using dict1 and then dict2, but takes
- *       care of word segmentation);
- *     - "expand" to expand the placeholders (defined in the extra
- *       "placeholders" property) in the first dict with the matching key and
- *        values in other dicts;
- *     - "filter" to filter the output keys and values in the loaded dicts
- *       using extra "method", "include", and "exclude" properties.
+ *   - "load" to simply merge the loaded keys and values;
+ *   - "swap" to reverse the dict (i.e. use the values as keys and the keys as
+ *     values);
+ *   - "join" to chain dicts (a conversion using a dict joining dict1 and dict2
+ *     works like a conversion using dict1 and then dict2, but takes care of
+ *     word segmentation);
+ *   - "expand" to expand the placeholders (defined in the extra `placeholders`
+ *     property) in the first dict with the matching key and values in other
+ *     dicts;
+ *   - "filter" to filter the output keys and values in the loaded dicts using
+ *     extra "method", "include", and "exclude" properties.
  * @property {srcDictScheme[]} [src] - the source dicts. `file` must exist when
- *     omitted.
+ *   omitted.
  * @property {boolean} [sort] - true to sort the keys of the output dictionary.
  * @property {boolean} [check] - true to raise an exception if the output
- *     contains an invalid char which will be loaded incorrectly. Set this
- *     when the output is a plain text table file and the source files contain
- *     untrusted JSON or YAML data that may include a char like " ", "\t",
- *     "\n", etc. in the dictionary.
+ *   contains an invalid char which will be loaded incorrectly. Set this when
+ *   the output is a plain text table file and the source files contain
+ *   untrusted JSON or YAML data that may include a char like " ", "\t", "\n",
+ *   etc. in the dictionary.
  * @property {boolean} [auto_space] - true to automatically add spaced version
- *     at non-Hanzi borders for the output dictionary. (e.g. add
- *     `"SQL 注入" => "SQL 隱碼攻擊"` for `"SQL注入" => "SQL隱碼攻擊"`)
+ *   at non-Hanzi borders for the output dictionary. (e.g. add
+ *   `"SQL 注入" => "SQL 隱碼攻擊"` for `"SQL注入" => "SQL隱碼攻擊"`)
  * @property {string[]} [placeholders] - strings to be expanded using other
- *     dicts. (for "expand" mode)
+ *   dicts. (for "expand" mode)
  * @property {string} [method=remove_key_values] - how to filter (for "filter"
- *     mode)
- *     - "remove_keys" to remove keys from the first dict if it appears in any
- *       other one;
- *     - "remove_key_values" to remove key-value pairs from the first dict if it
- *       appears in any other one.
+ *   mode)
+ *   - "remove_keys" to remove keys from the first dict if it appears in any
+ *     other one;
+ *   - "remove_key_values" to remove key-value pairs from the first dict if it
+ *     appears in any other one.
  * @property {string} [include] - a regex filter that discards non-matched
- *     conversion values. (for "filter" mode)
+ *   conversion values. (for "filter" mode)
  * @property {string} [exclude] - a regex filter that discards matched
- *     conversion values. (for "filter" mode)
+ *   conversion values. (for "filter" mode)
  */
 ```
 
