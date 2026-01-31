@@ -181,13 +181,11 @@ def handle_tongwen(root_dir):
         file = os.path.join(root_dir, '_cache', NTW_VER, f'{fn}.json')
         fetch_on_demand(url, file)
 
-        dest = os.path.join(root_dir, 'dictionary', f'{fn}.json')
+        dest = os.path.join(root_dir, 'dictionary', f'{fn}.txt')
         logger.info('updating: %s', dest)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-        with open(file, encoding='UTF-8') as fh:
-            data = json.load(fh)
-        with open(dest, 'w', encoding='UTF-8') as fh:
-            json.dump(data, fh, indent=2, ensure_ascii=False, check_circular=False)
+        table = Table().load(file, type='json')
+        table.dump(dest)
 
 
 def _fanhuaji_convert_tests(data):

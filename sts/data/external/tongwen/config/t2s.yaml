@@ -2,4 +2,4 @@ dicts:
 - file: ../dictionary/t2s.tlist
   mode: load
   src:
-  - ../dictionary/t2s-char.json
+  - ../dictionary/t2s-char.txt

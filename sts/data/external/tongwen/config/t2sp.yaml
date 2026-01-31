@@ -2,5 +2,5 @@ dicts:
 - file: ../dictionary/t2sp.tlist
   mode: load
   src:
-  - ../dictionary/t2s-phrase.json
-  - ../dictionary/t2s-char.json
+  - ../dictionary/t2s-phrase.txt
+  - ../dictionary/t2s-char.txt
