@@ -2,6 +2,9 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.37.1] - 2026-01-31
+* Miscellaneous fixes and improvements to the internal code, test suite, development tools, CI/CD workflows, and documentation.
+
 ## [0.37.0] - 2026-01-23
 * Added support of the comment format since OpenCC 1.2.0.
 * Added support of `--dict` (`-d`) option for `convert` subcommand.
