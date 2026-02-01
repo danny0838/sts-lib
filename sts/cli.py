@@ -1,17 +1,14 @@
-"""Command line interface."""
 import argparse
 import os
 import re
 import sys
 
-from . import __doc__ as _doc
 from . import __version__
 from .common import StsConverter, StsMaker, Table
 
 
 def sort(args):
-    """Sort a conversion list.
-    """
+    """Sort a conversion list."""
     inputs = args['file']
     outputs = args['output']
 
@@ -21,8 +18,7 @@ def sort(args):
 
 
 def swap(args):
-    """Swap the key and value of a conversion list.
-    """
+    """Swap the key and value of a conversion list."""
     inputs = args['file']
     outputs = args['output']
 
@@ -32,8 +28,7 @@ def swap(args):
 
 
 def merge(args):
-    """Merge conversion lists.
-    """
+    """Merge conversion lists."""
     input = args['input']
     output = args['output']
 
@@ -41,8 +36,7 @@ def merge(args):
 
 
 def find(args):
-    """Find the keyword in a conversion list.
-    """
+    """Find the keyword in a conversion list."""
     keyword = args['keyword']
     input = args['input']
 
@@ -51,8 +45,7 @@ def find(args):
 
 
 def make(args):
-    """Generate conversion dictionary(ies).
-    """
+    """Generate conversion dictionary(ies)."""
     configs = args['config']
     skip_check = args['force']
     quiet = args['quiet']
@@ -62,8 +55,7 @@ def make(args):
 
 
 def convert(args):
-    """Convert text using the given config or dictionary.
-    """
+    """Convert text using the given config or dictionary."""
     inputs = args['file']
     outputs = args['output']
     force_stdout = args['stdout']
@@ -105,79 +97,136 @@ def parse_args(argv=None):
     else:
         prog = None
 
-    parser = argparse.ArgumentParser(prog=prog, description=_doc)
-    parser.add_argument('--version', action='version', version=f'{__package__} {__version__}',
-                        help="""show version information and exit""")
-    subparsers = parser.add_subparsers(dest='func', metavar='COMMAND',
-                                       help="""The sub-command to run. Get usage help with e.g. %(prog)s convert -h""")
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description='An open library for flexible simplified-traditional Chinese text conversion.',
+    )
+    parser.add_argument(
+        '--version', action='version', version=f'{__package__} {__version__}',
+        help='show version information and exit',
+    )
+    subparsers = parser.add_subparsers(
+        dest='func', metavar='COMMAND',
+        help='The sub-command to run. Get usage help with e.g. %(prog)s convert -h',
+    )
 
     # subcommand: convert
-    parser_convert = subparsers.add_parser('convert',
-                                           help=convert.__doc__, description=convert.__doc__)
-    parser_convert.add_argument('file', nargs='*',
-                                help="""file(s) to convert (default: STDIN)""")
-    parser_convert.add_argument('-c', '--config', default='s2t',
-                                help="""the config for conversion, either a built-in config name or the path to a custom JSON file
-(built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t)
-(default: %(default)s)""")
-    parser_convert.add_argument('-d', '--dict',
-                                help="""the dictionary file for conversion (overrides --config)""")
-    parser_convert.add_argument('-f', '--format', default='txt',
-                                choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
-                                help="""output format (txt|txtm|html|htmlpage|json) (default: %(default)s)""")
-    parser_convert.add_argument('--exclude', type=regex,
-                                help="""exclude text matching given regex from conversion, and replace it with the
-"return" (or "return1", "return2", etc.) subgroup value if exists""")
-    parser_convert.add_argument('--in-enc', default='UTF-8', metavar='ENCODING',
-                                help="""encoding for input (default: %(default)s)""")
-    parser_convert.add_argument('--out-enc', default='UTF-8', metavar='ENCODING',
-                                help="""encoding for output (default: %(default)s)""")
-    parser_convert.add_argument('-o', '--output', default=[], action='append',
-                                help="""path to output (for each corresponding input) (default: to input)""")
-    parser_convert.add_argument('--stdout', default=False, action='store_true',
-                                help="""write all converted text to STDOUT instead""")
+    parser_convert = subparsers.add_parser(
+        'convert', help=convert.__doc__, description=convert.__doc__,
+    )
+    parser_convert.add_argument(
+        'file', nargs='*',
+        help='file(s) to convert (default: STDIN)',
+    )
+    parser_convert.add_argument(
+        '-c', '--config', default='s2t',
+        help=(
+            'the config for conversion, either a built-in config name or the path to a custom JSON file '
+            '(built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t) '
+            '(default: %(default)s)'
+        ),
+    )
+    parser_convert.add_argument(
+        '-d', '--dict',
+        help='the dictionary file for conversion (overrides --config)',
+    )
+    parser_convert.add_argument(
+        '-f', '--format', default='txt',
+        choices=['txt', 'txtm', 'html', 'htmlpage', 'json'], metavar='FORMAT',
+        help='output format (txt|txtm|html|htmlpage|json) (default: %(default)s)',
+    )
+    parser_convert.add_argument(
+        '--exclude', type=regex,
+        help=(
+            'exclude text matching given regex from conversion, and replace it with the '
+            '"return" (or "return1", "return2", etc.) subgroup value if exists'
+        ),
+    )
+    parser_convert.add_argument(
+        '--in-enc', default='UTF-8', metavar='ENCODING',
+        help='encoding for input (default: %(default)s)',
+    )
+    parser_convert.add_argument(
+        '--out-enc', default='UTF-8', metavar='ENCODING',
+        help='encoding for output (default: %(default)s)',
+    )
+    parser_convert.add_argument(
+        '-o', '--output', default=[], action='append',
+        help='path to output (for each corresponding input) (default: to input)',
+    )
+    parser_convert.add_argument(
+        '--stdout', default=False, action='store_true',
+        help='write all converted text to STDOUT instead',
+    )
 
     # subcommand: sort
-    parser_sort = subparsers.add_parser('sort',
-                                        help=sort.__doc__, description=sort.__doc__)
-    parser_sort.add_argument('file', nargs='+',
-                             help="""file(s) to sort""")
-    parser_sort.add_argument('-o', '--output', default=[], action='append',
-                             help="""path to output (for the corresponding input) (default: to input)""")
+    parser_sort = subparsers.add_parser(
+        'sort', help=sort.__doc__, description=sort.__doc__,
+    )
+    parser_sort.add_argument(
+        'file', nargs='+',
+        help='file(s) to sort',
+    )
+    parser_sort.add_argument(
+        '-o', '--output', default=[], action='append',
+        help='path to output (for the corresponding input) (default: to input)',
+    )
 
     # subcommand: swap
-    parser_swap = subparsers.add_parser('swap',
-                                        help=swap.__doc__, description=swap.__doc__)
-    parser_swap.add_argument('file', nargs='+',
-                             help="""file(s) to swap""")
-    parser_swap.add_argument('-o', '--output', default=[], action='append',
-                             help="""path to output (for the corresponding input) (default: to input)""")
+    parser_swap = subparsers.add_parser(
+        'swap', help=swap.__doc__, description=swap.__doc__,
+    )
+    parser_swap.add_argument(
+        'file', nargs='+',
+        help='file(s) to swap',
+    )
+    parser_swap.add_argument(
+        '-o', '--output', default=[], action='append',
+        help='path to output (for the corresponding input) (default: to input)',
+    )
 
     # subcommand: merge
-    parser_merge = subparsers.add_parser('merge',
-                                         help=merge.__doc__, description=merge.__doc__)
-    parser_merge.add_argument('input', nargs='+',
-                              help="""files to merge""")
-    parser_merge.add_argument('output',
-                              help="""file to save as""")
+    parser_merge = subparsers.add_parser(
+        'merge', help=merge.__doc__, description=merge.__doc__,
+    )
+    parser_merge.add_argument(
+        'input', nargs='+',
+        help='files to merge',
+    )
+    parser_merge.add_argument(
+        'output',
+        help='file to save as',
+    )
 
     # subcommand: find
-    parser_find = subparsers.add_parser('find',
-                                        help=find.__doc__, description=find.__doc__)
-    parser_find.add_argument('keyword',
-                             help="""keyword to find""")
-    parser_find.add_argument('input',
-                             help="""file to find""")
+    parser_find = subparsers.add_parser(
+        'find', help=find.__doc__, description=find.__doc__,
+    )
+    parser_find.add_argument(
+        'keyword',
+        help='keyword to find',
+    )
+    parser_find.add_argument(
+        'input',
+        help='file to find',
+    )
 
     # subcommand: make
-    parser_make = subparsers.add_parser('make',
-                                        help=make.__doc__, description=make.__doc__)
-    parser_make.add_argument('config', nargs='+',
-                             help="""the config(s) to generate""")
-    parser_make.add_argument('--force', default=False, action='store_true',
-                             help="""bypass update check and generate dicitonary(ies) anyway""")
-    parser_make.add_argument('-q', '--quiet', default=False, action='store_true',
-                             help="""do not show process information""")
+    parser_make = subparsers.add_parser(
+        'make', help=make.__doc__, description=make.__doc__,
+    )
+    parser_make.add_argument(
+        'config', nargs='+',
+        help='the config(s) to generate',
+    )
+    parser_make.add_argument(
+        '--force', default=False, action='store_true',
+        help='bypass update check and generate dicitonary(ies) anyway',
+    )
+    parser_make.add_argument(
+        '-q', '--quiet', default=False, action='store_true',
+        help='do not show process information',
+    )
 
     return parser.parse_args(argv)
 
