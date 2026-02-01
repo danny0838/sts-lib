@@ -20,7 +20,7 @@ from sts import (
     Trie,
     Unicode,
 )
-from sts import __version__ as sts_version
+from sts import __version__
 
 root_dir = os.path.dirname(__file__)
 
@@ -2836,7 +2836,7 @@ class TestStsConverter(unittest.TestCase):
 
         converter.htmlpage_template = io.StringIO('%VERSION%')
         output = ''.join(converter.convert_formatted(input, 'htmlpage'))
-        self.assertEqual(sts_version, output)
+        self.assertEqual(__version__, output)
 
         converter.htmlpage_template = io.StringIO('%%')
         output = ''.join(converter.convert_formatted(input, 'htmlpage'))
