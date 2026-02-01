@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """An open library for flexible simplified-traditional Chinese text conversion."""
 __version__ = '0.37.1'
 
