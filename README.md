@@ -96,6 +96,35 @@ converter.convert_file(input=None, output=None
 目前內建 [OpenCC](https://github.com/BYVoid/OpenCC)、[MediaWiki](https://github.com/wikimedia/mediawiki)、[新同文堂](https://github.com/tongwentang/tongwen-dict)的轉換方案，並且修正了 OpenCC 演算法缺陷導致一些地區詞無法正常轉換的問題（詳見[相關問題回報](https://github.com/BYVoid/OpenCC/issues/475)）。
 
 
+## Development 開發
+
+下載套件原始檔或後於該目錄下執行：
+
+```
+# 更新 pip 至最新版本（舊版可能不支援部分命令而出錯）
+python -m pip install --upgrade pip
+
+# 安裝開發相關套件
+# 安裝後應可在命令列執行 tox 命令，若無法執行請將 Python 的 Scripts 目錄加入 PATH 環境變數
+python -m pip install --group dev
+
+# 執行單元測試
+tox -e py
+
+# 檢查原始碼格式
+tox -e lint
+
+# 擷取外部資源
+tox -e fetch
+
+# 建立或更新靜態站台與其他資源
+tox -e build
+
+# 安裝本套件為開發模式
+python -m pip install -e .
+```
+
+
 ## License 許可協議
 
 本專案以 Apache License 2.0 協議授權使用。

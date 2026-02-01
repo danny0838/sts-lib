@@ -45,6 +45,9 @@ yaml = [
 ]
 
 [dependency-groups]
+dev = [
+    "tox>=4.21.2",
+]
 lint = [
     "flake8>=6.1",
     "Flake8-pyproject>=1.2.3",
@@ -55,12 +58,7 @@ lint = [
     "flake8-isort>=5.0",
     "isort>=5.9.2",
 ]
-dev = [
-    "tox>=4.21.2",
-    {include-group = "lint"},
-]
 scripts = [
-    "sts-lib[yaml]",
     "jinja2",
     "requests",
 ]
@@ -147,3 +145,15 @@ description = "sort imports for the source code"
 package = "skip"
 dependency_groups = ["lint"]
 commands = [["isort", {replace = "posargs", default = ["."], extend = true}]]
+
+[tool.tox.env.fetch]
+description = "fetch and update external resources"
+package = "editable"
+dependency_groups = ["scripts"]
+commands = [["python", "scripts/fetch.py", {replace = "posargs", extend = true}]]
+
+[tool.tox.env.build]
+description = "build or update resource files or static site"
+package = "editable"
+dependency_groups = ["scripts"]
+commands = [["python", "scripts/build.py", {replace = "posargs", extend = true}]]
