@@ -1,6 +1,7 @@
 import html
 import itertools
 import json
+import logging
 import math
 import os
 import re
@@ -10,6 +11,8 @@ from contextlib import nullcontext
 from functools import cached_property
 
 from . import __version__
+
+logger = logging.getLogger(__name__)
 
 StsDictMatch = namedtuple('StsDictMatch', ['conv', 'start', 'end'])
 StsDictConv = namedtuple('StsDictConv', ['key', 'values'])
@@ -908,7 +911,7 @@ class StsMaker():
     dictionary_dir = os.path.join(data_dir, 'dictionary')
 
     def make(self, config_name, base_dir=None,
-             skip_check=False, skip_requires=False, quiet=False):
+             skip_check=False, skip_requires=False):
         """Make dictionary file(s) according to a config.
 
         scheme of config (.json):
@@ -943,7 +946,6 @@ class StsMaker():
             skip_check: truthy to generate every dictionary no matter that it's
                 already up-to-date
             skip_requires: truthy to skip making from required configs
-            quiet: truthy to skip reporting details
 
         Returns:
             a str for the path of the last generated dictionary file or None
@@ -960,7 +962,7 @@ class StsMaker():
         # handle required configs
         if not skip_requires:
             for cf in config['requires']:
-                self.make(cf, base_dir=config_dir, skip_requires=skip_requires, quiet=quiet)
+                self.make(cf, base_dir=config_dir, skip_requires=skip_requires)
 
         # make the requested dicts
         dest = None
@@ -977,11 +979,10 @@ class StsMaker():
                 raise RuntimeError('dict["file"] is not specified')
 
             if not skip_check and not self.check_update(dict_scheme):
-                if not quiet:
-                    print(f'skip making (up-to-date): {dest}')
+                logger.info('skip making (up-to-date): %s', dest)
                 continue
 
-            self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check, quiet=quiet)
+            self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check)
 
         return dest
 
@@ -1075,7 +1076,7 @@ class StsMaker():
 
         return dict_scheme
 
-    def make_dict(self, dict_scheme, config_dir, skip_check=False, quiet=False):
+    def make_dict(self, dict_scheme, config_dir, skip_check=False):
         """Make a dict.
 
         Returns:
@@ -1102,11 +1103,11 @@ class StsMaker():
                 raise RuntimeError(f'Specified flie does not exist: {dest}')
             return dest
 
-        if dest and not quiet:
-            print(f'making: {dest}')
+        if dest:
+            logger.info('making: %s', dest)
 
         for i, src in enumerate(srcs):
-            srcs[i] = self.make_dict(src, config_dir, skip_check, quiet)
+            srcs[i] = self.make_dict(src, config_dir, skip_check)
 
         try:
             func = getattr(self, f'_make_dict_mode_{mode}')

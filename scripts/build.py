@@ -2,6 +2,7 @@
 """Build template files and/or static website."""
 import argparse
 import glob
+import logging
 import os
 import shutil
 from textwrap import dedent
@@ -39,7 +40,7 @@ def render_on_demand(file, tpl, env, *args, **kwargs):
 def make_from_configs(config_dir, dest_dir, maker):
     config_files = os.path.join(glob.escape(config_dir), '[!_]*.json')
     for config_file in glob.iglob(config_files):
-        file = maker.make(config_file, quiet=True)
+        file = maker.make(config_file)
         basename = os.path.basename(file)
         dest = os.path.join(dest_dir, basename)
 
@@ -98,6 +99,8 @@ def build(entities=None):
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(tpl_dir),
     )
+
+    logging.getLogger('sts').setLevel(logging.WARNING)
 
     if not entities or 'templates' in entities:
         build_templates(data_dir, env)

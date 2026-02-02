@@ -1,5 +1,6 @@
 import io
 import json
+import logging
 import os
 import re
 import tempfile
@@ -26,15 +27,21 @@ root_dir = os.path.dirname(__file__)
 
 
 def setUpModule():
-    """Set up a temp directory for testing"""
+    # Set up a temp directory for testing
     global _tmpdir, tmpdir
     _tmpdir = tempfile.TemporaryDirectory(prefix='init-')
     tmpdir = _tmpdir.name
 
+    # suppress logging
+    logging.disable(logging.CRITICAL)
+
 
 def tearDownModule():
-    """Cleanup the temp directory"""
+    # Cleanup the temp directory
     _tmpdir.cleanup()
+
+    # unsuppress logging
+    logging.disable(logging.NOTSET)
 
 
 class TestStreamList(unittest.TestCase):
@@ -1008,7 +1015,7 @@ class TestStsMaker(unittest.TestCase):
             json.dump([], fh)
 
         with self.assertRaises(ValueError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_no_dicts(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1016,7 +1023,7 @@ class TestStsMaker(unittest.TestCase):
             json.dump({}, fh)
 
         with self.assertRaises(ValueError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_dict_str(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1034,7 +1041,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.txt'), stsdict)
 
     def test_dict_str_missing_file(self):
@@ -1047,7 +1054,7 @@ class TestStsMaker(unittest.TestCase):
             }, fh)
 
         with self.assertRaises(RuntimeError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_dict_no_file(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1071,7 +1078,7 @@ class TestStsMaker(unittest.TestCase):
             ))
 
         with self.assertRaises(RuntimeError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_dict_no_src(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1091,7 +1098,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.txt'), stsdict)
 
     def test_dict_no_src_and_file_nonexist(self):
@@ -1106,7 +1113,7 @@ class TestStsMaker(unittest.TestCase):
             }, fh)
 
         with self.assertRaises(RuntimeError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_dict_src_nested(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1143,7 +1150,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '幹你娘': ['干你娘'],
@@ -1183,7 +1190,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
         with open(stsdict, encoding='UTF-8') as fh:
             self.assertEqual(
@@ -1222,7 +1229,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.jlist'), stsdict)
         with open(stsdict, encoding='UTF-8') as fh:
             self.assertEqual(
@@ -1261,7 +1268,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.tlist'), stsdict)
         with open(stsdict, encoding='UTF-8') as fh:
             self.assertEqual(
@@ -1300,7 +1307,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.txt'), stsdict)
         with open(stsdict, encoding='UTF-8') as fh:
             self.assertEqual(
@@ -1342,7 +1349,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '干你娘': ['幹你娘'],
@@ -1387,7 +1394,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '姜': ['薑'],
@@ -1432,7 +1439,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '幹你娘': ['干你娘'],
@@ -1481,7 +1488,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '开': ['開'],
@@ -1532,7 +1539,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
         converter = StsConverter(stsdict)
         self.assertEqual({
@@ -1587,7 +1594,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '表示式': ['表达式'],
@@ -1632,7 +1639,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '采': ['採'],
@@ -1685,7 +1692,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '１里壹': ['１里壹'],
@@ -1741,7 +1748,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '壹里': ['壹里'],
@@ -1783,7 +1790,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '里': ['裏', '里'],
@@ -1823,7 +1830,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '１里１': ['１里１'],
@@ -1864,7 +1871,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             'Ｎ里': ['１里', '２里'],
@@ -1904,7 +1911,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '１周': ['一周', '壹周', '一週', '壹週'],
@@ -1946,7 +1953,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '１': ['蟬'],
@@ -1980,7 +1987,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
         converter = StsConverter(stsdict)
         self.assertEqual({
@@ -2005,7 +2012,7 @@ class TestStsMaker(unittest.TestCase):
             }, fh)
 
         with self.assertRaises(ValueError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_dict_mode_filter_exclude_basic(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -2033,7 +2040,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
         converter = StsConverter(stsdict)
         self.assertEqual({
@@ -2058,7 +2065,7 @@ class TestStsMaker(unittest.TestCase):
             }, fh)
 
         with self.assertRaises(ValueError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_dict_mode_filter_include_and_exclude(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -2087,7 +2094,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
         converter = StsConverter(stsdict)
         self.assertEqual({
@@ -2131,7 +2138,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '简': ['簡'],
@@ -2174,7 +2181,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         converter = StsConverter(stsdict)
         self.assertEqual({
             '干': ['幹', '乾', '干'],
@@ -2200,7 +2207,7 @@ class TestStsMaker(unittest.TestCase):
             }, fh)
 
         with self.assertRaises(ValueError):
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
 
     def test_dict_sort(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -2234,7 +2241,7 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.list'), stsdict)
         with open(stsdict, encoding='UTF-8') as fh:
             self.assertEqual(
@@ -2262,7 +2269,7 @@ class TestStsMaker(unittest.TestCase):
             fh.write('干\t幹 乾 干')
 
         with mock.patch('sts.common.StsDict.dump') as mocker:
-            StsMaker().make(config_file, quiet=True)
+            StsMaker().make(config_file)
             mocker.assert_called_with(mock.ANY, sort=mock.ANY, check=True)
 
     def test_dict_auto_space(self):
@@ -2293,7 +2300,7 @@ class TestStsMaker(unittest.TestCase):
                 'SQL注入': ['SQL隱碼攻擊'],
             }, fh)
 
-        stsdict = StsMaker().make(config_file, quiet=True)
+        stsdict = StsMaker().make(config_file)
         self.assertEqual(os.path.join(self.root, 'dict.jlist'), stsdict)
         stsdict = Table.loadjson(stsdict)
         self.assertEqual(
@@ -2969,7 +2976,7 @@ class TestStsConverterWithUnicode(unittest.TestCase):
         self.assertEqual('⿱⿰虫风灬', converter.convert_text('⿱⿰虫风灬'))
 
     def test_ids_broken(self):
-        stsdict = StsMaker().make('tw2s', quiet=True)
+        stsdict = StsMaker().make('tw2s')
         converter = StsConverter(stsdict)
         self.assertEqual('IDC有这些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接着繁转简', converter.convert_text('IDC有這些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接著繁轉簡'))
         self.assertEqual('「⿰⿱⿲⿳」不影响后面', converter.convert_text('「⿰⿱⿲⿳」不影響後面'))

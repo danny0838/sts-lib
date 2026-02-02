@@ -1,6 +1,17 @@
 __version__ = '0.37.1'
 
-from .common import (  # noqa: F401
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
+
+from .common import (  # noqa: E402, F401  # re-exporting as public API
     StsConverter,
     StsConvExclude,
     StsDictConv,

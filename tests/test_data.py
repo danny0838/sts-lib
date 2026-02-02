@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import unittest
 
@@ -9,6 +10,16 @@ from sts.common import StsConverter, StsMaker
 from . import slow_test
 
 root_dir = os.path.dirname(__file__)
+
+
+def setUpModule():
+    # suppress logging
+    logging.disable(logging.CRITICAL)
+
+
+def tearDownModule():
+    # unsuppress logging
+    logging.disable(logging.NOTSET)
 
 
 @slow_test()
@@ -34,7 +45,7 @@ class TestMake(unittest.TestCase):
 
                 with self.subTest(config=entry.path):
                     self._clear_generated_dicts(config_dir)
-                    StsMaker().make(entry, quiet=True)
+                    StsMaker().make(entry)
 
     def test_make(self):
         """Check if built-in configs can be made independently."""
@@ -84,7 +95,7 @@ class TestConfigs(unittest.TestCase):
         try:
             converter = converters[config]
         except KeyError:
-            dict_ = StsMaker().make(config, quiet=True)
+            dict_ = StsMaker().make(config)
             converter = converters[config] = StsConverter(dict_)
 
         if isinstance(expected, str):

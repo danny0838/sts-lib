@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 import re
 import sys
@@ -48,10 +49,12 @@ def make(args):
     """Generate conversion dictionary(ies)."""
     configs = args['config']
     skip_check = args['force']
-    quiet = args['quiet']
+    verbosity = args['verbosity']
+
+    logging.getLogger(__package__).setLevel(verbosity)
 
     for config in configs:
-        StsMaker().make(config, skip_check=skip_check, quiet=quiet)
+        StsMaker().make(config, skip_check=skip_check)
 
 
 def convert(args):
@@ -65,9 +68,12 @@ def convert(args):
     exclude = args['exclude']
     input_encoding = args['in_enc']
     output_encoding = args['out_enc']
+    verbosity = args['verbosity']
+
+    logging.getLogger(__package__).setLevel(verbosity)
 
     if dict_ is None:
-        dict_ = StsMaker().make(config, quiet=True)
+        dict_ = StsMaker().make(config)
 
     converter = StsConverter(dict_)
 
@@ -158,6 +164,10 @@ def parse_args(argv=None):
         '--stdout', default=False, action='store_true',
         help='write all converted text to STDOUT instead',
     )
+    parser_convert.add_argument(
+        '-v', '--verbose', dest='verbosity', const=logging.DEBUG, default=logging.WARN, action='store_const',
+        help='show processing details',
+    )
 
     # subcommand: sort
     parser_sort = subparsers.add_parser(
@@ -224,8 +234,12 @@ def parse_args(argv=None):
         help='bypass update check and generate dicitonary(ies) anyway',
     )
     parser_make.add_argument(
-        '-q', '--quiet', default=False, action='store_true',
-        help='do not show process information',
+        '-q', '--quiet', dest='verbosity', const=logging.WARN, default=logging.INFO, action='store_const',
+        help='do not show processing information',
+    )
+    parser_make.add_argument(
+        '-v', '--verbose', dest='verbosity', const=logging.DEBUG, default=logging.INFO, action='store_const',
+        help='show processing details',
     )
 
     return parser.parse_args(argv)
