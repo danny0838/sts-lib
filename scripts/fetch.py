@@ -2,6 +2,7 @@
 """Fetch and update external resources."""
 import argparse
 import json
+import logging
 import os
 import re
 import zipfile
@@ -10,6 +11,9 @@ import requests
 import yaml
 
 from sts import Table
+
+logging.basicConfig(format='%(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 UNIHAN_VER = '17.0.0'
 UNIHAN_URL = f'https://www.unicode.org/Public/{UNIHAN_VER}/ucd/Unihan.zip'
@@ -60,10 +64,10 @@ REQUEST_HEADERS = {
 
 def fetch_on_demand(url, dest):
     if os.path.isfile(dest):
-        print(f'skipped fetching (up-to-date): {dest}')
+        logger.debug('skipped fetching (up-to-date): %s', dest)
         return
 
-    print(f'fetching: {url}')
+    logger.info('fetching: %s', url)
     response = requests.get(url, stream=True, headers=REQUEST_HEADERS)
     if not response.ok:
         raise RuntimeError(f'failed to fetch: {url}')
@@ -119,7 +123,7 @@ def handle_unihan(root_dir):
 
     for name, table in tables.items():
         dest = os.path.join(root_dir, 'dictionary', f'{name}.txt')
-        print(f'updating: {dest}')
+        logger.info('updating: %s', dest)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         table.dump(dest)
 
@@ -143,7 +147,7 @@ def handle_opencc(root_dir):
                 continue
 
             zinfo.filename = f'{newdir}/{filename}'
-            print(f'extracting: {subpath} => {zinfo.filename}')
+            logger.info('extracting: %s => %s', subpath, zinfo.filename)
             zh.extract(zinfo, root_dir)
 
 
@@ -161,7 +165,7 @@ def handle_mw(root_dir):
             table.add(m.group(1), m.group(2), skip_check=True)
 
         dest = os.path.join(root_dir, 'dictionary', f'{name}.txt')
-        print(f'updating: {dest}')
+        logger.info('updating: %s', dest)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         table.dump(dest, check=True)
 
@@ -178,7 +182,7 @@ def handle_tongwen(root_dir):
         fetch_on_demand(url, file)
 
         dest = os.path.join(root_dir, 'dictionary', f'{fn}.json')
-        print(f'updating: {dest}')
+        logger.info('updating: %s', dest)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         with open(file, encoding='UTF-8') as fh:
             data = json.load(fh)
@@ -216,7 +220,7 @@ def handle_fanhuaji(root_dir):
     fetch_on_demand(FANHUAJI_URL, file)
 
     dest = os.path.join(root_dir, 'tests', 'testcases.json')
-    print(f'updating: {dest}')
+    logger.info('updating: %s', dest)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(file, encoding='UTF-8') as fh:
         data = yaml.safe_load(fh)
@@ -224,7 +228,9 @@ def handle_fanhuaji(root_dir):
         json.dump(_fanhuaji_convert_tests(data), fh, indent=2, ensure_ascii=False, check_circular=False)
 
 
-def fetch():
+def fetch(verbosity=logging.INFO):
+    logger.setLevel(verbosity)
+
     root_dir = os.path.normpath(os.path.join(__file__, '..', '..'))
     data_dir = os.path.normpath(os.path.join(root_dir, 'sts', 'data'))
 
@@ -237,12 +243,20 @@ def fetch():
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '-q', '--quiet', dest='verbosity', const=logging.WARN, default=logging.INFO, action='store_const',
+        help='do not show processing information',
+    )
+    parser.add_argument(
+        '-v', '--verbose', dest='verbosity', const=logging.DEBUG, default=logging.INFO, action='store_const',
+        help='show processing details',
+    )
     return parser.parse_args(argv)
 
 
 def main():
-    parse_args()
-    fetch()
+    args = parse_args()
+    fetch(args.verbosity)
 
 
 if __name__ == '__main__':

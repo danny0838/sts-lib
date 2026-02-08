@@ -11,6 +11,9 @@ import jinja2
 
 from sts import StsMaker
 
+logging.basicConfig(format='%(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 PUBLIC_DIR = '_public'
 
 
@@ -30,9 +33,10 @@ def check_update(file, ref_files):
 def render_on_demand(file, tpl, env, *args, **kwargs):
     ref_files = (env.get_template(t).filename for t in env.list_templates())
     if not check_update(file, ref_files):
+        logger.debug('skip building (up-to-date): %s', file)
         return
 
-    print(f'building: {file}')
+    logger.info('building: %s', file)
     with open(file, 'w', encoding='utf-8') as fh:
         tpl.stream(*args, **kwargs).dump(fh)
 
@@ -45,8 +49,10 @@ def make_from_configs(config_dir, dest_dir, maker):
         dest = os.path.join(dest_dir, basename)
 
         if not os.path.isfile(dest) or os.path.getmtime(file) > os.path.getmtime(dest):
-            print(f'updating: {dest}')
+            logger.info('updating: %s', dest)
             shutil.copyfile(file, dest)
+        else:
+            logger.debug('skip updating (up-to-date): %s', dest)
 
 
 def build_templates(data_dir, env):
@@ -91,7 +97,7 @@ def build_static_site(root_dir, data_dir, env):
     make_from_configs(config_dir, dicts_dir, maker)
 
 
-def build(entities=None):
+def build(entities=None, verbosity=logging.INFO):
     root_dir = os.path.normpath(os.path.join(__file__, '..', '..'))
     data_dir = os.path.normpath(os.path.join(root_dir, 'sts', 'data'))
     tpl_dir = os.path.normpath(os.path.join(data_dir, 'htmlpage'))
@@ -100,6 +106,7 @@ def build(entities=None):
         loader=jinja2.FileSystemLoader(tpl_dir),
     )
 
+    logger.setLevel(verbosity)
     logging.getLogger('sts').setLevel(logging.WARNING)
 
     if not entities or 'templates' in entities:
@@ -126,12 +133,20 @@ def parse_args(argv=None):
         choices=['templates', 'site'],
         help="""what to build (default: all)""",
     )
+    parser.add_argument(
+        '-q', '--quiet', dest='verbosity', const=logging.WARN, default=logging.INFO, action='store_const',
+        help='do not show processing information',
+    )
+    parser.add_argument(
+        '-v', '--verbose', dest='verbosity', const=logging.DEBUG, default=logging.INFO, action='store_const',
+        help='show processing details',
+    )
     return parser.parse_args(argv)
 
 
 def main():
     args = parse_args()
-    build(args.entity)
+    build(args.entity, args.verbosity)
 
 
 if __name__ == '__main__':
