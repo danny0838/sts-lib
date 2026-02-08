@@ -2,6 +2,11 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.38.0] - 2026-02-08
+* Improved modularization of the package.
+* Reworked processing message handling using native `logging` module.
+* Miscellaneous improvements to the internal code, test suite, development tools, and documentation.
+
 ## [0.37.1] - 2026-01-31
 * Miscellaneous fixes and improvements to the internal code, test suite, development tools, CI/CD workflows, and documentation.
 
@@ -11,7 +16,7 @@
 * Miscellaneous improvements to the internal code.
 
 ## [0.36.0] - 2026-01-22
-* Rework `Trie` to be Unicode char based.
+* Reworked `Trie` to be Unicode char based.
 * Support pre-defined query using URL parameters for the web converter.
 
 ## [0.35.0] - 2026-01-09
