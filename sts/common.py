@@ -979,7 +979,7 @@ class StsMaker():
                 raise RuntimeError('dict["file"] is not specified')
 
             if not skip_check and not self.check_update(dict_scheme):
-                logger.info('skip making (up-to-date): %s', dest)
+                logger.debug('skip making (up-to-date): %s', dest)
                 continue
 
             self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check)
