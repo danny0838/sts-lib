@@ -32,17 +32,15 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
+dependencies = [
+    "pyyaml>=5.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/danny0838/sts-lib"
 
 [project.scripts]
 sts = "sts.cli:main"
-
-[project.optional-dependencies]
-yaml = [
-    "pyyaml>=5.0",
-]
 
 [dependency-groups]
 dev = [
@@ -110,7 +108,6 @@ min_version = "4.22"
 [tool.tox.env_run_base]
 description = "run unit tests"
 package = "editable"
-extras = ["yaml"]
 pass_env = ["STS_RUN_SLOW_TESTS"]
 commands = [["python", "-m", "unittest", {replace = "posargs", extend = true}]]
 
