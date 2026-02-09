@@ -1306,7 +1306,7 @@ class StsMaker():
 
         1. Use it if it's an absolute path.
         2. Assume relative to base_dir or CWD.
-        3. Assume relative to default config directory. (basename only; .json omissible)
+        3. Assume relative to default config directory. (basename only; .json/.yaml/.yml omissible)
         4. If not found, return 2.
         """
         if os.path.isabs(config):

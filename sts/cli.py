@@ -127,7 +127,8 @@ def parse_args(argv=None):
     parser_convert.add_argument(
         '-c', '--config', default='s2t',
         help=(
-            'the config for conversion, either a built-in config name or the path to a custom JSON file '
+            'the config for conversion, either a built-in config name or the '
+            'path to a custom JSON or YAML file '
             '(built-in configs: s2t|t2s|s2tw|tw2s|s2twp|tw2sp|s2hk|hk2s|t2tw|tw2t|t2hk|hk2t|t2jp|jp2t) '
             '(default: %(default)s)'
         ),
