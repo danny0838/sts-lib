@@ -1,0 +1,7 @@
+name: Traditional Chinese Characters (Kyūjitai) to New Japanese Kanji (Shinjitai)
+dicts:
+- file: ../dictionary/t2jp.tlist
+  auto_space: true
+  mode: load
+  src:
+  - ../dictionary/JPVariants.txt

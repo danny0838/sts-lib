@@ -10,3 +10,4 @@
 *.py text
 *.toml text
 *.txt text
+*.yaml text

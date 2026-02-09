@@ -40,7 +40,7 @@ class TestMake(unittest.TestCase):
             for entry in it:
                 if not entry.is_file:
                     continue
-                if not os.path.splitext(entry)[1].lower() == '.json':
+                if not os.path.splitext(entry)[1].lower() == '.yaml':
                     continue
 
                 with self.subTest(config=entry.path):
@@ -87,7 +87,7 @@ class TestConfigs(unittest.TestCase):
         input = case['input']
         for config, expected in case['expected'].items():
             if config_dir is not None:
-                config = os.path.join(config_dir, f'{config}.json')
+                config = os.path.join(config_dir, f'{config}.yaml')
             with self.subTest(id=case.get('id', i), input=input, config=config):
                 self._test_against_config(config, input, expected, converters)
 

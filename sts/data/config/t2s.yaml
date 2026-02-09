@@ -1,0 +1,8 @@
+name: Traditional Chinese to Simplified Chinese
+dicts:
+- file: ../dictionary/t2s.tlist
+  auto_space: true
+  mode: load
+  src:
+  - ../dictionary/TSPhrases.txt
+  - ../dictionary/TSCharacters.txt
