@@ -70,7 +70,7 @@ jobs:
           architecture: ${{ matrix.arch }}
 
       - name: Install package
-        run: pip install .[yaml]
+        run: pip install .
 
       - name: Run tests
         run: python -m unittest

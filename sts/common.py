@@ -10,6 +10,8 @@ from collections import namedtuple
 from contextlib import nullcontext
 from functools import cached_property
 
+import yaml
+
 from . import __version__
 
 logger = logging.getLogger(__name__)
@@ -337,11 +339,6 @@ class StsDict():
             self.update(data)
 
     def _load_yaml(self, file):
-        try:
-            import yaml
-        except ModuleNotFoundError:
-            raise RuntimeError('install PyYAML module to support loading .yaml files')
-
         with file_input(file) as fh:
             data = yaml.safe_load(fh)
             if not isinstance(data, dict):
@@ -990,11 +987,6 @@ class StsMaker():
         ext = os.path.splitext(config_file)[1][1:].lower()
 
         if ext in ('yaml', 'yml'):
-            try:
-                import yaml
-            except ModuleNotFoundError:
-                raise RuntimeError('install PyYAML module to support loading .yaml config')
-
             with open(config_file, 'r', encoding='UTF-8') as fh:
                 config = yaml.safe_load(fh)
 
