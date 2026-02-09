@@ -1,0 +1,9 @@
+name: Traditional Chinese (Hong Kong variant) to Traditional Chinese
+requires:
+- _default.yaml
+dicts:
+- file: ../dictionary/hk2t.tlist
+  mode: load
+  src:
+  - ../dictionary/HKVariantsRevPhrases.txt
+  - ../dictionary/HKVariantsRev.list

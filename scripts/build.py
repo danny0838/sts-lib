@@ -42,7 +42,7 @@ def render_on_demand(file, tpl, env, *args, **kwargs):
 
 
 def make_from_configs(config_dir, dest_dir, maker):
-    config_files = os.path.join(glob.escape(config_dir), '[!_]*.json')
+    config_files = os.path.join(glob.escape(config_dir), '[!_]*.yaml')
     for config_file in glob.iglob(config_files):
         file = maker.make(config_file)
         basename = os.path.basename(file)

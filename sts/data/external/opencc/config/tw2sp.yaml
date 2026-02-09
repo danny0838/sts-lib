@@ -1,0 +1,16 @@
+name: Traditional Chinese (Taiwan standard) to Simplified Chinese (with phrases)
+requires:
+- _default.yaml
+dicts:
+- file: ../dictionary/tw2sp.tlist
+  mode: join
+  src:
+  - mode: load
+    src:
+    - ../dictionary/TWPhrasesRev.txt
+    - ../dictionary/TWVariantsRevPhrases.txt
+    - ../dictionary/TWVariantsRev.list
+  - mode: load
+    src:
+    - ../dictionary/TSPhrases.txt
+    - ../dictionary/TSCharacters.txt

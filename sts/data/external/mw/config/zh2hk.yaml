@@ -1,0 +1,6 @@
+dicts:
+- file: ../dictionary/zh2hk.tlist
+  mode: load
+  src:
+  - ../dictionary/zh2HK.txt
+  - ../dictionary/zh2Hant.txt

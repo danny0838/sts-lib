@@ -1,0 +1,5 @@
+dicts:
+- file: ../dictionary/s2t.tlist
+  mode: load
+  src:
+  - ../dictionary/s2t-char.json
