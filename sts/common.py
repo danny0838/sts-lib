@@ -986,13 +986,13 @@ class StsMaker():
     def load_config(self, config_file):
         ext = os.path.splitext(config_file)[1][1:].lower()
 
-        if ext in ('yaml', 'yml'):
-            with open(config_file, 'r', encoding='UTF-8') as fh:
-                config = yaml.safe_load(fh)
-
-        else:  # default: json
+        if ext == 'json':
             with open(config_file, 'r', encoding='UTF-8') as fh:
                 config = json.load(fh)
+
+        else:  # default: yaml
+            with open(config_file, 'r', encoding='UTF-8') as fh:
+                config = yaml.safe_load(fh)
 
         return config
 
