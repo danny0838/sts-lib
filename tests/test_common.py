@@ -1009,6 +1009,35 @@ class TestStsMaker(unittest.TestCase):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
 
+    def test_load_config_json(self):
+        """Should load a file with .json extension as JSON"""
+        config_file = os.path.join(self.root, 'config.json')
+
+        # should load a normal JSON
+        expected = {'dicts': []}
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump(expected, fh)
+
+        self.assertEqual(expected, StsMaker().load_config(config_file))
+
+        # should raise for malformed JSON
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            fh.write('dicts: []')
+
+        with self.assertRaises(json.decoder.JSONDecodeError):
+            StsMaker().load_config(config_file)
+
+    def test_load_config_yaml(self):
+        """Should load a file with non-json extension as YAML"""
+        for ext in ('', '.yaml', '.yml', '.custom'):
+            with self.subTest(ext=ext):
+                config_file = os.path.join(self.root, f'config{ext}')
+
+                with open(config_file, 'w', encoding='UTF-8') as fh:
+                    fh.write('dicts: []')
+
+                self.assertEqual({'dicts': []}, StsMaker().load_config(config_file))
+
     def test_bad_config_object(self):
         config_file = os.path.join(self.root, 'config.json')
         with open(config_file, 'w', encoding='UTF-8') as fh:
