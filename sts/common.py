@@ -6,7 +6,7 @@ import math
 import os
 import re
 import sys
-from collections import namedtuple
+from collections import UserDict, namedtuple
 from contextlib import nullcontext
 from functools import cached_property
 
@@ -202,7 +202,7 @@ class Unicode():
         return result
 
 
-class StsDict():
+class StsDict(UserDict):
     """Base class of an STS dictionary.
 
     This class is for child classes to implement on and not intended to be
@@ -218,28 +218,12 @@ class StsDict():
     - JSON: which is dumped from the internal data structure.
     """
     def __init__(self, *args, **kwargs):
-        self._dict = {}
+        super().__init__()
         self.update(dict(*args, **kwargs))
 
     def __repr__(self):
         """Implementation of repr(self)."""
         return f'{self.__class__.__name__}({repr(list(self.items()))})'
-
-    def __getitem__(self, key):
-        """Implementation of self[key]."""
-        return self._dict[key]
-
-    def __contains__(self, item):
-        """Implementation of "item in self"."""
-        return item in self._dict
-
-    def __len__(self):
-        """Implementation of len(self)."""
-        return len(self._dict)
-
-    def __iter__(self):
-        """Implementation of iter(self)."""
-        return iter(self._dict)
 
     def __eq__(self, other):
         """Implementation of "==" operator."""
@@ -248,7 +232,7 @@ class StsDict():
 
         # faster check for the same type
         if type(self) is type(other):
-            return self._dict == other._dict
+            return self.data == other.data
 
         keys = set()
         for key, value in self.items():
@@ -262,22 +246,6 @@ class StsDict():
                 return False
         return True
 
-    def __delitem__(self, key):
-        """Implementation of del self[key]."""
-        del self._dict[key]
-
-    def keys(self):
-        """Generate keys."""
-        yield from self._dict.keys()
-
-    def values(self):
-        """Generate values."""
-        yield from self._dict.values()
-
-    def items(self):
-        """Generate key-values pairs."""
-        yield from self._dict.items()
-
     def add(self, key, values, skip_check=False):
         """Add a key-values pair to this dictionary.
 
@@ -286,7 +254,7 @@ class StsDict():
             skip_check: True to skip checking duplicated values.
         """
         values = (values,) if isinstance(values, str) else values
-        list_ = self._dict.setdefault(key, [])
+        list_ = self.data.setdefault(key, [])
         list_ += values if skip_check else (x for x in values if x not in list_)
         return self
 
@@ -389,7 +357,7 @@ class StsDict():
         """
         with file_input(file) as fh:
             stsdict = cls()
-            stsdict._dict = json.load(fh)
+            stsdict.data = json.load(fh)
         return stsdict
 
     def dumpjson(self, file=None, indent=None, sort=False):
@@ -404,7 +372,7 @@ class StsDict():
         """
         with file_output(file) as fh:
             json.dump(
-                self._dict, fh, indent=indent, sort_keys=sort,
+                self.data, fh, indent=indent, sort_keys=sort,
                 separators=(',', ':') if indent is None else None,
                 ensure_ascii=False, check_circular=False,
             )
@@ -569,9 +537,9 @@ class StsDict():
 
     def _match(self, parts, pos, maxpos=math.inf):
         try:
-            i = max(len(Unicode.split(key)) for key in self._dict)
+            i = max(len(Unicode.split(key)) for key in self.data)
         except ValueError:
-            # self._dict is empty
+            # self.data is empty
             i = 0
         i = min(i, min(len(parts), maxpos) - pos)
         while i >= 1:
@@ -579,7 +547,7 @@ class StsDict():
             current_parts = parts[pos:end]
             current = ''.join(current_parts)
             try:
-                match = self._dict[current]
+                match = self.data[current]
                 assert match
             except (KeyError, AssertionError):
                 pass
@@ -733,7 +701,7 @@ class Table(StsDict):
     def head_map(self):
         """Get a dict of the first N parts to max length."""
         dict_ = {}
-        for key in self._dict:
+        for key in self.data:
             parts = Unicode.split(key)
             length = len(parts)
             if length < self.key_head_length:
@@ -770,7 +738,7 @@ class Table(StsDict):
             current_parts = parts[pos:end]
             current = ''.join(current_parts)
             try:
-                match = self._dict[current]
+                match = self.data[current]
                 assert match
             except (KeyError, AssertionError):
                 pass
@@ -791,7 +759,7 @@ class Trie(StsDict):
     """
     def __getitem__(self, key):
         """Implementation of self[key]."""
-        trie = self._dict
+        trie = self.data
         try:
             for char in key:
                 trie = trie[char]
@@ -818,7 +786,7 @@ class Trie(StsDict):
 
     def __delitem__(self, key):
         """Implementation of del self[key]."""
-        trie = self._dict
+        trie = self.data
         try:
             for char in key:
                 trie = trie[char]
@@ -828,7 +796,7 @@ class Trie(StsDict):
 
     def keys(self):
         """Generate keys."""
-        trie = self._dict
+        trie = self.data
         stack = [('', trie)]
         while stack:
             key, trie = stack.pop()
@@ -840,7 +808,7 @@ class Trie(StsDict):
 
     def values(self):
         """Generate values."""
-        trie = self._dict
+        trie = self.data
         stack = [trie]
         while stack:
             trie = stack.pop()
@@ -852,7 +820,7 @@ class Trie(StsDict):
 
     def items(self):
         """Generate key-values pairs."""
-        trie = self._dict
+        trie = self.data
         stack = [('', trie)]
         while stack:
             key, trie = stack.pop()
@@ -871,7 +839,7 @@ class Trie(StsDict):
         """
         values = (values,) if isinstance(values, str) else values
 
-        trie = self._dict
+        trie = self.data
         for char in key:
             trie = trie.setdefault(char, {})
 
@@ -880,7 +848,7 @@ class Trie(StsDict):
         return self
 
     def _match(self, parts, pos, maxpos=math.inf):
-        trie = self._dict
+        trie = self.data
         i = pos
         end = min(len(parts), maxpos)
         match = None
