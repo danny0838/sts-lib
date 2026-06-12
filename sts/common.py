@@ -6,7 +6,7 @@ import math
 import os
 import re
 import sys
-from collections import UserDict, namedtuple
+from collections import UserDict, UserList, namedtuple
 from contextlib import nullcontext
 from functools import cached_property
 
@@ -326,8 +326,16 @@ class StsDict(UserDict):
         if sort:
             it = sorted(it)
         with file_output(file) as fh:
+            self._dump_write_block(fh, getattr(self, 'header', None))
             for key, values in it:
                 self._dump_write_entry(fh, key, values, check)
+            self._dump_write_block(fh, getattr(self, 'footer', None))
+
+    def _dump_write_block(self, fh, block):
+        if block is None:
+            return
+        for line in block:
+            fh.write(line + '\n')
 
     def _dump_write_entry(self, fh, key, values, check):
         if check:
@@ -341,6 +349,7 @@ class StsDict(UserDict):
                     raise ValueError(
                         f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
                     )
+        self._dump_write_block(fh, getattr(values, 'block', None))
         fh.write(f'{key}\t{" ".join(values)}\n')
 
     @classmethod
@@ -872,6 +881,77 @@ class Trie(StsDict):
             conv = StsDictConv(parts[pos:match_end], match)
             return StsDictMatch(conv, pos, match_end)
         return None
+
+
+class RichTable(Table):
+    """An extended class that preserves comments and source line numbers.
+
+    This is useful for preserving comments when modifying a dict file.
+
+    Note that this class raises on a duplicated key if it has an anchored
+    comment block, in which case it cannot be safely merged.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.header = None
+        self.footer = None
+
+    def _load_plain(self, file):
+        block = []
+        with file_input(file) as fh:
+            for i, line in enumerate(fh):
+                line = line.rstrip('\n')
+                if self._load_plain_get_line_type(line) == 'entry':
+                    try:
+                        key, values, *_ = line.split('\t')
+                    except ValueError:
+                        # no '\t', treat as key => [key]
+                        key = line
+                        values = (line,)
+                    else:
+                        values = values.split(' ')
+
+                    if key in self.data:
+                        if block:
+                            raise ValueError(f'Duplicated key {repr(key)} at line {i + 1}')
+                        self.add(key, values)
+                        continue
+
+                    entry = UserList(values)
+                    entry.key = key
+                    entry.line = i + 1
+
+                    if block:
+                        if not self.data:
+                            last_empty_idx = next(
+                                (i for i in range(len(block) - 1, -1, -1) if not block[i].strip()),
+                                -1
+                            )
+                            block_anchored = block[last_empty_idx + 1:]
+                            del block[last_empty_idx + 1:]
+                            if block:
+                                self.header = block
+                            if block_anchored:
+                                entry.block = block_anchored
+                        else:
+                            entry.block = block
+
+                    self.data[key] = entry
+                    block = []
+
+                else:
+                    block.append(line)
+
+            if block:
+                self.footer = block
+
+    @staticmethod
+    def _load_plain_get_line_type(line):
+        if not line:
+            return 'empty'
+        if line.startswith('#'):
+            return 'comment'
+        return 'entry'
 
 
 class StsMaker():

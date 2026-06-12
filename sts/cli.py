@@ -5,7 +5,7 @@ import re
 import sys
 
 from . import __version__
-from .common import StsConverter, StsMaker, Table
+from .common import RichTable, StsConverter, StsMaker, Table
 
 
 def sort(args):
@@ -15,7 +15,7 @@ def sort(args):
 
     for i, input in enumerate(inputs):
         output = input if i >= len(outputs) else outputs[i]
-        Table().load(input).dump(output, sort=True)
+        RichTable().load(input).dump(output, sort=True)
 
 
 def swap(args):

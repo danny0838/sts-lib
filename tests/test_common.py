@@ -15,6 +15,7 @@ import yaml
 
 from sts import __version__
 from sts.common import (
+    RichTable,
     StreamList,
     StsConverter,
     StsDict,
@@ -989,6 +990,52 @@ class TestTrie(TestStsDict):
         with redirect_stdout(io.StringIO()) as fh:
             stsdict.dumpjson()
         self.assertEqual({'干': {'': ['干', '榦'], '姜': {'': ['乾薑']}}, '姜': {'': ['姜', '薑']}}, json.loads(fh.getvalue()))
+
+
+class TestRichTable(TestStsDict):
+    cls = RichTable
+
+    def test_dup_key_merge_uncommented(self):
+        table = self.cls().load(io.StringIO('a\tA1 A2\na\tA2 A3\n'))
+        self.assertEqual({'a': ['A1', 'A2', 'A3']}, table)
+
+        table = self.cls().load(io.StringIO('a\na\n'))
+        self.assertEqual({'a': ['a']}, table)
+
+    def test_dup_key_raise_on_commented(self):
+        with self.assertRaisesRegex(ValueError, "Duplicated key 'a' at line 3"):
+            self.cls().load(io.StringIO('a\tA1\n# comment\na\tA2\n'))
+
+    def _test_sort(self, input, expected):
+        table = self.cls().load(io.StringIO(input))
+        fo = io.StringIO()
+        table.dump(fo, sort=True)
+        text = fo.getvalue()
+        self.assertEqual(expected, text)
+
+    def test_sort_moves_comment_with_following_entry(self):
+        self._test_sort(
+            'b\tB\n# comment for a\na\tA\n',
+            '# comment for a\na\tA\nb\tB\n',
+        )
+
+    def test_sort_preserves_blank_lines_in_anchored_block(self):
+        self._test_sort(
+            'b\tB\n\n# comment for a\na\tA\n',
+            '\n# comment for a\na\tA\nb\tB\n',
+        )
+
+    def test_sort_splits_header_from_first_entry_comment(self):
+        self._test_sort(
+            '# Header\n\n# comment for b\nb\tB\na\tA\n',
+            '# Header\n\na\tA\n# comment for b\nb\tB\n',
+        )
+
+    def test_sort_keeps_footer_at_end(self):
+        self._test_sort(
+            'b\tB\na\tA\n\n# footer\n',
+            'a\tA\nb\tB\n\n# footer\n',
+        )
 
 
 class TestStsMaker(unittest.TestCase):
