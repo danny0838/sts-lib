@@ -327,9 +327,11 @@ class StsDict():
                     key, values, *_ = line.split('\t')
                 except ValueError:
                     # no '\t', treat as key => [key]
-                    self.add(line, line)
+                    key, values = line, (line,)
                 else:
-                    self.add(key, values.split(' '))
+                    values = values.split(' ')
+
+                self.add(key, values)
 
     def _load_json(self, file):
         with file_input(file) as fh:
