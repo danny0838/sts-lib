@@ -359,18 +359,21 @@ class StsDict():
             it = sorted(it)
         with file_output(file) as fh:
             for key, values in it:
-                if check:
-                    for badchar in '\t\n\r':
-                        if badchar in key:
-                            raise ValueError(
-                                f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
-                            )
-                    for badchar in ' \t\n\r':
-                        if any(badchar in v for v in values):
-                            raise ValueError(
-                                f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
-                            )
-                fh.write(f'{key}\t{" ".join(values)}\n')
+                self._dump_write_entry(fh, key, values, check)
+
+    def _dump_write_entry(self, fh, key, values, check):
+        if check:
+            for badchar in '\t\n\r':
+                if badchar in key:
+                    raise ValueError(
+                        f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
+                    )
+            for badchar in ' \t\n\r':
+                if any(badchar in v for v in values):
+                    raise ValueError(
+                        f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
+                    )
+        fh.write(f'{key}\t{" ".join(values)}\n')
 
     @classmethod
     def loadjson(cls, file):
