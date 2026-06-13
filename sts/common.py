@@ -295,11 +295,22 @@ class StsDict(UserDict):
                     key, values, *_ = line.split('\t')
                 except ValueError:
                     # no '\t', treat as key => [key]
-                    key, values = line, (line,)
+                    key, values = line, [line]
                 else:
                     values = values.split(' ')
 
+                key = self._load_plain_unescape(key)
+                values[:] = (self._load_plain_unescape(v) for v in values)
                 self.add(key, values)
+
+    _load_plain_unescape_regex = re.compile(r'\\x([0-7][0-9A-Fa-f])')
+
+    @staticmethod
+    def _load_plain_unescape_func(m):
+        return chr(int(m.group(1), 16))
+
+    def _load_plain_unescape(self, value):
+        return self._load_plain_unescape_regex.sub(self._load_plain_unescape_func, value)
 
     def _load_json(self, file):
         with file_input(file) as fh:
@@ -315,7 +326,7 @@ class StsDict(UserDict):
                 data = dict(data)
             self.update(data)
 
-    def dump(self, file=None, sort=False, check=False):
+    def dump(self, file=None, sort=False):
         """Dump key-values pairs to a plain-dict file.
 
         Args:
@@ -328,7 +339,7 @@ class StsDict(UserDict):
         with file_output(file) as fh:
             self._dump_write_block(fh, getattr(self, 'header', None))
             for key, values in it:
-                self._dump_write_entry(fh, key, values, check)
+                self._dump_write_entry(fh, key, values)
             self._dump_write_block(fh, getattr(self, 'footer', None))
 
     def _dump_write_block(self, fh, block):
@@ -337,20 +348,25 @@ class StsDict(UserDict):
         for line in block:
             fh.write(line + '\n')
 
-    def _dump_write_entry(self, fh, key, values, check):
-        if check:
-            for badchar in '\t\n\r':
-                if badchar in key:
-                    raise ValueError(
-                        f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
-                    )
-            for badchar in ' \t\n\r':
-                if any(badchar in v for v in values):
-                    raise ValueError(
-                        f'{repr(key)} => {repr(values)} contains invalid {repr(badchar)}'
-                    )
+    def _dump_write_entry(self, fh, key, values):
+        key = self._dump_write_entry_key_escape(key)
+        values[:] = (self._dump_write_entry_value_escape(v) for v in values)
+
         self._dump_write_block(fh, getattr(values, 'block', None))
         fh.write(f'{key}\t{" ".join(values)}\n')
+
+    _dump_write_entry_key_escape_regex = re.compile(r'^#|[\t\n\r]|\\(?=x[0-7][0-9A-Fa-f])')
+    _dump_write_entry_value_escape_regex = re.compile(r'[ \t\n\r]|\\(?=x[0-7][0-9A-Fa-f])')
+
+    @staticmethod
+    def _dump_write_entry_escape_func(m):
+        return f'\\x{ord(m.group(0)):02X}'
+
+    def _dump_write_entry_key_escape(self, value):
+        return self._dump_write_entry_key_escape_regex.sub(self._dump_write_entry_escape_func, value)
+
+    def _dump_write_entry_value_escape(self, value):
+        return self._dump_write_entry_value_escape_regex.sub(self._dump_write_entry_escape_func, value)
 
     @classmethod
     def loadjson(cls, file):
@@ -907,9 +923,12 @@ class RichTable(Table):
                     except ValueError:
                         # no '\t', treat as key => [key]
                         key = line
-                        values = (line,)
+                        values = [line]
                     else:
                         values = values.split(' ')
+
+                    key = self._load_plain_unescape(key)
+                    values[:] = (self._load_plain_unescape(v) for v in values)
 
                     if key in self.data:
                         if block:
@@ -983,7 +1002,6 @@ class StsMaker():
                         ],
                         "sort": true,   // truthy to sort the keys of the
                                         // generated dictionary
-                        "check": true,  // check for invalid output
                     },
                     ...
                 ]
@@ -1092,7 +1110,6 @@ class StsMaker():
 
         mode = dict_scheme.setdefault('mode', 'load')
         dict_scheme['sort'] = bool(dict_scheme.get('sort'))
-        dict_scheme['check'] = bool(dict_scheme.get('check'))
         dict_scheme['auto_space'] = bool(dict_scheme.get('auto_space'))
 
         if mode == 'filter':
@@ -1171,7 +1188,7 @@ class StsMaker():
             elif format == 'jlist':
                 table.dumpjson(dest, sort=sort)
             else:  # default: list
-                table.dump(dest, sort=sort, check=dict_scheme['check'])
+                table.dump(dest, sort=sort)
 
         return table
 

@@ -48,11 +48,6 @@
  * @property {srcDictScheme[]} [src] - the source dicts. `file` must exist when
  *   omitted.
  * @property {boolean} [sort] - true to sort the keys of the output dictionary.
- * @property {boolean} [check] - true to raise an exception if the output
- *   contains an invalid char which will be loaded incorrectly. Set this when
- *   the output is a plain text table file and the source files contain
- *   untrusted JSON or YAML data that may include a char like " ", "\t", "\n",
- *   etc. in the dictionary.
  * @property {boolean} [auto_space] - true to automatically add spaced version
  *   at non-Hanzi borders for the output dictionary. (e.g. add
  *   `"SQL 注入" => "SQL 隱碼攻擊"` for `"SQL注入" => "SQL隱碼攻擊"`)
@@ -84,8 +79,6 @@
 輸入詞2<TAB>轉換詞21 轉換詞22 ...
 ...
 ```
-
-> 注意：使用此格式時，輸入詞不可含有 TAB 字元，轉換詞不可含有半形空白字元。此外二者也不可含有換行等字元。如詞典需要使用這些字元，請改用其他格式。
 
 > 補充：實際上除了以下其他格式使用的副檔名，程式都會視作純文字詞典。考慮未來可能支援更多格式，建議只使用上述幾種副檔名，以避免潛在的不相容。
 
@@ -136,6 +129,15 @@
 
 > 注意：OpenCC 1.2.0 以前版本不支援此格式。
 
+可能造成解析錯誤的特殊字元可用 `\xNN` 脫義表示，`NN` 為 00~7F 的二位數 ASCII 碼。例如：
+
+```
+\x23赞 赞<TAB>#讚\x20讚
+```
+
+將解讀為 `'#赞 赞' => ['#讚 讚']`。
+
+> 注意：OpenCC 不支援此格式。
 
 ### JSON
 

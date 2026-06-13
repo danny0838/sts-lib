@@ -544,6 +544,16 @@ class TestStsDict(TestStsDictBase):
         stsdict.load(io.StringIO("""# 註解\n干\t幹 乾\n"""))
         self.assertEqual({'干': ['幹', '乾']}, stsdict)
 
+        # escaping
+        stsdict = self.cls()
+        stsdict.load(io.StringIO("""\\x00\\x09\\x0A\\x0D\\x20\\x23\\x7F\t\\x00\\x09\\x0A\\x0D\\x20\\x23\\x7F\n"""))
+        self.assertEqual({'\x00\t\n\r #\x7F': ['\x00\t\n\r #\x7F']}, stsdict)
+
+        # invalid escaping
+        stsdict = self.cls()
+        stsdict.load(io.StringIO("""\\ \\\\ \\x \\xA \\x80 \\xFF\t字\n"""))
+        self.assertEqual({'\\ \\\\ \\x \\xA \\x80 \\xFF': ['字']}, stsdict)
+
     def test_load_json(self):
         # dict as {key1: values1, ...} or [[key1, values1], [key2, values2], ...]
         # where values is a str or a list of strs
@@ -619,34 +629,17 @@ class TestStsDict(TestStsDictBase):
         self.assertEqual('干\t干 榦\n姜\t姜 薑\n', fh.getvalue())
 
     def test_dump_badchar(self):
-        tempfile = os.path.join(self.root, 'test.tmp')
-        for badchar in '\t\n\r':
-            with self.subTest(char=badchar, where='key'):
-                stsdict = self.cls({f'干{badchar}姜': ['乾薑']})
+        stsdict = self.cls({'# \t\n\r': ['# \t\n\r']})
+        fo = io.StringIO()
+        stsdict.dump(fo)
+        text = fo.getvalue()
+        self.assertEqual('\\x23 \\x09\\x0A\\x0D\t#\\x20\\x09\\x0A\\x0D\n', text)
 
-                # check if an error is raised when check=True
-                with self.assertRaises(ValueError):
-                    stsdict.dump(tempfile, check=True)
-
-                # check if badchar really causes bad loading
-                stsdict.dump(tempfile)
-                stsdict2 = self.cls()
-                stsdict2.load(tempfile)
-                self.assertNotEqual(stsdict, stsdict2)
-
-        for badchar in ' \t\n\r':
-            with self.subTest(char=badchar, where='value'):
-                stsdict = self.cls({'干姜': [f'乾{badchar}薑']})
-
-                # check if an error is raised when check=True
-                with self.assertRaises(ValueError):
-                    stsdict.dump(tempfile, check=True)
-
-                # check if badchar really causes bad loading
-                stsdict.dump(tempfile)
-                stsdict2 = self.cls()
-                stsdict2.load(tempfile)
-                self.assertNotEqual(stsdict, stsdict2)
+        stsdict = self.cls({'\\x5C\\': ['\\x20\\']})
+        fo = io.StringIO()
+        stsdict.dump(fo)
+        text = fo.getvalue()
+        self.assertEqual('\\x5Cx5C\\\t\\x5Cx20\\\n', text)
 
     def test_loadjson(self):
         fi = io.StringIO('{"干": ["干", "榦"], "姜": ["姜", "薑"], "干姜": ["乾薑"]}')
@@ -2311,29 +2304,6 @@ class TestStsMaker(unittest.TestCase):
                 '姜\t薑\n干\t幹 乾 干\n干姜\t乾薑\n',
                 fh.read()
             )
-
-    def test_dict_check(self):
-        config_file = os.path.join(self.root, 'config.json')
-        with open(config_file, 'w', encoding='UTF-8') as fh:
-            json.dump({
-                'dicts': [
-                    {
-                        'file': 'dict.list',
-                        'mode': 'load',
-                        'src': [
-                            'chars.txt',
-                        ],
-                        'check': True,
-                    },
-                ],
-            }, fh)
-
-        with open(os.path.join(self.root, 'chars.txt'), 'w', encoding='UTF-8') as fh:
-            fh.write('干\t幹 乾 干')
-
-        with mock.patch('sts.common.StsDict.dump') as mocker:
-            StsMaker().make(config_file)
-            mocker.assert_called_with(mock.ANY, sort=mock.ANY, check=True)
 
     def test_dict_auto_space(self):
         config_file = os.path.join(self.root, 'config.json')
