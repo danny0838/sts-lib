@@ -2,6 +2,11 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.39.0] - 2026-06-14
+* Added support for escaping special chars using `\xNN` (where NN is 00~7F) for text dictionaries.
+* The `sort` command now preserves comments.
+* Miscellaneous improvements to the internal code, test suite, and documentation.
+
 ## [0.38.0] - 2026-02-08
 * Improved modularization of the package.
 * Reworked processing message handling using native `logging` module.
