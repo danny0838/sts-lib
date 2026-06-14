@@ -5,6 +5,7 @@
 ## [0.39.0] - 2026-06-14
 * Added support for escaping special chars using `\xNN` (where NN is 00~7F) for text dictionaries.
 * The `sort` command now preserves comments.
+* Added `PyYAML` as primary dependency.
 * Miscellaneous improvements to the internal code, test suite, and documentation.
 
 ## [0.38.0] - 2026-02-08
@@ -16,8 +17,8 @@
 * Miscellaneous fixes and improvements to the internal code, test suite, development tools, CI/CD workflows, and documentation.
 
 ## [0.37.0] - 2026-01-23
-* Added support of the comment format since OpenCC 1.2.0.
-* Added support of `--dict` (`-d`) option for `convert` subcommand.
+* Added support for the comment format since OpenCC 1.2.0.
+* Added support for `--dict` (`-d`) option for `convert` subcommand.
 * Miscellaneous improvements to the internal code.
 
 ## [0.36.0] - 2026-01-22
@@ -30,8 +31,8 @@
 * Miscellaneous improvements to the internal code, development tools, and CI/CD workflows.
 
 ## [0.32.0] - 2024-05-18
-* Added support of `auto_space` config.
-* Added support of new IDC in Unicode 15.1.
+* Added support for `auto_space` config.
+* Added support for new IDC in Unicode 15.1.
 
 ## [0.30.0] - 2024-04-30
 * A dict entry whose value is an empty array is now never matched.
@@ -49,14 +50,14 @@
 * Support expanding one key to multiple values for `expand` mode.
 
 ## [0.27.0] - 2024-04-23
-* Added support of config using `.yaml` or `.yml` extension.
+* Added support for config using `.yaml` or `.yml` extension.
 * Reworked the scheme of `config["dicts"]` to allow providing recursive dict scheme.
 * `include` and `exclude` properties in a dict scheme now only works with mode `filter`.
 * Added new modes `expand`, `remove_keys`, and `remove_values` for dict scheme.
 * Added static web site builder.
 
 ## [0.24.0] - 2024-04-15
-* Added support of loading `.json`, `.yaml`, or `.yml` as dict source.
+* Added support for loading `.json`, `.yaml`, or `.yml` as dict source.
 
 ## [0.21.0] - 2024-04-11
 * Improved `htmlpage` output format to support interactive text inspection.
