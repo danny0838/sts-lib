@@ -64,7 +64,7 @@ class TestMake(unittest.TestCase):
 
 
 class TestConfigs(unittest.TestCase):
-    def _test_against_testcase_dir(self, test_dir, config_dir=None, converters=None):
+    def _test_against_testcase_dir(self, test_dir, patch_dir=None, config_dir=None, converters=None):
         if not os.path.isdir(test_dir):
             return
 
@@ -73,24 +73,39 @@ class TestConfigs(unittest.TestCase):
                 if not entry.is_file:
                     continue
 
-                _, ext = os.path.splitext(entry.name)
-                ext = ext.lower()
-                if ext not in ('.yaml', '.json'):
+                basename, ext = os.path.splitext(entry.name)
+                if ext.lower() not in ('.yaml', '.json'):
                     continue
 
                 test_file = entry.path
-                with self.subTest(src=test_file):
-                    with open(test_file, encoding='utf-8') as fh:
-                        data = json.load(fh) if ext == '.json' else yaml.safe_load(fh)
 
+                patch_file = None
+                if patch_dir is not None:
+                    for ext in ('.yaml', '.json'):
+                        file = os.path.join(patch_dir, f'{basename}{ext}')
+                        if os.path.isfile(file):
+                            patch_file = file
+                            break
+
+                with self.subTest(**{
+                    'src': test_file,
+                    **({'patch': patch_file} if patch_file else {}),
+                }):
+                    with open(test_file, encoding='utf-8') as fh:
+                        data = json.load(fh) if os.path.splitext(test_file)[1].lower() == '.json' else yaml.safe_load(fh)
                     cases = {case.get('id', i): case for i, case in enumerate(data.get('cases', ()))}
+
+                    if patch_file:
+                        with open(patch_file, encoding='utf-8') as fh:
+                            data = json.load(fh) if os.path.splitext(patch_file)[1].lower() == '.json' else yaml.safe_load(fh)
+                        cases.update({case.get('id', i): case for i, case in enumerate(data.get('cases', ()))})
 
                     for id_, case in cases.items():
                         with self.subTest(id=id_):
                             self._test_against_case(id_, case, config_dir, converters)
 
     def _test_against_case(self, id, case, config_dir, converters):
-        input = case['input']
+        input = case.get('input')
         for field in ('expected', 'expected_raw'):
             for config, expected in case.get(field, {}).items():
                 if config_dir is not None:
@@ -131,7 +146,12 @@ class TestConfigs(unittest.TestCase):
                 if not os.path.isdir(test_dir):
                     continue
 
-                self._test_against_testcase_dir(test_dir, config_dir=config_dir, converters=converters)
+                patch_dir = os.path.join(entry, 'tests.patch')
+                if not os.path.isdir(patch_dir):
+                    patch_dir = None
+
+                self._test_against_testcase_dir(
+                    test_dir, patch_dir=patch_dir, config_dir=config_dir, converters=converters)
 
 
 if __name__ == '__main__':
