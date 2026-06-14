@@ -64,29 +64,30 @@ class TestMake(unittest.TestCase):
 
 
 class TestConfigs(unittest.TestCase):
-    def _iter_testcase_files(self, ref_dir):
-        with os.scandir(ref_dir) as it:
+    def _test_against_testcase_dir(self, test_dir, config_dir=None, converters=None):
+        if not os.path.isdir(test_dir):
+            return
+
+        with os.scandir(test_dir) as it:
             for entry in it:
                 if not entry.is_file:
                     continue
-                if not os.path.splitext(entry)[1].lower() in ('.yaml', '.json'):
+
+                _, ext = os.path.splitext(entry.name)
+                ext = ext.lower()
+                if ext not in ('.yaml', '.json'):
                     continue
-                yield entry
 
-    def _test_against_testcase_file(self, test_file, config_dir=None, converters=None):
-        with open(test_file, encoding='utf-8') as fh:
-            if os.path.splitext(test_file)[1].lower() == '.json':
-                data = json.load(fh)
-            else:
-                data = yaml.safe_load(fh)
+                test_file = entry.path
+                with self.subTest(src=test_file):
+                    with open(test_file, encoding='utf-8') as fh:
+                        data = json.load(fh) if ext == '.json' else yaml.safe_load(fh)
 
-        cases = {}
-        for i, case in enumerate(data['cases']):
-            id_ = case.get('id', i)
-            cases[id_] = case
+                    cases = {case.get('id', i): case for i, case in enumerate(data.get('cases', ()))}
 
-        for id_, case in cases.items():
-            self._test_against_case(id_, case, config_dir, converters)
+                    for id_, case in cases.items():
+                        with self.subTest(id=id_):
+                            self._test_against_case(id_, case, config_dir, converters)
 
     def _test_against_case(self, id, case, config_dir, converters):
         input = case['input']
@@ -94,7 +95,7 @@ class TestConfigs(unittest.TestCase):
             for config, expected in case.get(field, {}).items():
                 if config_dir is not None:
                     config = os.path.join(config_dir, f'{config}.yaml')
-                with self.subTest(id=id, field=field, input=input, config=config):
+                with self.subTest(id=id, input=input, field=field, config=config):
                     self._test_against_config(field, input, config, expected, converters)
 
     def _test_against_config(self, field, input, config, expected, converters):
@@ -115,9 +116,7 @@ class TestConfigs(unittest.TestCase):
         """Test configs with files at tests/test_data_configs/*.{yaml,json}"""
         converters = {}
         test_dir = os.path.join(root_dir, 'test_data_configs')
-        for entry in self._iter_testcase_files(test_dir):
-            with self.subTest(src=entry.name):
-                self._test_against_testcase_file(entry, converters=converters)
+        self._test_against_testcase_dir(test_dir, converters=converters)
 
     def test_configs_external(self):
         """Test external configs with files at sts/data/external/*/tests/*.{yaml,json}"""
@@ -132,9 +131,7 @@ class TestConfigs(unittest.TestCase):
                 if not os.path.isdir(test_dir):
                     continue
 
-                for entry in self._iter_testcase_files(test_dir):
-                    with self.subTest(src=entry.path):
-                        self._test_against_testcase_file(entry, config_dir=config_dir, converters=converters)
+                self._test_against_testcase_dir(test_dir, config_dir=config_dir, converters=converters)
 
 
 if __name__ == '__main__':
