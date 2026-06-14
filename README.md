@@ -42,7 +42,7 @@ python -m pip install -U sts-lib
 
 * `sts convert [OPTIONs] [file ...]` 執行簡繁轉換：
   * `file` 為一或多個欲轉換的檔案。（省略則讀取標準輸入 STDIN）
-  * `-c CONFIG` 指定轉換用的配置檔，可為內建配置檔名稱或自製配置檔（JSON 或 YAML）的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/master/sts/data/config) 目錄，可簡寫，例如可輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
+  * `-c CONFIG` 指定轉換用的配置檔，可為內建配置檔名稱或自製配置檔（JSON 或 YAML）的路徑。可用的內建配置檔詳見 [sts/data/config](https://github.com/danny0838/sts-lib/tree/main/sts/data/config) 目錄，可簡寫，例如可輸入 `s2t` 代表使用 `sts/data/config/s2t.json`。
   * `-d DICT` 指定轉換用的詞典檔。可用 `sts make ...` 從配置檔生成詞典檔。覆蓋 `-c`。
   * `-f FORMAT` 指定輸出格式，可用格式如下：
     * `txt`：純文字，適合一般使用。
@@ -84,7 +84,7 @@ converter.convert_file(input=None, output=None
 
 ## Configuration 配置
 
-如要自訂轉換方案，可參見[配置檔及詞典檔規格說明](https://github.com/danny0838/sts-lib/blob/master/CONFIG.md)。
+如要自訂轉換方案，可參見[配置檔及詞典檔規格說明](https://github.com/danny0838/sts-lib/blob/main/CONFIG.md)。
 
 
 ## 線上版
