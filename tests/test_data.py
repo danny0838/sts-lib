@@ -80,16 +80,21 @@ class TestConfigs(unittest.TestCase):
             else:
                 data = yaml.safe_load(fh)
 
+        cases = {}
         for i, case in enumerate(data['cases']):
-            self._test_against_case(i, case, config_dir, converters)
+            id_ = case.get('id', i)
+            cases[id_] = case
 
-    def _test_against_case(self, i, case, config_dir, converters):
+        for id_, case in cases.items():
+            self._test_against_case(id_, case, config_dir, converters)
+
+    def _test_against_case(self, id, case, config_dir, converters):
         input = case['input']
         for field in ('expected', 'expected_raw'):
             for config, expected in case.get(field, {}).items():
                 if config_dir is not None:
                     config = os.path.join(config_dir, f'{config}.yaml')
-                with self.subTest(id=case.get('id', i), field=field, input=input, config=config):
+                with self.subTest(id=id, field=field, input=input, config=config):
                     self._test_against_config(field, input, config, expected, converters)
 
     def _test_against_config(self, field, input, config, expected, converters):
