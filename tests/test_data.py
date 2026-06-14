@@ -85,22 +85,23 @@ class TestConfigs(unittest.TestCase):
 
     def _test_against_case(self, i, case, config_dir, converters):
         input = case['input']
-        for config, expected in case['expected'].items():
-            if config_dir is not None:
-                config = os.path.join(config_dir, f'{config}.yaml')
-            with self.subTest(id=case.get('id', i), input=input, config=config):
-                self._test_against_config(config, input, expected, converters)
+        for field in ('expected', 'expected_raw'):
+            for config, expected in case.get(field, {}).items():
+                if config_dir is not None:
+                    config = os.path.join(config_dir, f'{config}.yaml')
+                with self.subTest(id=case.get('id', i), field=field, input=input, config=config):
+                    self._test_against_config(field, input, config, expected, converters)
 
-    def _test_against_config(self, config, input, expected, converters):
+    def _test_against_config(self, field, input, config, expected, converters):
         try:
             converter = converters[config]
         except KeyError:
             dict_ = StsMaker().make(config)
             converter = converters[config] = StsConverter(dict_)
 
-        if isinstance(expected, str):
+        if field == 'expected':
             output = converter.convert_text(input)
-        else:
+        elif field == 'expected_raw':
             output = [x if isinstance(x, str) else x.values for x in converter.convert(input)]
 
         self.assertEqual(expected, output)

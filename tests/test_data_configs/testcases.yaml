@@ -14,7 +14,7 @@ cases:
       t2s: 正规表示式
   - id: BYVoid_OpenCC_Issue_475_s2twp_卷积
     input: 卷积
-    expected:
+    expected_raw:
       s2twp: [['卷積', '摺積']]
       s2tw: [['卷', '捲'], ['積']]
       s2hk: [['卷', '捲'], ['積']]
