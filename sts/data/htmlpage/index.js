@@ -810,11 +810,15 @@ async function loadDict(mode, customDict) {
   const dict = await StsDict.load(url);
   const regexLine = /\n|\r\n?/;
   const regexSep = /[ \t]+/;
+  const regexEscape = /\\x([0-7][0-9A-Fa-f])/g;
+  const funcEscape = (_, cp) => String.fromCharCode(parseInt(cp, 16));
   if (customDict) {
     for (const line of customDict.split(regexLine)) {
-      const [key, ...values] = line.split(regexSep);
+      let [key, ...values] = line.split(regexSep);
       if (!key) { continue; }
+      key = key.replace(regexEscape, funcEscape);
       if (values.length) {
+        values = values.map(v => v.replace(regexEscape, funcEscape));
         dict.add(key, values, true);
       } else {
         dict.delete(key);
