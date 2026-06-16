@@ -225,8 +225,7 @@ function editContext(anchor) {
 {%- if not single_page %}
 
 async function splitTerm(anchor) {
-  const origTextNode = anchor.querySelector('del').firstChild;
-  const origComps = Unicode.split(origTextNode.nodeValue);
+  const origComps = Unicode.split(getText(anchor));
   if (!(origComps.length >= 2)) { return; }
 
   removePopup();
@@ -234,17 +233,12 @@ async function splitTerm(anchor) {
   const prevNode = anchor.previousSibling;
   const parent = anchor.parentNode;
 
-  // split current anchor into shorter text nodes
-  parent.replaceChild(origTextNode, anchor);
-  origComps.pop();
-  origTextNode.splitText(origComps.join('').length);
-
-  // create a placeholder element at the split point
+  // split out the last composite and insert placeholder (ph)
   const ph = document.createElement('span');
-  parent.replaceChild(ph, origTextNode);
+  anchor.replaceWith(ph, origComps.pop());
 
   // insert the re-converted shortened text
-  ph.insertAdjacentHTML('beforebegin', _convertHtml(dict, origTextNode.nodeValue));
+  ph.insertAdjacentHTML('beforebegin', _convertHtml(dict, origComps.join('')));
 
   // re-convert following nodes and replace changed parts
   {
@@ -252,7 +246,7 @@ async function splitTerm(anchor) {
       const rv = [];
       let node = ph;
       while (node = node.nextSibling) {
-        if (node.nodeType === 1 && !node.matches('a[tabindex]')) {
+        if (node.nodeType === 1 && node.matches('a:not([tabindex])')) {
           break;
         }
         rv.push(node);
@@ -264,9 +258,9 @@ async function splitTerm(anchor) {
     tpl.innerHTML = _convertHtml(dict, nextText);
     const nextNodesNew = Array.from(tpl.content.childNodes);
 
-    // calculate the position where the unchanged parts start
-    // skip nextNodes[0] and nextNodesNew[0], to always convert the latter part
-    // of the splitted text node
+    // Calculate the position where the unchanged parts start.
+    // Break at nextNodes[0] and nextNodesNew[0] to always convert the latter
+    // part of the split text node.
     let iOld = nextNodes.length - 1;
     let iNew = nextNodesNew.length - 1;
     while (iOld >= 1 && iNew >= 1) {
@@ -284,18 +278,6 @@ async function splitTerm(anchor) {
     for (let i = 0; i <= iNew; i++) {
       parent.insertBefore(nextNodesNew[i], ph);
     }
-
-    function getText(node) {
-      switch (node.nodeType) {
-        case 1:
-          return node.querySelector('del').textContent;
-        case 3:
-          return node.nodeValue;
-        default:
-          // this should not happen;
-          return '';
-      }
-    }
   }
   ph.remove();
 
@@ -304,6 +286,18 @@ async function splitTerm(anchor) {
     document.evaluate('./a[@tabindex]', parent, null, 0);
   const anchorNext = evaluator.iterateNext();
   if (anchorNext) { anchorNext.focus(); }
+
+  function getText(node) {
+    switch (node.nodeType) {
+      case 1:
+        return node.querySelector('del').textContent;
+      case 3:
+        return node.nodeValue;
+      default:
+        // this should not happen;
+        return '';
+    }
+  }
 }
 
 {%- endif %}
