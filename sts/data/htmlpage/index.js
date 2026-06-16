@@ -226,7 +226,7 @@ function editContext(anchor) {
 
 async function splitTerm(anchor) {
   const origComps = Unicode.split(getText(anchor));
-  if (!(origComps.length >= 2)) { return; }
+  if (!origComps.length) { return; }
 
   removePopup();
   const {dict} = convertHtml.lastOptions;
@@ -238,7 +238,7 @@ async function splitTerm(anchor) {
   anchor.replaceWith(ph, origComps.pop());
 
   // insert the re-converted shortened text
-  {
+  if (origComps.length) {
     const tpl = document.createElement('template');
     tpl.innerHTML = _convertHtml(dict, origComps.join(''));
 
