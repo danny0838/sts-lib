@@ -865,7 +865,7 @@ function escapeHtml(...args) {
 }
 
 function convertHtml(dict, text, exclude) {
-	convertHtml.lastOptions = {dict, exclude};
+  convertHtml.lastOptions = {dict, exclude};
   const timeStart = performance.now();
   const result = _convertHtml(dict, text, exclude);
   console.log(`convertHtml(chars=${text.length}, mode=${dictInfo.get(dict).mode}, customDict=${!!dictInfo.get(dict).customDict}, exclude=${exclude}): ${performance.now() - timeStart} ms`);
