@@ -5,6 +5,7 @@ import glob
 import logging
 import os
 import shutil
+from datetime import datetime
 from textwrap import dedent
 
 import jinja2
@@ -71,7 +72,7 @@ def build_static_site(root_dir, data_dir, env):
     for fn in ('index.html', 'index.css', 'index.js', 'sts.mjs'):
         file = os.path.join(www_dir, fn)
         tpl = env.get_template(fn)
-        render_on_demand(file, tpl, env)
+        render_on_demand(file, tpl, env, date=datetime.now().strftime('%Y-%m-%d'))
 
     # compile dicts
     maker = StsMaker()
