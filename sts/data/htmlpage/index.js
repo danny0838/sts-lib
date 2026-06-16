@@ -299,7 +299,7 @@ async function dismissPhrase(anchor) {
   }
   ph.remove();
 
-  evaluator = prevNode ?
+  const evaluator = prevNode ?
     document.evaluate('following-sibling::a[@tabindex]', prevNode, null, 0) :
     document.evaluate('./a[@tabindex]', parent, null, 0);
   const anchorNext = evaluator.iterateNext();
