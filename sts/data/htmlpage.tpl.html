@@ -238,16 +238,16 @@ function toggleEditing(anchor, willEdit) {
   }
 }
 
-function editContext(anchor) {
-  function convertTextNodeToAnchor(textNode) {
-    const newElem = document.createElement('a');
-    newElem.tabIndex = 0;
-    newElem.classList.add('unmatched');
-    const del = newElem.appendChild(document.createElement('del'));
-    anchor.parentNode.insertBefore(newElem, textNode);
-    del.appendChild(textNode);
-  }
+function convertTextNodeToAnchor(textNode) {
+  const newElem = document.createElement('a');
+  newElem.tabIndex = 0;
+  newElem.classList.add('unmatched');
+  const del = newElem.appendChild(document.createElement('del'));
+  del.textContent = textNode.nodeValue;
+  textNode.replaceWith(newElem);
+}
 
+function editContext(anchor) {
   const prev = anchor.previousSibling;
   if (prev && prev.nodeType === 3) {
     convertTextNodeToAnchor(prev);

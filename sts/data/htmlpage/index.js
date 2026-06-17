@@ -201,16 +201,16 @@ function toggleEditing(anchor, willEdit) {
   }
 }
 
-function editContext(anchor) {
-  function convertTextNodeToAnchor(textNode) {
-    const newElem = document.createElement('a');
-    newElem.tabIndex = 0;
-    newElem.classList.add('unmatched');
-    const del = newElem.appendChild(document.createElement('del'));
-    anchor.parentNode.insertBefore(newElem, textNode);
-    del.appendChild(textNode);
-  }
+function convertTextNodeToAnchor(textNode) {
+  const newElem = document.createElement('a');
+  newElem.tabIndex = 0;
+  newElem.classList.add('unmatched');
+  const del = newElem.appendChild(document.createElement('del'));
+  del.textContent = textNode.nodeValue;
+  textNode.replaceWith(newElem);
+}
 
+function editContext(anchor) {
   const prev = anchor.previousSibling;
   if (prev && prev.nodeType === 3) {
     convertTextNodeToAnchor(prev);
@@ -238,7 +238,23 @@ async function splitTerm(anchor) {
   anchor.replaceWith(ph, origComps.pop());
 
   // insert the re-converted shortened text
-  ph.insertAdjacentHTML('beforebegin', _convertHtml(dict, origComps.join('')));
+  {
+    const tpl = document.createElement('template');
+    tpl.innerHTML = _convertHtml(dict, origComps.join(''));
+
+    // For example, when [ABCD=>abcd] is split into [A=>a][BC] [D], convert
+    // [BC] to an anchor to allow further splitting, so that cases like
+    // [A=>a][B][CDE=>cde] and [A=>a][BCD=>bcd] are all available.
+    // Also prevent losing focus when [ABCD=>abcd] is split into [ABC] [D]
+    // by converting [ABC] to an anchor.
+    for (const node of tpl.content.childNodes) {
+      if (node.nodeType === 3) {
+        convertTextNodeToAnchor(node);
+      }
+    }
+
+    ph.before(tpl.content);
+  }
 
   // re-convert following nodes and replace changed parts
   {
