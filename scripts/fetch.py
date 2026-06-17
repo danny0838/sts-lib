@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fetch and update external resources."""
 import argparse
+import io
 import json
 import logging
 import os
@@ -10,7 +11,7 @@ import zipfile
 import requests
 import yaml
 
-from sts import Table
+from sts import OcTable, Table
 
 logging.basicConfig(format='%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -137,7 +138,8 @@ def handle_opencc(root_dir):
             # remove top dir from path
             subpath = '/'.join(zinfo.filename.split('/')[1:])
 
-            if not os.path.splitext(subpath)[1].lower() in ('.txt', '.json'):
+            ext = os.path.splitext(subpath)[1].lower()
+            if ext not in ('.txt', '.json'):
                 continue
 
             dir_, filename = os.path.split(subpath)
@@ -146,9 +148,19 @@ def handle_opencc(root_dir):
             except KeyError:
                 continue
 
-            zinfo.filename = f'{newdir}/{filename}'
-            logger.info('extracting: %s => %s', subpath, zinfo.filename)
-            zh.extract(zinfo, root_dir)
+            if ext == '.txt':
+                dest = os.path.normpath(os.path.join(root_dir, newdir, filename))
+                logger.info('updating: %s', dest)
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                with zh.open(zinfo) as fi:
+                    fh = io.TextIOWrapper(fi, encoding='UTF-8')
+                    table = OcTable().load(fh)
+                Table(table).dump(dest)
+
+            elif ext == '.json':
+                zinfo.filename = f'{newdir}/{filename}'
+                logger.info('extracting: %s => %s', subpath, zinfo.filename)
+                zh.extract(zinfo, root_dir)
 
 
 def handle_mw(root_dir):

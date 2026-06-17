@@ -973,6 +973,66 @@ class RichTable(Table):
         return 'entry'
 
 
+class OcTable(Table):
+    """Extended Table that supports OpenCC dictionary format."""
+    def load(self, file, type='text'):
+        if type == 'text':
+            self._load_plain(file)
+        else:
+            raise ValueError(f'Unsupported type: {type}')
+        return self
+
+    def _load_plain(self, file):
+        with file_input(file) as fh:
+            for i, line in enumerate(fh):
+                line = line.rstrip('\n')
+
+                # skip comment (OpenCC >= 1.2.0) or empty line (OpenCC >= 1.1.4)
+                if not line or line.startswith('#'):
+                    continue
+
+                # raise if no '\t'
+                try:
+                    key, values = line.split('\t', 1)
+                except ValueError:
+                    raise ValueError(f'Invalid text dictionary at line {i + 1}: Tabular not found {line}')
+
+                # raise for duplicated key
+                if key in self:
+                    raise ValueError(f'Invalid format: The text dictionary contains duplicated keys: {key}.')
+
+                self.add(key, values.split(' '))
+
+    def dump(self, file=None, sort=False):
+        it = self.items()
+        if sort:
+            it = sorted(it)
+        with file_output(file) as fh:
+            for key, values in it:
+                if key.startswith('#'):
+                    raise ValueError(
+                        f"{key!r} => {values!r} contains invalid leading '#'"
+                    )
+
+                m = self._dump_badchar_key.search(key)
+                if m:
+                    raise ValueError(
+                        f'{key!r} => {values!r} contains invalid char {m.group(0)!r}'
+                    )
+
+                for v in values:
+                    m = self._dump_badchar_value.search(v)
+                    if m:
+                        raise ValueError(
+                            f'{key!r} => {values!r} contains invalid char {m.group(0)!r}'
+                        )
+
+                fh.write(f'{key}\t{" ".join(values)}\n')
+
+    _dump_badchar_key = re.compile(r'[\t\n\r]')
+    _dump_badchar_value = re.compile(r'[ \n\r]')
+
+
 class StsMaker():
     """A class for making dictionary file(s)."""
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

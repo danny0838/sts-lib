@@ -12,6 +12,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 from .common import (  # noqa: E402, F401  # re-exporting as public API
+    OcTable,
     RichTable,
     StsConverter,
     StsConvExclude,

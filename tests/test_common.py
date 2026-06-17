@@ -15,6 +15,7 @@ import yaml
 
 from sts import __version__
 from sts.common import (
+    OcTable,
     RichTable,
     StreamList,
     StsConverter,
@@ -1029,6 +1030,70 @@ class TestRichTable(TestStsDict):
             'b\tB\na\tA\n\n# footer\n',
             'a\tA\nb\tB\n\n# footer\n',
         )
+
+
+class TestOcTable(TestStsDictBase):
+    cls = OcTable
+
+    def test_load_plain(self):
+        # basic
+        table = self.cls()
+        table.load(io.StringIO("""干\t幹 乾\n姜\t姜 薑\n"""))
+        self.assertEqual({'干': ['幹', '乾'], '姜': ['姜', '薑']}, table)
+
+        # empty line: skip (error in OpenCC < 1.1.4)
+        table = self.cls()
+        table.load(io.StringIO("""干\t幹\n\n于\t於\n"""))
+        self.assertEqual({'干': ['幹'], '于': ['於']}, table)
+
+        # 0 tab: error
+        table = self.cls()
+        with self.assertRaises(ValueError):
+            table.load(io.StringIO("""干"""))
+
+        # 2 tabs: 2nd tab treated as part of value
+        table = self.cls()
+        table.load(io.StringIO("""干\t幹\t附註"""))
+        self.assertEqual({'干': ['幹\t附註']}, table)
+
+        # duplicated key: error
+        table = self.cls()
+        with self.assertRaises(ValueError):
+            table.load(io.StringIO("""干\t幹\n干\t乾"""))
+
+        # comment line
+        table = self.cls()
+        table.load(io.StringIO("""# 註解\n干\t幹 乾\n"""))
+        self.assertEqual({'干': ['幹', '乾']}, table)
+
+    def test_dump(self):
+        # basic
+        table = self.cls({'A': ['a1', 'a2'], 'B': ['b1', 'b2']})
+        fo = io.StringIO()
+        table.dump(fo)
+        self.assertEqual('A\ta1 a2\nB\tb1 b2\n', fo.getvalue())
+
+        # allowed special chars
+        table = self.cls({'A B': ['#A\tB']})
+        fo = io.StringIO()
+        table.dump(fo)
+        self.assertEqual('A B\t#A\tB\n', fo.getvalue())
+
+        # leading '#' in key
+        with self.assertRaises(ValueError):
+            self.cls({'#': ['x']}).dump(io.StringIO())
+
+        # badchar in key
+        for badchar in ('\t', '\n', '\r'):
+            with self.subTest(type='key', badchar=badchar):
+                with self.assertRaises(ValueError):
+                    self.cls({badchar: ['x']}).dump(io.StringIO())
+
+        # badchar in value
+        for badchar in (' ', '\n', '\r'):
+            with self.subTest(type='value', badchar=badchar):
+                with self.assertRaises(ValueError):
+                    self.cls({'x': [badchar]}).dump(io.StringIO())
 
 
 class TestStsMaker(unittest.TestCase):
