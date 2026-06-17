@@ -25,6 +25,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  TZ: ${{ vars.TIMEZONE || 'UTC' }}
+
 jobs:
   deploy:
     environment:
