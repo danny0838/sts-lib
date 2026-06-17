@@ -224,7 +224,7 @@ function editContext(anchor) {
 
 {%- if not single_page %}
 
-async function dismissPhrase(anchor) {
+async function splitTerm(anchor) {
   const origTextNode = anchor.querySelector('del').firstChild;
   const origComps = Unicode.split(origTextNode.nodeValue);
   if (!(origComps.length >= 2)) { return; }
@@ -462,7 +462,7 @@ async function runCommand(anchor, cmd) {
 
 {%- if not single_page %}
 
-    "dismissPhrase": "重新分割為較短詞語",
+    "splitTerm": "重新分割為較短詞語",
 
 {%- endif %}
   };
@@ -566,8 +566,8 @@ async function runCommand(anchor, cmd) {
       editContext(anchor);
       break;
 {%- if not single_page %}
-    case "dismissPhrase":
-      dismissPhrase(anchor);
+    case "splitTerm":
+      splitTerm(anchor);
       break;
 {%- endif %}
   }
