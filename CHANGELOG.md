@@ -2,6 +2,13 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.39.1] - 2026-06-18
+* Improved the web converter:
+  * Improved `splitTerm` and fixed issues.
+  * Added support for escaping special chars for custom dictionaries.
+  * Added built time to the footer.
+* Miscellaneous improvements to the internal code, development tools, CI/CD workflows, and documentation.
+
 ## [0.39.0] - 2026-06-14
 * Added support for escaping special chars using `\xNN` (where NN is 00~7F) for text dictionaries.
 * The `sort` command now preserves comments.
