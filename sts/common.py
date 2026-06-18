@@ -521,14 +521,8 @@ class StsDict(UserDict):
 
         for key in map_keys:
             newkeys = self.apply_enum(key)
-            for newkey in newkeys:
-                try:
-                    assert stsdict[newkey]
-                except (KeyError, AssertionError):
-                    pass
-                else:
-                    break
-            else:
+
+            if not any(stsdict.get(newkey) for newkey in newkeys):
                 continue
 
             for newkey in newkeys:
