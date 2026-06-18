@@ -223,7 +223,7 @@ class StsDict(UserDict):
 
     def __repr__(self):
         """Implementation of repr(self)."""
-        return f'{self.__class__.__name__}({repr(list(self.items()))})'
+        return f'{self.__class__.__name__}({list(self.items())!r})'
 
     def __eq__(self, other):
         """Implementation of "==" operator."""
@@ -932,7 +932,7 @@ class RichTable(Table):
 
                     if key in self.data:
                         if block:
-                            raise ValueError(f'Duplicated key {repr(key)} at line {i + 1}')
+                            raise ValueError(f'Duplicated key {key!r} at line {i + 1}')
                         self.add(key, values)
                         continue
 
