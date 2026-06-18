@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import unittest
+from contextlib import contextmanager, nullcontext
 
 import yaml
 
@@ -10,6 +11,8 @@ from sts.common import StsConverter, StsMaker
 from . import slow_test
 
 root_dir = os.path.dirname(__file__)
+
+_subtest_msg_sentinel = object()
 
 
 def setUpModule():
@@ -64,6 +67,30 @@ class TestMake(unittest.TestCase):
 
 
 class TestConfigs(unittest.TestCase):
+    @contextmanager
+    def sub_test_xfail(self, msg=_subtest_msg_sentinel, **params):
+        orig_sub_test = self.subTest
+
+        @contextmanager
+        def intercepted_sub_test(*args, **kwargs):
+            yield
+
+        self.subTest = intercepted_sub_test
+
+        try:
+            with orig_sub_test(**{
+                **({} if msg is _subtest_msg_sentinel else {'msg': msg}),
+                **params,
+            }):
+                try:
+                    yield
+                except Exception:
+                    pass
+                else:
+                    self.fail('unexpected success')
+        finally:
+            self.subTest = orig_sub_test
+
     def _test_against_testcase_dir(self, test_dir, patch_dir=None, config_dir=None, converters=None):
         if not os.path.isdir(test_dir):
             return
@@ -106,12 +133,14 @@ class TestConfigs(unittest.TestCase):
 
     def _test_against_case(self, id, case, config_dir, converters):
         input = case.get('input')
-        for field in ('expected', 'expected_raw'):
-            for config, expected in case.get(field, {}).items():
-                if config_dir is not None:
-                    config = os.path.join(config_dir, f'{config}.yaml')
-                with self.subTest(id=id, input=input, field=field, config=config):
-                    self._test_against_config(field, input, config, expected, converters)
+        with (self.sub_test_xfail(id=id, input=case.get('input'))
+              if case.get('xfail') else nullcontext()):
+            for field in ('expected', 'expected_raw'):
+                for config, expected in case.get(field, {}).items():
+                    if config_dir is not None:
+                        config = os.path.join(config_dir, f'{config}.yaml')
+                    with self.subTest(id=id, input=input, field=field, config=config):
+                        self._test_against_config(field, input, config, expected, converters)
 
     def _test_against_config(self, field, input, config, expected, converters):
         try:
