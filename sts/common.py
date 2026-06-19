@@ -1077,13 +1077,16 @@ class StsMaker():
         Returns:
             a str for the path of the last generated dictionary file or None
         """
-        # locate and load the config file
         config_file = self.get_config_file(config_name, base_dir=base_dir)
-        config_dir = os.path.abspath(os.path.dirname(config_file))
         try:
-            config = self.load_config(config_file)
+            return self._make(config_file, base_dir, skip_check, skip_requires)
         except Exception as exc:
-            raise RuntimeError(f'failed to load config file "{config_file}": {exc}')
+            raise RuntimeError(f'Failed to make from "{config_file}": {exc}') from None
+
+    def _make(self, config_file, base_dir, skip_check, skip_requires):
+        # load the config file
+        config_dir = os.path.abspath(os.path.dirname(config_file))
+        config = self.load_config(config_file)
         self.normalize_config(config, config_dir)
 
         # handle required configs
@@ -1093,17 +1096,20 @@ class StsMaker():
 
         # make the requested dicts
         dest = None
-        for dict_scheme in config['dicts']:
+        for i, dict_scheme in enumerate(config['dicts']):
             dest = dict_scheme['file']
 
             if dest is None:
-                raise RuntimeError('dict["file"] is not specified')
+                raise RuntimeError(f'dicts[{i}]["file"] is not specified')
 
             if not skip_check and not self.check_update(dict_scheme):
                 logger.debug('skip making (up-to-date): %s', dest)
                 continue
 
-            self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check)
+            try:
+                self.make_dict(dict_scheme, config_dir=config_dir, skip_check=skip_check)
+            except Exception as exc:
+                raise RuntimeError(f'Failed to make dictionary file "{dict_scheme["file"]}": {exc}') from None
 
         return dest
 

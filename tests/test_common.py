@@ -1154,7 +1154,7 @@ class TestStsMaker(unittest.TestCase):
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump([], fh)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             StsMaker().make(config_file)
 
     def test_no_dicts(self):
@@ -1162,7 +1162,7 @@ class TestStsMaker(unittest.TestCase):
         with open(config_file, 'w', encoding='UTF-8') as fh:
             json.dump({}, fh)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             StsMaker().make(config_file)
 
     def test_dict_str(self):
@@ -2151,7 +2151,7 @@ class TestStsMaker(unittest.TestCase):
                 ],
             }, fh)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             StsMaker().make(config_file)
 
     def test_dict_mode_filter_exclude_basic(self):
@@ -2204,7 +2204,7 @@ class TestStsMaker(unittest.TestCase):
                 ],
             }, fh)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             StsMaker().make(config_file)
 
     def test_dict_mode_filter_include_and_exclude(self):
@@ -2346,7 +2346,7 @@ class TestStsMaker(unittest.TestCase):
                 ],
             }, fh)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             StsMaker().make(config_file)
 
     def test_dict_sort(self):
