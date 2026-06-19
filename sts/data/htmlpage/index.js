@@ -1071,15 +1071,15 @@ document.addEventListener('DOMContentLoaded', function (event) {
     await convertFile(dict, files[0], form['convert-file-method'].value, form['convert-file-charset'].value, form['exclude-pattern'].value);
   });
 
-  form.advanced.addEventListener('click', (event) => {
+  form['advanced'].addEventListener('click', (event) => {
     event.preventDefault();
     showAdvancedOptions(form);
   });
 
   const dialog = document.getElementById('panel-options');
   {
-    const elem = dialog.querySelector('[name="exclude-pattern"]');
-    elem.addEventListener('change', (event) => {
+    dialog.querySelector('[name="exclude-pattern"]').addEventListener('change', (event) => {
+      const elem = event.target;
       try {
         parseExcludePattern(elem.value);
       } catch(ex) {
@@ -1087,6 +1087,10 @@ document.addEventListener('DOMContentLoaded', function (event) {
         return;
       }
       elem.setCustomValidity('');
+    });
+
+    dialog.querySelector('[name="cancel"]').addEventListener('click', (event) => {
+      dialog.close("");
     });
   }
 
