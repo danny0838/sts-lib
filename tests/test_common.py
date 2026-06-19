@@ -1000,6 +1000,10 @@ class TestRichTable(TestStsDict):
         with self.assertRaisesRegex(ValueError, "Duplicated key 'a' at line 3"):
             self.cls().load(io.StringIO('a\tA1\n# comment\na\tA2\n'))
 
+    def test_dup_key_raise_on_extra(self):
+        with self.assertRaisesRegex(ValueError, "Duplicated key 'a' at line 2"):
+            self.cls().load(io.StringIO('a\tA1\na\tA2\textra\n'))
+
     def _test_sort(self, input, expected):
         table = self.cls().load(io.StringIO(input))
         fo = io.StringIO()
@@ -1029,6 +1033,12 @@ class TestRichTable(TestStsDict):
         self._test_sort(
             'b\tB\na\tA\n\n# footer\n',
             'a\tA\nb\tB\n\n# footer\n',
+        )
+
+    def test_sort_moves_extra_with_entry(self):
+        self._test_sort(
+            'b\tB\textra\tdata\na\tA\n',
+            'a\tA\nb\tB\textra\tdata\n',
         )
 
 

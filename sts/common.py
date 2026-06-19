@@ -353,7 +353,10 @@ class StsDict(UserDict):
         values[:] = (self._dump_write_entry_value_escape(v) for v in values)
 
         self._dump_write_block(fh, getattr(values, 'block', None))
-        fh.write(f'{key}\t{" ".join(values)}\n')
+
+        extra = getattr(values, 'extra', None)
+        extra = ('\t' + '\t'.join(extra)) if extra else ''
+        fh.write(f'{key}\t{" ".join(values)}{extra}\n')
 
     _dump_write_entry_key_escape_regex = re.compile(r'^#|[\t\n\r]|\\(?=x[0-7][0-9A-Fa-f])')
     _dump_write_entry_value_escape_regex = re.compile(r'[ \t\n\r]|\\(?=x[0-7][0-9A-Fa-f])')
@@ -898,8 +901,8 @@ class RichTable(Table):
 
     This is useful for preserving comments when modifying a dict file.
 
-    Note that this class raises on a duplicated key if it has an anchored
-    comment block, in which case it cannot be safely merged.
+    Note that this class raises on a duplicated key if it has comments,
+    in which case it cannot be safely merged.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -913,11 +916,10 @@ class RichTable(Table):
                 line = line.rstrip('\n')
                 if self._load_plain_get_line_type(line) == 'entry':
                     try:
-                        key, values, *_ = line.split('\t')
+                        key, values, *extra = line.split('\t')
                     except ValueError:
                         # no '\t', treat as key => [key]
-                        key = line
-                        values = [line]
+                        key, values, extra = line, [line], []
                     else:
                         values = values.split(' ')
 
@@ -925,7 +927,7 @@ class RichTable(Table):
                     values[:] = (self._load_plain_unescape(v) for v in values)
 
                     if key in self.data:
-                        if block:
+                        if block or extra:
                             raise ValueError(f'Duplicated key {key!r} at line {i + 1}')
                         self.add(key, values)
                         continue
@@ -948,6 +950,9 @@ class RichTable(Table):
                                 entry.block = block_anchored
                         else:
                             entry.block = block
+
+                    if extra:
+                        entry.extra = extra
 
                     self.data[key] = entry
                     block = []
