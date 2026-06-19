@@ -69,10 +69,11 @@ def build_static_site(root_dir, data_dir, env):
     os.makedirs(www_dir, exist_ok=True)
 
     # build page
+    date = datetime.now().strftime('%Y-%m-%d')
     for fn in ('index.html', 'index.css', 'index.js', 'sts.mjs'):
         file = os.path.join(www_dir, fn)
         tpl = env.get_template(fn)
-        render_on_demand(file, tpl, env, date=datetime.now().strftime('%Y-%m-%d'))
+        render_on_demand(file, tpl, env, date=date)
 
     # compile dicts
     maker = StsMaker()
