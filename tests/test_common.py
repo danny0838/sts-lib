@@ -467,7 +467,7 @@ class TestStsDict(TestStsDictBase):
                 stsdict.load(fi, type=type_)
             m_load.assert_called_once_with(fi)
 
-        # determine type by extension if a path-like is specified
+        # determine type by extension if passed file is a str
         for ext in ('tmp', 'txt', 'tsv'):
             tempfile = os.path.join(self.root, f'test.{ext}')
             with open(tempfile, 'w', encoding='UTF-8'):
@@ -494,6 +494,15 @@ class TestStsDict(TestStsDictBase):
             with mock.patch.object(stsdict, '_load_yaml') as m_load:
                 stsdict.load(tempfile)
             m_load.assert_called_once_with(tempfile)
+
+        # determine type by extension if passed file is a path-like object
+        tempfile = Path(os.path.join(self.root, 'test.yaml'))
+        with open(tempfile, 'w', encoding='UTF-8'):
+            pass
+        stsdict = self.cls()
+        with mock.patch.object(stsdict, '_load_yaml') as m_load:
+            stsdict.load(tempfile)
+        m_load.assert_called_once_with(tempfile)
 
     def test_load_plain(self):
         # basic

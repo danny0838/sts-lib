@@ -270,7 +270,7 @@ class StsDict(UserDict):
 
     def load(self, file, type=None):
         """Add all key-values pairs from a dict file."""
-        if type is None and isinstance(file, str):
+        if type is None and isinstance(file, (str, os.PathLike)):
             t = os.path.splitext(file)[1][1:].lower()
         else:
             t = type
