@@ -1094,12 +1094,6 @@ class StsMaker():
         # make the requested dicts
         dest = None
         for dict_scheme in config['dicts']:
-            if isinstance(dict_scheme, str):
-                dest = dict_scheme
-                if not os.path.isfile(dest):
-                    raise RuntimeError(f'specified dict file does not exist: {dest}')
-                continue
-
             dest = dict_scheme['file']
 
             if dest is None:
@@ -1152,7 +1146,7 @@ class StsMaker():
             dict_scheme: a dict or a str for the dictionary path
         """
         if isinstance(dict_scheme, str):
-            return self.get_stsdict_file(dict_scheme, config_dir)
+            dict_scheme = {'file': dict_scheme}
 
         try:
             dict_scheme['file'] = os.path.normpath(os.path.join(config_dir, dict_scheme['file']))
@@ -1203,9 +1197,6 @@ class StsMaker():
         Returns:
             A StsDict or str (for str scheme or when up-to-date).
         """
-        if isinstance(dict_scheme, str):
-            return dict_scheme
-
         dest = dict_scheme.get('file')
         if dest:
             if not skip_check and not dict_scheme.get('_updated'):
