@@ -2396,6 +2396,8 @@ class TestStsMaker(unittest.TestCase):
                 '1只': ['1隻'],
                 '吃1只': ['吃1隻'],
                 'SQL注入': ['SQL隱碼攻擊'],
+                'A型⿰虫风': ['A型𧍯'],
+                'A型刀劍󠄃': ['A型刀劍󠄃'],
             }, fh)
 
         stsdict = StsMaker().make(config_file)
@@ -2411,10 +2413,14 @@ class TestStsMaker(unittest.TestCase):
                 '1只': ['1隻'],
                 '吃1只': ['吃1隻'],
                 'SQL注入': ['SQL隱碼攻擊'],
+                'A型⿰虫风': ['A型𧍯'],
+                'A型刀劍󠄃': ['A型刀劍󠄃'],
 
                 '1 只': ['1 隻'],
                 '吃 1 只': ['吃 1 隻'],
                 'SQL 注入': ['SQL 隱碼攻擊'],
+                'A 型⿰虫风': ['A 型𧍯'],
+                'A 型刀劍󠄃': ['A 型刀劍󠄃'],
             },
             stsdict,
         )
