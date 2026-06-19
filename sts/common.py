@@ -223,7 +223,7 @@ class StsDict(UserDict):
 
     def __repr__(self):
         """Implementation of repr(self)."""
-        return f'{self.__class__.__name__}({list(self.items())!r})'
+        return f'{self.__class__.__name__}({dict(self.items())!r})'
 
     def __eq__(self, other):
         """Implementation of "==" operator."""
