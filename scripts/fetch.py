@@ -16,7 +16,7 @@ from sts import OcTable, Table
 logging.basicConfig(format='%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-UNIHAN_VER = '17.0.0'
+UNIHAN_VER = '18.0.0'
 UNIHAN_URL = f'https://www.unicode.org/Public/{UNIHAN_VER}/ucd/Unihan.zip'
 UNIHAN_TABLES = {
     'kTraditionalVariant': 'TraditionalVariant',
@@ -34,7 +34,7 @@ OPENCC_DIR_MAP = {
     'test/testcases': 'tests',
 }
 
-MW_VER = '1.43.1'  # e.g. '1.41.1', 'master'
+MW_VER = '1.45.3'  # e.g. '1.41.1', 'master'
 MW_URL = f'https://raw.githubusercontent.com/wikimedia/mediawiki/{MW_VER}/includes/languages/data/ZhConversion.php'
 MW_DICT_PATTERN = re.compile(r'public static \$(\w+) = \[(.*?)\];', re.M + re.S)
 MW_DICT_SUBPATTERN = re.compile(r"'([^']*)' => '([^']*)',")
