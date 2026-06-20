@@ -264,16 +264,16 @@ class TestStsDict(TestStsDictBase):
 
     def test_contains(self):
         stsdict = self.cls({'干': ['幹', '乾', '干'], '豆干': ['豆乾']})
-        self.assertTrue('干' in stsdict)
-        self.assertTrue('豆干' in stsdict)
-        self.assertFalse('豆' in stsdict)
-        self.assertFalse('豆乾' in stsdict)
+        self.assertIn('干', stsdict)
+        self.assertIn('豆干', stsdict)
+        self.assertNotIn('豆', stsdict)
+        self.assertNotIn('豆乾', stsdict)
 
         # IDS/VS
         stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
-        self.assertTrue('⿰鱼土' in stsdict)
-        self.assertTrue('劒󠄁' in stsdict)
-        self.assertFalse('劒' in stsdict)
+        self.assertIn('⿰鱼土', stsdict)
+        self.assertIn('劒󠄁', stsdict)
+        self.assertNotIn('劒', stsdict)
 
     def test_len(self):
         stsdict = self.cls()
