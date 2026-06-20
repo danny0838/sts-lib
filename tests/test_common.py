@@ -1296,8 +1296,8 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.txt'))
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.txt'))
 
     def test_dict_str_missing_file(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1353,8 +1353,8 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.txt'))
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.txt'))
 
     def test_dict_no_src_and_file_nonexist(self):
         config_file = os.path.join(self.root, 'config.json')
@@ -1405,9 +1405,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '幹你娘': ['干你娘'],
             '幹': ['干'],
             '乾': ['干'],
@@ -1445,9 +1445,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.list'))
-        with open(stsdict, encoding='UTF-8') as fh:
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.list'))
+        with open(dest, encoding='UTF-8') as fh:
             self.assertEqual(
                 fh.read(),
                 '干姜\t乾薑\n姜\t薑\n干\t幹 乾 干\n',
@@ -1484,9 +1484,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.jlist'))
-        with open(stsdict, encoding='UTF-8') as fh:
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.jlist'))
+        with open(dest, encoding='UTF-8') as fh:
             self.assertEqual(
                 fh.read(),
                 '{"干姜":["乾薑"],"姜":["薑"],"干":["幹","乾","干"]}',
@@ -1523,9 +1523,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.tlist'))
-        with open(stsdict, encoding='UTF-8') as fh:
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.tlist'))
+        with open(dest, encoding='UTF-8') as fh:
             self.assertEqual(
                 fh.read(),
                 '{"干":{"姜":{"":["乾薑"]},"":["幹","乾","干"]},"姜":{"":["薑"]}}',
@@ -1562,9 +1562,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.txt'))
-        with open(stsdict, encoding='UTF-8') as fh:
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.txt'))
+        with open(dest, encoding='UTF-8') as fh:
             self.assertEqual(
                 fh.read(),
                 '干姜\t乾薑\n姜\t薑\n干\t幹 乾 干\n',
@@ -1604,9 +1604,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '干你娘': ['幹你娘'],
             '干姜': ['乾薑'],
             '干娘': ['乾娘'],
@@ -1649,9 +1649,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '姜': ['薑'],
             '干': ['幹', '乾', '干'],
             '贵': ['貴'],
@@ -1694,9 +1694,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '幹你娘': ['干你娘'],
             '乾薑': ['干姜'],
             '乾娘': ['干娘'],
@@ -1743,9 +1743,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '开': ['開'],
             '碱': ['鹼'],
             '胆': ['膽'],
@@ -1794,10 +1794,10 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.list'))
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.list'))
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '表': ['表', '錶'],
             '规': ['規'],
             '则': ['則'],
@@ -1849,9 +1849,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '表示式': ['表达式'],
             '運算式': ['表达式'],
             '正規表示式': ['正则表达式'],
@@ -1894,9 +1894,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '采': ['採'],
             '采信': ['採信'],
             '信息': ['資訊'],
@@ -1947,9 +1947,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '１里壹': ['１里壹'],
             '１里貳': ['１里贰'],
             '１里叄': ['１里叁'],
@@ -2003,9 +2003,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '壹里': ['壹里'],
             '貳里': ['贰里'],
             '叄里': ['叁里'],
@@ -2045,9 +2045,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '里': ['裏', '里'],
         })
 
@@ -2085,9 +2085,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '１里１': ['１里１'],
             '２里２': ['２里２'],
         })
@@ -2126,9 +2126,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             'Ｎ里': ['１里', '２里'],
         })
 
@@ -2166,9 +2166,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '１周': ['一周', '壹周', '一週', '壹週'],
             '２周': ['二周', '贰周', '二週', '贰週'],
         })
@@ -2208,9 +2208,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '１': ['蟬'],
             '２': ['蟬'],
             '⿱艹⿰虫单': ['⿱艹蟬'],
@@ -2242,10 +2242,10 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.list'))
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.list'))
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '陣': ['阵'],
             '噹': ['当'],
         })
@@ -2295,10 +2295,10 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.list'))
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.list'))
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '陣': ['阵'],
             '噹': ['当'],
         })
@@ -2349,10 +2349,10 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.list'))
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.list'))
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '陣': ['阵'],
         })
 
@@ -2393,9 +2393,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '简': ['簡'],
         })
 
@@ -2436,9 +2436,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        converter = StsConverter(stsdict)
-        self.assertEqual(dict(converter.table), {
+        dest = StsMaker().make(config_file)
+        stsdict = Table().load(dest)
+        self.assertEqual(dict(stsdict), {
             '干': ['幹', '乾', '干'],
             '于': ['於'],
             '简': ['簡'],
@@ -2496,9 +2496,9 @@ class TestStsMaker(unittest.TestCase):
                 """
             ))
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.list'))
-        with open(stsdict, encoding='UTF-8') as fh:
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.list'))
+        with open(dest, encoding='UTF-8') as fh:
             self.assertEqual(fh.read(), '姜\t薑\n干\t幹 乾 干\n干姜\t乾薑\n')
 
     def test_dict_auto_space(self):
@@ -2531,9 +2531,9 @@ class TestStsMaker(unittest.TestCase):
                 'A型刀劍󠄃': ['A型刀劍󠄃'],
             }, fh)
 
-        stsdict = StsMaker().make(config_file)
-        self.assertEqual(stsdict, os.path.join(self.root, 'dict.jlist'))
-        stsdict = Table.loadjson(stsdict)
+        dest = StsMaker().make(config_file)
+        self.assertEqual(dest, os.path.join(self.root, 'dict.jlist'))
+        stsdict = Table.loadjson(dest)
         self.assertEqual(dict(stsdict), {
             '干姜': ['乾薑'],
             '植物の优': ['植物の優'],
@@ -3207,8 +3207,11 @@ class TestStsConverterWithUnicode(unittest.TestCase):
         self.assertEqual(converter.convert_text('⿱艹⿰虫风'), '⿱艹⿰虫风')
         self.assertEqual(converter.convert_text('⿱⿰虫风灬'), '⿱⿰虫风灬')
 
-    def test_ids_broken(self):
-        stsdict = StsMaker().make('tw2s')
+    def test_ids_broken_at_non_hanzi(self):
+        stsdict = Trie({
+            '這': ['这'], '著': ['着'], '轉': ['转'], '簡': ['简'],
+            '響': ['响'], '後': ['后'], '無': ['无'],
+        })
         converter = StsConverter(stsdict)
         self.assertEqual(
             converter.convert_text('IDC有這些：⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻，接著繁轉簡'),
