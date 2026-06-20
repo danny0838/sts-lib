@@ -638,6 +638,13 @@ class TestStsDict(TestStsDictBase):
             stsdict.dump()
         self.assertEqual('干\t干 榦\n姜\t姜 薑\n', fh.getvalue())
 
+    def test_dump_empty_entry(self):
+        stsdict = self.cls({'干': []})
+        fo = io.StringIO()
+        stsdict.dump(fo)
+        text = fo.getvalue()
+        self.assertEqual('', text)
+
     def test_dump_badchar(self):
         stsdict = self.cls({'# \t\n\r': ['# \t\n\r']})
         fo = io.StringIO()

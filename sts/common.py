@@ -349,6 +349,9 @@ class StsDict(UserDict):
             fh.write(line + '\n')
 
     def _dump_write_entry(self, fh, key, values):
+        if not values:
+            return
+
         key = self._dump_write_entry_key_escape(key)
         values[:] = (self._dump_write_entry_value_escape(v) for v in values)
 
