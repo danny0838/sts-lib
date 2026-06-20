@@ -244,6 +244,7 @@ class TestStsDict(TestStsDictBase):
 
     def test_repr(self):
         stsdict = self.cls({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(repr(stsdict), f'{stsdict.__class__.__name__}({dict(stsdict)})')
         self.assertEqual(eval(repr(stsdict)), stsdict)
 
     def test_getitem(self):
