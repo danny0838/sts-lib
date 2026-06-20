@@ -125,7 +125,7 @@ class TestConfigs(unittest.TestCase):
         elif field == 'expected_raw':
             output = [x if isinstance(x, str) else x.values for x in converter.convert(input)]
 
-        self.assertEqual(expected, output)
+        self.assertEqual(output, expected)
 
     def test_configs(self):
         """Test configs with files at tests/test_data_configs/*.{yaml,json}"""
