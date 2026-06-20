@@ -68,6 +68,7 @@ include = ["sts*"]
 sts = [
     "data/*.html",
     "data/config/*.json",
+    "data/config/*.yaml",
     "data/dictionary/*.txt",
     "data/scheme/*.txt",
 ]
