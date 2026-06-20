@@ -2,6 +2,9 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.39.3] - 2026-06-20
+* Fixed missing config files in the package.
+
 ## [0.39.2] - 2026-06-19
 * Fixed an issue where the `sort` command did not preserve extra fields separated by tabs.
 * Fixed an issue where file type is not auto-detected when passing a path-like object to `StsDict.load`.
