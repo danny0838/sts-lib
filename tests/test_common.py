@@ -283,12 +283,12 @@ class TestStsDict(TestStsDictBase):
         self.assertEqual(len(stsdict), 3)
 
     def test_iter(self):
-        stsdict = self.cls({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-        self.assertEqual(set(stsdict), {'干', '姜', '干姜'})
+        stsdict = self.cls({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(list(stsdict), ['干', '姜', '干姜'])
 
         # IDS/VS
         stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
-        self.assertEqual(set(stsdict), {'⿰鱼土', '劒󠄁'})
+        self.assertEqual(list(stsdict), ['⿰鱼土', '劒󠄁'])
 
     def test_eq(self):
         dict_ = {'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']}
@@ -342,7 +342,7 @@ class TestStsDict(TestStsDictBase):
     def test_delitem(self):
         stsdict = self.cls({'干姜': ['乾薑'], '姜': ['姜', '薑']})
         del stsdict['干姜']
-        self.assertEqual(set(stsdict), {'姜'})
+        self.assertEqual(list(stsdict), ['姜'])
 
         stsdict = self.cls({'干姜': ['乾薑'], '姜': ['姜', '薑']})
         with self.assertRaises(KeyError):
@@ -352,31 +352,31 @@ class TestStsDict(TestStsDictBase):
         stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
         del stsdict['⿰鱼土']
         del stsdict['劒󠄁']
-        self.assertEqual(set(stsdict), set())
+        self.assertEqual(list(stsdict), [])
 
     def test_keys(self):
-        stsdict = self.cls({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-        self.assertEqual(set(stsdict.keys()), {'干', '姜', '干姜'})
+        stsdict = self.cls({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(list(stsdict.keys()), ['干', '姜', '干姜'])
 
         # IDS/VS
         stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
-        self.assertEqual(set(stsdict.keys()), {'⿰鱼土', '劒󠄁'})
+        self.assertEqual(list(stsdict.keys()), ['⿰鱼土', '劒󠄁'])
 
     def test_values(self):
-        stsdict = self.cls({'干': ['幹', '乾', '干'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-        self.assertEqual({tuple(x) for x in stsdict.values()}, {('幹', '乾', '干'), ('姜', '薑'), ('乾薑',)})
+        stsdict = self.cls({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual([tuple(x) for x in stsdict.values()], [('幹', '乾', '干'), ('姜', '薑'), ('乾薑',)])
 
         # IDS/VS
         stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
-        self.assertEqual({tuple(x) for x in stsdict.values()}, {('𩵚',), ('劍󠄁',)})
+        self.assertEqual([tuple(x) for x in stsdict.values()], [('𩵚',), ('劍󠄁',)])
 
     def test_items(self):
-        stsdict = self.cls({'干': ['幹', '乾'], '干姜': ['乾薑'], '姜': ['姜', '薑']})
-        self.assertEqual(dict(stsdict.items()), {'干': ['幹', '乾'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        stsdict = self.cls({'干': ['幹', '乾'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(list(stsdict.items()), [('干', ['幹', '乾']), ('姜', ['姜', '薑']), ('干姜', ['乾薑'])])
 
         # IDS/VS
         stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
-        self.assertEqual(dict(stsdict.items()), {'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+        self.assertEqual(list(stsdict.items()), [('⿰鱼土', ['𩵚']), ('劒󠄁', ['劍󠄁'])])
 
     def test_add(self):
         # str
@@ -1030,6 +1030,42 @@ class TestTable(TestStsDict):
 
 class TestTrie(TestStsDict):
     cls = Trie
+
+    def test_iter(self):
+        # keys are re-ordered by prefix
+        stsdict = self.cls({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(list(stsdict), ['干', '干姜', '姜'])
+
+        # IDS/VS
+        stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+        self.assertEqual(list(stsdict), ['⿰鱼土', '劒󠄁'])
+
+    def test_keys(self):
+        # keys are re-ordered by prefix
+        stsdict = self.cls({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(list(stsdict.keys()), ['干', '干姜', '姜'])
+
+        # IDS/VS
+        stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+        self.assertEqual(list(stsdict.keys()), ['⿰鱼土', '劒󠄁'])
+
+    def test_values(self):
+        # keys are re-ordered by prefix
+        stsdict = self.cls({'干': ['幹', '乾', '干'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual([tuple(x) for x in stsdict.values()], [('幹', '乾', '干'), ('乾薑',), ('姜', '薑')])
+
+        # IDS/VS
+        stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+        self.assertEqual([tuple(x) for x in stsdict.values()], [('𩵚',), ('劍󠄁',)])
+
+    def test_items(self):
+        # keys are re-ordered by prefix
+        stsdict = self.cls({'干': ['幹', '乾'], '姜': ['姜', '薑'], '干姜': ['乾薑']})
+        self.assertEqual(list(stsdict.items()), [('干', ['幹', '乾']), ('干姜', ['乾薑']), ('姜', ['姜', '薑'])])
+
+        # IDS/VS
+        stsdict = self.cls({'⿰鱼土': ['𩵚'], '劒󠄁': ['劍󠄁']})
+        self.assertEqual(list(stsdict.items()), [('⿰鱼土', ['𩵚']), ('劒󠄁', ['劍󠄁'])])
 
     def test_loadjson(self):
         fi = io.StringIO('{"干": {"": ["干", "榦"], "姜": {"": ["乾薑"]}}, "姜": {"": ["姜", "薑"]}}')
