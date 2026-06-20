@@ -59,7 +59,7 @@ python -m pip install -U sts-lib
 from sts import StsMaker, StsConverter
 
 # generate a dictionary file from a config and get its path
-dictfile = StsMaker().make('s2t', quiet=True)
+dictfile = StsMaker().make('s2t')
 
 # initialize a converter from the dictionary file
 converter = StsConverter(dictfile)
@@ -68,7 +68,7 @@ converter = StsConverter(dictfile)
 converter.convert_text('汉字', format='txt', exclude=None)  # 漢字
 
 # perform conversion for a file (None for stdin/stdout)
-converter.convert_file(input=None, output=None
+converter.convert_file(input=None, output=None,
                        input_encoding='UTF-8', output_encoding='UTF-8',
                        format='txt', exclude=None)
 
