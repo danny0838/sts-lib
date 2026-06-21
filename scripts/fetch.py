@@ -136,7 +136,7 @@ def handle_opencc(root_dir):
     with zipfile.ZipFile(file) as zh:
         for zinfo in zh.infolist():
             # remove top dir from path
-            subpath = '/'.join(zinfo.filename.split('/')[1:])
+            _, subpath = zinfo.filename.split('/', 1)
 
             ext = os.path.splitext(subpath)[1].lower()
             if ext not in ('.txt', '.json'):
