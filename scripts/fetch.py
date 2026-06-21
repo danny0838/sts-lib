@@ -28,11 +28,11 @@ UNIHAN_TABLES = {
     'kSpoofingVariant': 'SpoofingVariant',
 }
 
-OPENCC_VER = 'ver.1.3.1'  # e.g. 'ver.1.1.7', 'master'
-OPENCC_URL = f'https://github.com/BYVoid/OpenCC/archive/{OPENCC_VER}.zip'
+OPENCC_VER = '1.3.1'  # e.g. '1.3.1', 'main'
+OPENCC_URL = f'https://github.com/nk2028/opencc-data/archive/{OPENCC_VER}.zip'
 OPENCC_DIR_MAP = {
-    'data/dictionary': 'dictionary',
-    'test/testcases': 'tests',
+    'data': 'dictionary',
+    'test-data': 'tests',
 }
 
 MW_VER = '1.45.3'  # e.g. '1.41.1', 'master'
@@ -131,7 +131,7 @@ def handle_unihan(root_dir):
 
 
 def handle_opencc(root_dir):
-    file = os.path.join(root_dir, '_cache', f'opencc-{OPENCC_VER}.zip')
+    file = os.path.join(root_dir, '_cache', f'opencc-data-{OPENCC_VER}.zip')
     fetch_on_demand(OPENCC_URL, file)
 
     with zipfile.ZipFile(file) as zh:
