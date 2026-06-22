@@ -973,7 +973,9 @@ async function showAdvancedOptions(form) {
 
   if (!result) { return; }
   for (const elem of dialog.querySelectorAll('[name]')) {
-    form[elem.name].value = elem.value;
+    const fieldElem = form[elem.name];
+    if (!fieldElem) { continue; }
+    fieldElem.value = elem.value;
   }
 }
 
