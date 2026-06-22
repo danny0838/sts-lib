@@ -948,17 +948,17 @@ function downloadFile(file) {
   a.remove();
 }
 
-async function showAdvancedOptions(formElem) {
+async function showAdvancedOptions(form) {
   if (typeof HTMLDialogElement === 'undefined') {
     alert('瀏覽器不支援 <dialog> 對話方塊元素');
     return;
   }
 
   const dialog = document.getElementById('panel-options');
-  const form = dialog.querySelector('form');
+  const dForm = dialog.querySelector('form');
 
-  for (const option of ['custom-dict', 'exclude-pattern', 'convert-file-method', 'convert-file-charset']) {
-    form[option].value = formElem[option].value;
+  for (const name of ['custom-dict', 'exclude-pattern', 'convert-file-method', 'convert-file-charset']) {
+    dForm[name].value = form[name].value;
   }
 
   const result = await new Promise((resolve, reject) => {
@@ -973,7 +973,7 @@ async function showAdvancedOptions(formElem) {
 
   if (!result) { return; }
   for (const elem of dialog.querySelectorAll('[name]')) {
-    formElem[elem.name].value = elem.value;
+    form[elem.name].value = elem.value;
   }
 }
 
@@ -986,12 +986,12 @@ document.addEventListener('DOMContentLoaded', function (event) {
     const dict = await loadDict(form.method.value, form['custom-dict'].value);
     const result = convertHtml(dict, form.input.value, form['exclude-pattern'].value);
 
-    const wrapper = document.getElementById('viewer');
-    wrapper.innerHTML = result;
-    wrapper.hidden = false;
-    wrapper.scrollIntoView();
+    const viewer = document.getElementById('viewer');
+    viewer.innerHTML = result;
+    viewer.hidden = false;
+    viewer.scrollIntoView();
 
-    const a = wrapper.querySelector('a.unchecked');
+    const a = viewer.querySelector('a.unchecked');
     if (a) { a.focus(); }
   });
 
@@ -1135,8 +1135,9 @@ document.addEventListener('DOMContentLoaded', function (event) {
   });
 
   const dialog = document.getElementById('panel-options');
+  const dForm = dialog.querySelector('form');
   {
-    dialog.querySelector('[name="exclude-pattern"]').addEventListener('change', (event) => {
+    dForm['exclude-pattern'].addEventListener('change', (event) => {
       const elem = event.target;
       try {
         parseExcludePattern(elem.value);
@@ -1147,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
       elem.setCustomValidity('');
     });
 
-    dialog.querySelector('[name="cancel"]').addEventListener('click', (event) => {
+    dForm['cancel'].addEventListener('click', (event) => {
       dialog.close("");
     });
   }
