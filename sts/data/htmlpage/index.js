@@ -1103,18 +1103,23 @@ document.addEventListener('DOMContentLoaded', function (event) {
   });
 
   form['input'].addEventListener('dragover', (event) => {
+    if (!event.dataTransfer.types.includes('Files')) {
+      return;
+    }
     event.preventDefault();  // required to allow drop
     event.dataTransfer.dropEffect = 'copy';
   });
 
   form['input'].addEventListener('drop', async (event) => {
+    const entries = Array.prototype.map.call(
+      event.dataTransfer.items,
+      x => x.webkitGetAsEntry && x.webkitGetAsEntry()
+    ).filter(x => x);
+    if (!entries.length) { return; }
+
     event.preventDefault();
     toggleUi(form, false);
     try {
-      const entries = Array.prototype.map.call(
-        event.dataTransfer.items,
-        x => x.webkitGetAsEntry && x.webkitGetAsEntry()
-      );
       const mode = form.method.value;
       const exclude = form['exclude-pattern'].value;
       const customDict = form['custom-dict'].value;
