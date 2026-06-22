@@ -977,6 +977,24 @@ async function showAdvancedOptions(form) {
       if (!fieldElem) { continue; }
       fieldElem.value = elem.value;
     }
+
+    // show in the viewer if content provided
+    const contentElem = dForm.elements['content'];
+    if (contentElem) {
+      const content = contentElem.value;
+      
+      const dict = await loadDict(form.method.value, form['custom-dict'].value);
+      const exclude = form['exclude-pattern'].value;
+      convertHtml.lastOptions = {dict, exclude};
+
+      const viewer = document.getElementById('viewer');
+      viewer.innerHTML = content;
+      viewer.hidden = false;
+      viewer.scrollIntoView();
+
+      const a = viewer.querySelector('a.unchecked');
+      if (a) { a.focus(); }
+    }
   }
 
   // remove the temporary hidden input elements
@@ -998,7 +1016,8 @@ function setAdvancedOption(form, key, value) {
   elem.value = value;
 }
 
-function exportOptions(form) {
+function exportOptions(form, withContent = false) {
+  const viewer = document.getElementById('viewer');
   const data = {
     'version': 1,
     'configs': {
@@ -1007,6 +1026,7 @@ function exportOptions(form) {
       'convert-file-charset': form['convert-file-charset'].value,
       'custom-dict': form['custom-dict'].value,
       'exclude-pattern': form['exclude-pattern'].value,
+      ...(withContent && !viewer.hidden && {content: viewer.innerHTML}),
     }
   };
   const text = JSON.stringify(data, null, 2);
@@ -1015,8 +1035,9 @@ function exportOptions(form) {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
+  const ts = `${yyyy}${mm}${dd}`;
 
-  const filename = `sts.options.${yyyy}${mm}${dd}.json`;
+  const filename = data.configs.content == undefined ? `sts.options.${ts}.json` : `sts.convert.${ts}.json`;
   const fileNew = new File([text], filename, {type: 'application/json'});
   downloadFile(fileNew);
 }
@@ -1037,7 +1058,8 @@ async function importOptions(form) {
           setAdvancedOption(form, key, value);
         }
       }
-      alert('已成功匯入設定');
+      const msg = configs.content == undefined ? '已成功匯入設定' : '已成功匯入設定與文本';
+      alert(msg);
       break;
     }
     default: {
@@ -1192,6 +1214,11 @@ document.addEventListener('DOMContentLoaded', function (event) {
 
     dForm['cancel'].addEventListener('click', (event) => {
       dialog.close("");
+    });
+
+    dForm['save'].addEventListener('click', (event) => {
+      event.preventDefault();
+      exportOptions(dForm, true);
     });
 
     dForm['export'].addEventListener('click', (event) => {
