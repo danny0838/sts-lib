@@ -1047,22 +1047,37 @@ async function importOptions(form) {
   }
 }
 
+function toggleUi(form, willEnable) {
+  const fieldset = form.querySelector('fieldset');
+
+  if (willEnable == undefined) {
+    willEnable = fieldset.disabled;
+  }
+
+  fieldset.disabled = !willEnable;
+}
+
 document.addEventListener('DOMContentLoaded', function (event) {
   const panel = document.getElementById('panel');
   const form = panel.querySelector('form');
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const dict = await loadDict(form.method.value, form['custom-dict'].value);
-    const result = convertHtml(dict, form.input.value, form['exclude-pattern'].value);
+    toggleUi(form, false);
+    try {
+      const dict = await loadDict(form.method.value, form['custom-dict'].value);
+      const result = convertHtml(dict, form.input.value, form['exclude-pattern'].value);
 
-    const viewer = document.getElementById('viewer');
-    viewer.innerHTML = result;
-    viewer.hidden = false;
-    viewer.scrollIntoView();
+      const viewer = document.getElementById('viewer');
+      viewer.innerHTML = result;
+      viewer.hidden = false;
+      viewer.scrollIntoView();
 
-    const a = viewer.querySelector('a.unchecked');
-    if (a) { a.focus(); }
+      const a = viewer.querySelector('a.unchecked');
+      if (a) { a.focus(); }
+    } finally {
+      toggleUi(form, true);
+    }
   });
 
   form['input'].addEventListener('dragover', (event) => {
@@ -1071,49 +1086,54 @@ document.addEventListener('DOMContentLoaded', function (event) {
   });
 
   form['input'].addEventListener('drop', async (event) => {
-    async function handleEntry(entry) {
-      if (entry.isFile) {
-        let file = await new Promise((resolve, reject) => {
-          entry.file(resolve, reject);
-        });
-        const {type, lastModified} = file;
-        file = new File([file], entry.fullPath.slice(1) || file.name, {type, lastModified});
-        await convertFile(dict, file, method, charset, exclude);
-        return;
-      }
-
-      // load all subentries into entries
-      let entries = [];
-      {
-        const reader = entry.createReader();
-        let subentries;
-        do {
-          subentries = await new Promise((resolve, reject) => {
-            reader.readEntries(resolve, reject);
-          });
-          entries = entries.concat(subentries);
-        } while (subentries.length)
-      }
-
-      // handle loaded entries
+    event.preventDefault();
+    toggleUi(form, false);
+    try {
+      const entries = Array.prototype.map.call(
+        event.dataTransfer.items,
+        x => x.webkitGetAsEntry && x.webkitGetAsEntry()
+      );
+      const mode = form.method.value;
+      const exclude = form['exclude-pattern'].value;
+      const customDict = form['custom-dict'].value;
+      const method = form['convert-file-method'].value;
+      const charset = form['convert-file-charset'].value;
+      const dict = await loadDict(mode, customDict);
       for (const entry of entries) {
         await handleEntry(entry);
       }
-    }
 
-    event.preventDefault();
-    const entries = Array.prototype.map.call(
-      event.dataTransfer.items,
-      x => x.webkitGetAsEntry && x.webkitGetAsEntry()
-    );
-    const mode = form.method.value;
-    const exclude = form['exclude-pattern'].value;
-    const customDict = form['custom-dict'].value;
-    const method = form['convert-file-method'].value;
-    const charset = form['convert-file-charset'].value;
-    const dict = await loadDict(mode, customDict);
-    for (const entry of entries) {
-      await handleEntry(entry);
+      async function handleEntry(entry) {
+        if (entry.isFile) {
+          let file = await new Promise((resolve, reject) => {
+            entry.file(resolve, reject);
+          });
+          const {type, lastModified} = file;
+          file = new File([file], entry.fullPath.slice(1) || file.name, {type, lastModified});
+          await convertFile(dict, file, method, charset, exclude);
+          return;
+        }
+
+        // load all subentries into entries
+        let entries = [];
+        {
+          const reader = entry.createReader();
+          let subentries;
+          do {
+            subentries = await new Promise((resolve, reject) => {
+              reader.readEntries(resolve, reject);
+            });
+            entries = entries.concat(subentries);
+          } while (subentries.length)
+        }
+
+        // handle loaded entries
+        for (const entry of entries) {
+          await handleEntry(entry);
+        }
+      }
+    } finally {
+      toggleUi(form, true);
     }
   });
 
@@ -1135,15 +1155,25 @@ document.addEventListener('DOMContentLoaded', function (event) {
 
   form['convert-file-input'].addEventListener('change', async (event) => {
     event.preventDefault();
-    const files = Array.from(event.target.files);
-    if (!(files && files.length)) { return; }
-    const dict = await loadDict(form.method.value, form['custom-dict'].value);
-    await convertFile(dict, files[0], form['convert-file-method'].value, form['convert-file-charset'].value, form['exclude-pattern'].value);
+    toggleUi(form, false);
+    try {
+      const files = Array.from(event.target.files);
+      if (!(files && files.length)) { return; }
+      const dict = await loadDict(form.method.value, form['custom-dict'].value);
+      await convertFile(dict, files[0], form['convert-file-method'].value, form['convert-file-charset'].value, form['exclude-pattern'].value);
+    } finally {
+      toggleUi(form, true);
+    }
   });
 
-  form['advanced'].addEventListener('click', (event) => {
+  form['advanced'].addEventListener('click', async (event) => {
     event.preventDefault();
-    showAdvancedOptions(form);
+    toggleUi(form, false);
+    try {
+      await showAdvancedOptions(form);
+    } finally {
+      toggleUi(form, true);
+    }
   });
 
   const dialog = document.getElementById('panel-options');
