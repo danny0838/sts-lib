@@ -2,7 +2,6 @@ kbd { border: 1px solid #999; border-radius: 2px; padding: 2px 4px; background-c
 dialog:not([open]) { display: none; }
 dialog header { margin-bottom: .5em; font-weight: bold; }
 dialog section { margin: .5em 0; }
-dialog section label { display: block; }
 dialog footer { margin-top: 1em; display: flex; gap: .5em 1em; flex-direction: row; flex-wrap: wrap; }
 dialog footer input { flex-grow: 1; }
 body > footer { margin-top: 1em; text-align: center; font-size: small; }
@@ -36,13 +35,17 @@ body > footer { margin-top: 1em; text-align: center; font-size: small; }
 {%- if not single_page %}
 #panel section { margin: .5em auto; }
 #panel textarea { width: 100%; height: 30vh; min-height: 60px; box-sizing: border-box; resize: vertical; }
-#panel-options textarea { width: 80vw; height: 30vh; max-width: 100%; box-sizing: border-box; }
-#panel-options input[type="text"] { width: 80vw; max-width: 100%; box-sizing: border-box; }
-@media (max-width: 480px) {
-  #panel-options textarea { width: 100vw; }
-  #panel-options input[type="text"] { width: 100vw; }
+#viewer-options section label { display: block; }
+#panel-options { min-width: 300px; width: 80vw; box-sizing: border-box; }
+#panel-options div { width: 100%; box-sizing: border-box; }
+#panel-options textarea { width: 100%; height: 30vh; max-width: 100%; min-height: 120px; box-sizing: border-box; resize: vertical; }
+#panel-options section { display: flex; gap: .5em; flex-direction: row; flex-wrap: wrap; }
+#panel-options section select,
+#panel-options section input { flex-grow: 1; box-sizing: border-box; }
+@media (max-width: 300px) {
+  #panel-options { min-width: unset; max-width: unset; width: 100%; }
 }
 @media (max-height: 300px) {
-  #panel-options textarea { height: unset; }
+  #panel-options { min-height: unset; max-height: unset; height: 100%; }
 }
 {%- endif %}
