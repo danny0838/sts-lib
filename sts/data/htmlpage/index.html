@@ -145,9 +145,6 @@
     <input name="advanced" type="button" value="⚙️選項">
     <input name="custom-dict" type="hidden">
     <input name="exclude-pattern" type="hidden">
-    <input name="export" type="button" value="📥匯出">
-    <input name="import" type="button" value="📤匯入">
-    <input name="import-file-input" type="file" hidden>
   </section>
 </form>
 </section>
@@ -193,10 +190,16 @@
       <option value="UTF-16LE"></option>
     </datalist>
   </section>
+  <section>
+    <input name="export" type="button" value="📥匯出">
+    <input name="import" type="button" value="📤匯入">
+    <input name="import-file-input" type="file" hidden>
+  </section>
   <footer>
     <input type="submit" value="確認">
     <input name="cancel" type="button" value="取消">
   </footer>
+  <aside></aside>
 </form>
 </dialog>
 {%- endblock panel %}

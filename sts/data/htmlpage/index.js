@@ -957,8 +957,8 @@ async function showAdvancedOptions(form) {
   const dialog = document.getElementById('panel-options');
   const dForm = dialog.querySelector('form');
 
-  for (const name of ['custom-dict', 'exclude-pattern', 'convert-file-method', 'convert-file-charset']) {
-    dForm[name].value = form[name].value;
+  for (const name of ['method', 'custom-dict', 'exclude-pattern', 'convert-file-method', 'convert-file-charset']) {
+    setAdvancedOption(dForm, name, form[name].value);
   }
 
   const result = await new Promise((resolve, reject) => {
@@ -971,11 +971,79 @@ async function showAdvancedOptions(form) {
     dialog.showModal();
   });
 
-  if (!result) { return; }
-  for (const elem of dialog.querySelectorAll('[name]')) {
-    const fieldElem = form[elem.name];
-    if (!fieldElem) { continue; }
-    fieldElem.value = elem.value;
+  if (result) {
+    for (const elem of dForm.querySelectorAll('[name]')) {
+      const fieldElem = form[elem.name];
+      if (!fieldElem) { continue; }
+      fieldElem.value = elem.value;
+    }
+  }
+
+  // remove the temporary hidden input elements
+  for (const elem of dForm.querySelectorAll('aside input[type="hidden"]')) {
+    elem.remove();
+  }
+}
+
+function setAdvancedOption(form, key, value) {
+  let elem = form.elements[key];
+
+  // create a hidden input element if not in the form
+  if (!elem) {
+    elem = form.querySelector('aside').appendChild(document.createElement('input'));
+    elem.name = key;
+    elem.type = 'hidden';
+  }
+
+  elem.value = value;
+}
+
+function exportOptions(form) {
+  const data = {
+    'version': 1,
+    'configs': {
+      'method': form['method'].value,
+      'convert-file-method': form['convert-file-method'].value,
+      'convert-file-charset': form['convert-file-charset'].value,
+      'custom-dict': form['custom-dict'].value,
+      'exclude-pattern': form['exclude-pattern'].value,
+    }
+  };
+  const text = JSON.stringify(data, null, 2);
+
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+
+  const filename = `sts.options.${yyyy}${mm}${dd}.json`;
+  const fileNew = new File([text], filename, {type: 'application/json'});
+  downloadFile(fileNew);
+}
+
+async function importOptions(form) {
+  const files = Array.from(event.target.files);
+  if (!(files && files.length)) { return; }
+
+  const text = await readFileAsText(files[0]);
+  const data = JSON.parse(text);
+
+  switch (data.version) {
+    case 1: {
+      const {configs} = data;
+      for (const key in configs) {
+        const value = configs[key];
+        if (value != null) {
+          setAdvancedOption(form, key, value);
+        }
+      }
+      alert('已成功匯入設定');
+      break;
+    }
+    default: {
+      alert(`不支援的設定檔版本: ${data.version}`);
+      break;
+    }
   }
 }
 
@@ -1073,64 +1141,6 @@ document.addEventListener('DOMContentLoaded', function (event) {
     await convertFile(dict, files[0], form['convert-file-method'].value, form['convert-file-charset'].value, form['exclude-pattern'].value);
   });
 
-  form['export'].addEventListener('click', (event) => {
-    const data = {
-      'version': 1,
-      'configs': {
-        'method': form['method'].value,
-        'convert-file-method': form['convert-file-method'].value,
-        'convert-file-charset': form['convert-file-charset'].value,
-        'custom-dict': form['custom-dict'].value,
-        'exclude-pattern': form['exclude-pattern'].value,
-      }
-    };
-    const text = JSON.stringify(data, null, 2);
-
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-
-    const filename = `sts.options.${yyyy}${mm}${dd}.json`;
-    const fileNew = new File([text], filename, {type: 'application/json'});
-    downloadFile(fileNew);
-  });
-
-  form['import'].addEventListener('click', (event) => {
-    event.preventDefault();
-    form['import-file-input'].value = null;
-    form['import-file-input'].click();
-  });
-
-  form['import-file-input'].addEventListener('change', async (event) => {
-    event.preventDefault();
-    const files = Array.from(event.target.files);
-    if (!(files && files.length)) { return; }
-
-    const text = await readFileAsText(files[0]);
-    const data = JSON.parse(text);
-
-    switch (data.version) {
-      case 1: {
-        for (const key in data.configs) {
-          const value = data.configs[key];
-          if (value !== undefined) {
-            const elem = form[key];
-            if (elem) {
-              elem.value = value
-            }
-          }
-        }
-        alert('已成功匯入設定');
-        break;
-      }
-      default: {
-        alert(`不支援的設定檔版本: ${data.version}`);
-        break;
-      }
-    }
-  });
-
   form['advanced'].addEventListener('click', (event) => {
     event.preventDefault();
     showAdvancedOptions(form);
@@ -1152,6 +1162,22 @@ document.addEventListener('DOMContentLoaded', function (event) {
 
     dForm['cancel'].addEventListener('click', (event) => {
       dialog.close("");
+    });
+
+    dForm['export'].addEventListener('click', (event) => {
+      event.preventDefault();
+      exportOptions(dForm);
+    });
+
+    dForm['import'].addEventListener('click', (event) => {
+      event.preventDefault();
+      dForm['import-file-input'].value = null;
+      dForm['import-file-input'].click();
+    });
+
+    dForm['import-file-input'].addEventListener('change', async (event) => {
+      event.preventDefault();
+      importOptions(dForm);
     });
   }
 
