@@ -33,7 +33,7 @@ class TestMake(unittest.TestCase):
             for entry in it:
                 if not entry.is_file:
                     continue
-                if not os.path.splitext(entry)[1].lower() in ('.tlist', '.jlist'):
+                if not os.path.splitext(entry)[1].lower() in ('.tlist', '.jlist', '.list'):
                     continue
 
                 os.remove(entry)
