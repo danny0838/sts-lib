@@ -60,6 +60,7 @@ lint = [
 ]
 scripts = [
     "jinja2",
+    "python-rapidjson",
     "requests",
 ]
 

@@ -1,0 +1,17 @@
+name: Traditional Chinese (Hong Kong variant) to Simplified Chinese (with phrases)
+requires:
+- _default.yaml
+dicts:
+- file: ../dictionary/hk2sp.tlist
+  auto_space: true
+  mode: join
+  src:
+  - mode: load
+    src:
+    - ../dictionary/HKPhrasesRev.list
+    - ../dictionary/HKVariantsRevPhrases.list
+    - ../dictionary/HKVariantsRev.list
+  - mode: load
+    src:
+    - ../dictionary/TSPhrases.list
+    - ../dictionary/TSCharacters.list

@@ -1,8 +1,8 @@
-name: Simplified Chinese to Traditional Chinese (Hong Kong variant)
+name: Simplified Chinese to Traditional Chinese (Hong Kong variant, with phrases)
 requires:
 - _default.yaml
 dicts:
-- file: ../dictionary/s2hk.tlist
+- file: ../dictionary/s2hkp.tlist
   auto_space: true
   mode: join
   src:
@@ -12,5 +12,6 @@ dicts:
     - ../dictionary/STCharacters.list
   - mode: load
     src:
+    - ../dictionary/HKPhrases.list
     - ../dictionary/HKVariantsPhrases.list
     - ../dictionary/HKVariants.list

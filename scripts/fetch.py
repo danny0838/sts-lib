@@ -9,6 +9,7 @@ import re
 import shutil
 import zipfile
 
+import rapidjson
 import requests
 import yaml
 
@@ -28,7 +29,7 @@ UNIHAN_TABLES = {
     'kSpoofingVariant': 'SpoofingVariant',
 }
 
-OPENCC_VER = '1.3.1'  # e.g. '1.3.1', 'main'
+OPENCC_VER = '1.4.0'  # e.g. '1.3.1', 'main'
 OPENCC_URL = f'https://github.com/nk2028/opencc-data/archive/{OPENCC_VER}.zip'
 OPENCC_DIR_MAP = {
     'data': 'dictionary',
@@ -159,9 +160,13 @@ def handle_opencc(root_dir):
                 Table(table).dump(dest)
 
             elif ext == '.json':
-                zinfo.filename = f'{newdir}/{filename}'
-                logger.info('extracting: %s => %s', subpath, zinfo.filename)
-                zh.extract(zinfo, root_dir)
+                dest = os.path.normpath(os.path.join(root_dir, newdir, filename))
+                logger.info('updating: %s', dest)
+                with zh.open(zinfo) as fh:
+                    pm = rapidjson.PM_COMMENTS | rapidjson.PM_TRAILING_COMMAS
+                    data = rapidjson.load(fh, parse_mode=pm)
+                with open(dest, 'w', encoding='UTF-8') as fh:
+                    json.dump(data, fh, indent=2, ensure_ascii=False, check_circular=False)
 
 
 def handle_mw(root_dir):

@@ -25,7 +25,10 @@ dicts:
       - ../dictionary/STPhrasesExpNum.txt
       - ../dictionary/STPhrasesExpNumApprox.txt
     - ../dictionary/STPhrasesExpPronoun.txt
-  - ../../opencc/dictionary/STPhrases.txt
+  - mode: load
+    src:
+    - ../../opencc/dictionary/STPhrases.txt
+    - ../../opencc/dictionary/STPhrases_GeneratedFromRegionalPhrases.txt
 - file: ../dictionary/TSPhrases.list
   mode: load
   src:
@@ -40,6 +43,7 @@ dicts:
   mode: load
   src:
   - ../dictionary/TSCharacters.txt
+  - ../../opencc/dictionary/TSCharactersExt.txt
   - ../../opencc/dictionary/TSCharacters.txt
 - file: ../dictionary/TWPhrases.list
   mode: load
@@ -55,6 +59,10 @@ dicts:
     src:
     - ../../opencc/dictionary/TWVariants.txt
     - ../dictionary/TWVariantsRemove.txt
+- file: ../dictionary/TWVariantsPhrases.list
+  mode: load
+  src:
+  - ../../opencc/dictionary/TWVariantsPhrases.txt
 - file: ../dictionary/TWPhrasesRev.list
   mode: load
   src:
@@ -69,14 +77,21 @@ dicts:
   mode: load
   src:
   - ../dictionary/TWVariantsRev.txt
-  - mode: swap
+  - mode: filter
+    method: remove_key_values
     src:
-    - ../dictionary/TWVariants.list
+    - ../../opencc/dictionary/TWVariantsRev.txt
+    - ../dictionary/TWVariantsRevRemove.txt
 - file: ../dictionary/TWVariantsRevPhrases.list
   mode: load
   src:
   - ../dictionary/TWVariantsRevPhrases.txt
   - ../../opencc/dictionary/TWVariantsRevPhrases.txt
+- file: ../dictionary/HKPhrases.list
+  mode: load
+  src:
+  - ../dictionary/HKPhrases.txt
+  - ../../opencc/dictionary/HKPhrases.txt
 - file: ../dictionary/HKVariants.list
   mode: load
   src:
@@ -86,37 +101,26 @@ dicts:
     src:
     - ../../opencc/dictionary/HKVariants.txt
     - ../dictionary/HKVariantsRemove.txt
+- file: ../dictionary/HKVariantsPhrases.list
+  mode: load
+  src:
+  - ../../opencc/dictionary/HKVariantsPhrases.txt
+- file: ../dictionary/HKPhrasesRev.list
+  mode: load
+  src:
+  - ../dictionary/HKPhrasesRev.txt
+  - ../../opencc/dictionary/HKPhrasesRev.txt
 - file: ../dictionary/HKVariantsRev.list
   mode: load
   src:
   - ../dictionary/HKVariantsRev.txt
-  - mode: swap
+  - mode: filter
+    method: remove_key_values
     src:
-    - ../dictionary/HKVariants.list
+    - ../../opencc/dictionary/HKVariantsRev.txt
+    - ../dictionary/HKVariantsRevRemove.txt
 - file: ../dictionary/HKVariantsRevPhrases.list
   mode: load
   src:
   - ../dictionary/HKVariantsRevPhrases.txt
   - ../../opencc/dictionary/HKVariantsRevPhrases.txt
-- file: ../dictionary/JPVariants.list
-  mode: load
-  src:
-  - ../dictionary/JPVariants.txt
-  - mode: filter
-    method: remove_key_values
-    src:
-    - ../../opencc/dictionary/JPVariants.txt
-    - ../dictionary/JPVariantsRemove.txt
-- file: ../dictionary/JPVariantsRev.list
-  mode: load
-  src:
-  - ../dictionary/JPVariantsRev.txt
-  - ../../opencc/dictionary/JPShinjitaiCharacters.txt
-  - mode: swap
-    src:
-    - ../dictionary/JPVariants.list
-- file: ../dictionary/JPVariantsRevPhrases.list
-  mode: load
-  src:
-  - ../dictionary/JPVariantsRevPhrases.txt
-  - ../../opencc/dictionary/JPShinjitaiPhrases.txt

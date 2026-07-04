@@ -4,4 +4,5 @@ dicts:
   mode: load
   src:
   - ../dictionary/TSPhrases.txt
+  - ../dictionary/TSCharactersExt.txt
   - ../dictionary/TSCharacters.txt

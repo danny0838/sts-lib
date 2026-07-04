@@ -13,4 +13,5 @@ dicts:
   - mode: load
     src:
     - ../dictionary/TWPhrases.list
+    - ../dictionary/TWVariantsPhrases.list
     - ../dictionary/TWVariants.list

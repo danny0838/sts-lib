@@ -6,4 +6,5 @@ dicts:
   auto_space: true
   mode: load
   src:
+  - ../dictionary/TWVariantsPhrases.list
   - ../dictionary/TWVariants.list

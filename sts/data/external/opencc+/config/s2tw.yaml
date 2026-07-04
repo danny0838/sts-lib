@@ -10,4 +10,7 @@ dicts:
     src:
     - ../dictionary/STPhrases.list
     - ../dictionary/STCharacters.list
-  - ../dictionary/TWVariants.list
+  - mode: load
+    src:
+    - ../dictionary/TWVariantsPhrases.list
+    - ../dictionary/TWVariants.list

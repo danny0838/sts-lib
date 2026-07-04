@@ -10,6 +10,13 @@
         "s2tw": "低級別產品",
         "s2twp": "低級別產品"
       }
+    },
+    {
+      "id": "BYVoid_OpenCC_Issue_475_tw2sp",
+      "input": "畫素 畫素藉由 圖示 圖示覆蓋",
+      "expected": {
+        "tw2sp": "像素 像素借由 图标 图标覆盖"
+      }
     }
   ]
 }

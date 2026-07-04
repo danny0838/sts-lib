@@ -6,8 +6,10 @@ dicts:
   - mode: load
     src:
     - ../dictionary/STPhrases.txt
+    - ../dictionary/STPhrases_GeneratedFromRegionalPhrases.txt
     - ../dictionary/STCharacters.txt
   - mode: load
     src:
     - ../dictionary/TWPhrases.txt
+    - ../dictionary/TWVariantsPhrases.txt
     - ../dictionary/TWVariants.txt

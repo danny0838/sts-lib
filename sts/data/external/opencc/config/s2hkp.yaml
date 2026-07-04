@@ -1,6 +1,6 @@
-name: Simplified Chinese to Traditional Chinese (Hong Kong variant)
+name: Simplified Chinese to Traditional Chinese (Hong Kong variant, with phrases)
 dicts:
-- file: ../dictionary/s2hk.tlist
+- file: ../dictionary/s2hkp.tlist
   mode: join
   src:
   - mode: load
@@ -10,5 +10,6 @@ dicts:
     - ../dictionary/STCharacters.txt
   - mode: load
     src:
+    - ../dictionary/HKPhrases.txt
     - ../dictionary/HKVariantsPhrases.txt
     - ../dictionary/HKVariants.txt

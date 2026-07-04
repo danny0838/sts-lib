@@ -4,4 +4,5 @@ dicts:
   mode: load
   src:
   - ../dictionary/STPhrases.txt
+  - ../dictionary/STPhrases_GeneratedFromRegionalPhrases.txt
   - ../dictionary/STCharacters.txt
