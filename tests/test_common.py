@@ -32,7 +32,7 @@ root_dir = os.path.dirname(__file__)
 def setUpModule():
     # Set up a temp directory for testing
     global _tmpdir, tmpdir
-    _tmpdir = tempfile.TemporaryDirectory(prefix='init-')
+    _tmpdir = tempfile.TemporaryDirectory(prefix='common-')
     tmpdir = _tmpdir.name
 
     # suppress logging
@@ -2554,100 +2554,170 @@ class TestStsMaker(unittest.TestCase):
         })
 
     def test_get_config_file(self):
-        # absolute path
-        self.assertEqual(
-            StsMaker().get_config_file(os.path.join(self.root, 'myconf.json')),
-            os.path.join(self.root, 'myconf.json'),
-        )
+        for path, expected, base_dir, exist_files in (
+            # absolute path
+            (
+                os.path.join(self.root, 'myconf.json'),
+                os.path.join(self.root, 'myconf.json'),
+                None,
+                (),
+            ),
 
-        # relative to CWD
-        self.assertEqual(
-            StsMaker().get_config_file('myconf.json'),
-            'myconf.json',
-        )
-        self.assertEqual(
-            StsMaker().get_config_file('subdir/myconf.json'),
-            os.path.normpath('subdir/myconf.json'),
-        )
+            # relative to CWD if exists
+            (
+                'myconf.tmp',
+                'myconf.tmp',
+                None,
+                ('myconf.tmp', os.path.join(StsMaker.config_dir, 'myconf.tmp')),
+            ),
 
-        # relative to base_dir
-        self.assertEqual(
-            StsMaker().get_config_file('myconf.json', base_dir=self.root),
-            os.path.join(self.root, 'myconf.json'),
-        )
-        self.assertEqual(
-            StsMaker().get_config_file('subdir/myconf.json', base_dir=self.root),
-            os.path.normpath(os.path.join(self.root, 'subdir/myconf.json')),
-        )
+            # relative to base_dir if exists
+            (
+                'myconf.tmp',
+                os.path.join(self.root, 'myconf.tmp'),
+                self.root,
+                (
+                    os.path.join(self.root, 'myconf.tmp'),
+                    os.path.join(StsMaker.config_dir, 'myconf.tmp'),
+                ),
+            ),
 
-        # relative to default config directory
-        tmpfile = os.path.join(StsMaker.config_dir, '__dummy__.tmp.json')
-        with open(tmpfile, 'w'):
-            pass
-        try:
-            self.assertEqual(
-                StsMaker().get_config_file('__dummy__.tmp.json'),
-                os.path.join(StsMaker.config_dir, '__dummy__.tmp.json'),
-            )
-        finally:
-            os.remove(tmpfile)
+            # relative to default config directory
+            (
+                'myconf.tmp',
+                os.path.join(StsMaker.config_dir, 'myconf.tmp'),
+                None,
+                (os.path.join(StsMaker.config_dir, 'myconf.tmp'),),
+            ),
 
-        # relative to default config directory (omit extension)
-        for ext in ('json', 'yaml', 'yml'):
-            with self.subTest(ext=ext):
-                tmpfile = os.path.join(StsMaker.config_dir, f'__dummy__.tmp.{ext}')
-                with open(tmpfile, 'w'):
-                    pass
+            # relative to default config directory (omit extension)
+            (
+                'myconf.tmp',
+                os.path.join(StsMaker.config_dir, 'myconf.tmp.json'),
+                None,
+                (os.path.join(StsMaker.config_dir, 'myconf.tmp.json'),),
+            ),
+            (
+                'myconf.tmp',
+                os.path.join(StsMaker.config_dir, 'myconf.tmp.yaml'),
+                None,
+                (os.path.join(StsMaker.config_dir, 'myconf.tmp.yaml'),),
+            ),
+            (
+                'myconf.tmp',
+                os.path.join(StsMaker.config_dir, 'myconf.tmp.yml'),
+                None,
+                (os.path.join(StsMaker.config_dir, 'myconf.tmp.yml'),),
+            ),
+
+            # fallback to relative
+            (
+                'myconf.tmp',
+                'myconf.tmp',
+                None,
+                (),
+            ),
+            (
+                'subdir/myconf.tmp',
+                os.path.normpath('subdir/myconf.tmp'),
+                None,
+                (),
+            ),
+            (
+                'myconf.tmp',
+                os.path.join(self.root, 'myconf.tmp'),
+                self.root,
+                (),
+            ),
+        ):
+            with self.subTest(path=path, expected=expected, base_dir=base_dir,
+                              exist_files=exist_files):
+                for tmpfile in exist_files:
+                    with open(tmpfile, 'w'):
+                        pass
                 try:
                     self.assertEqual(
-                        StsMaker().get_config_file('__dummy__.tmp'),
-                        os.path.join(StsMaker.config_dir, f'__dummy__.tmp.{ext}'),
+                        StsMaker().get_config_file(path, base_dir=base_dir),
+                        expected,
                     )
                 finally:
-                    os.remove(tmpfile)
+                    for tmpfile in exist_files:
+                        os.remove(tmpfile)
 
     def test_get_stsdict_file(self):
-        # absolute path
-        self.assertEqual(
-            StsMaker().get_stsdict_file(os.path.join(self.root, 'dict.list')),
-            os.path.join(self.root, 'dict.list'),
-        )
+        for path, expected, base_dir, exist_files in (
+            # absolute path
+            (
+                os.path.join(self.root, 'dict.list'),
+                os.path.join(self.root, 'dict.list'),
+                None,
+                (),
+            ),
 
-        # relative to CWD
-        self.assertEqual(
-            StsMaker().get_stsdict_file('dict.list'),
-            'dict.list',
-        )
-        self.assertEqual(
-            StsMaker().get_stsdict_file('subdir/dict.list'),
-            os.path.normpath('subdir/dict.list'),
-        )
+            # relative to CWD if exists
+            (
+                'dict.tmp',
+                'dict.tmp',
+                None,
+                ('dict.tmp', os.path.join(StsMaker.dictionary_dir, 'dict.tmp')),
+            ),
 
-        # relative to base_dir
-        self.assertEqual(
-            StsMaker().get_stsdict_file('dict.list', base_dir=self.root),
-            os.path.join(self.root, 'dict.list'),
-        )
-        self.assertEqual(
-            StsMaker().get_stsdict_file('subdir/dict.list', base_dir=self.root),
-            os.path.normpath(os.path.join(self.root, 'subdir/dict.list')),
-        )
+            # relative to base_dir if exists
+            (
+                'dict.tmp',
+                os.path.join(self.root, 'dict.tmp'),
+                self.root,
+                (
+                    os.path.join(self.root, 'dict.tmp'),
+                    os.path.join(StsMaker.dictionary_dir, 'dict.tmp'),
+                ),
+            ),
 
-        # relative to default dictionary directory
-        tmpfile = os.path.join(StsMaker.dictionary_dir, '__dummy__.tmp.txt')
-        with open(tmpfile, 'w'):
-            pass
-        try:
-            self.assertEqual(
-                StsMaker().get_stsdict_file('__dummy__.tmp.txt'),
-                os.path.join(StsMaker.dictionary_dir, '__dummy__.tmp.txt'),
-            )
-        finally:
-            os.remove(tmpfile)
+            # relative to default dictionary directory
+            (
+                'dict.tmp',
+                os.path.join(StsMaker.dictionary_dir, 'dict.tmp'),
+                None,
+                (os.path.join(StsMaker.dictionary_dir, 'dict.tmp'),),
+            ),
+
+            # fallback to relative
+            (
+                'dict.tmp',
+                'dict.tmp',
+                None,
+                (),
+            ),
+            (
+                'subdir/dict.tmp',
+                os.path.normpath('subdir/dict.tmp'),
+                None,
+                (),
+            ),
+            (
+                'dict.tmp',
+                os.path.join(self.root, 'dict.tmp'),
+                self.root,
+                (),
+            ),
+        ):
+            with self.subTest(path=path, expected=expected, base_dir=base_dir,
+                              exist_files=exist_files):
+                for tmpfile in exist_files:
+                    with open(tmpfile, 'w'):
+                        pass
+                try:
+                    self.assertEqual(
+                        StsMaker().get_stsdict_file(path, base_dir=base_dir),
+                        expected,
+                    )
+                finally:
+                    for tmpfile in exist_files:
+                        os.remove(tmpfile)
 
     def test_check_update_dict_scheme_file_src(self):
         # missing file
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
 
         src1 = os.path.join(self.root, 'phrases.txt')
         with open(src1, 'w'):
@@ -2668,7 +2738,7 @@ class TestStsMaker(unittest.TestCase):
         self.assertTrue(scheme['_updated'])
 
         # mtime(file) > mtime(src)
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
         with open(file, 'w'):
             pass
         os.utime(file, (40000, 40000))
@@ -2692,7 +2762,7 @@ class TestStsMaker(unittest.TestCase):
         self.assertNotIn('_updated', scheme)
 
         # mtime(file) < mtime(src)
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
         with open(file, 'w'):
             pass
         os.utime(file, (10000, 10000))
@@ -2716,7 +2786,7 @@ class TestStsMaker(unittest.TestCase):
         self.assertTrue(scheme['_updated'])
 
         # nested src update
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
         with open(file, 'w'):
             pass
         os.utime(file, (40000, 40000))
@@ -2744,10 +2814,11 @@ class TestStsMaker(unittest.TestCase):
 
         self.assertTrue(StsMaker().check_update(scheme))
         self.assertTrue(scheme['_updated'])
+        self.assertTrue(scheme['src'][0]['_updated'])
 
     def test_check_update_dict_scheme_file(self):
         # mtime(file) and unspecified mtime
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
         with open(file, 'w'):
             pass
         os.utime(file, (20000, 20000))
@@ -2760,7 +2831,7 @@ class TestStsMaker(unittest.TestCase):
         self.assertNotIn('_updated', scheme)
 
         # mtime(file) > mtime
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
         with open(file, 'w'):
             pass
         os.utime(file, (20000, 20000))
@@ -2773,7 +2844,7 @@ class TestStsMaker(unittest.TestCase):
         self.assertNotIn('_updated', scheme)
 
         # mtime(file) < mtime
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
         with open(file, 'w'):
             pass
         os.utime(file, (20000, 20000))
@@ -2841,7 +2912,7 @@ class TestStsMaker(unittest.TestCase):
         self.assertNotIn('_updated', scheme)
 
     def test_check_update_str(self):
-        file = os.path.join(self.root, 'conf.json')
+        file = os.path.join(self.root, 'dict.list')
         with open(file, 'w'):
             pass
         os.utime(file, (20000, 20000))
