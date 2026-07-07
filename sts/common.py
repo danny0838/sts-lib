@@ -1095,7 +1095,8 @@ class StsMaker():
         # handle required configs
         if not skip_requires:
             for cf in config['requires']:
-                self.make(cf, base_dir=config_dir, skip_requires=skip_requires)
+                self.make(cf, base_dir=config_dir, skip_check=skip_check,
+                          skip_requires=skip_requires)
 
         # make the requested dicts
         dest = None
@@ -1228,7 +1229,7 @@ class StsMaker():
             logger.info('making: %s', dest)
 
         for i, src in enumerate(srcs):
-            srcs[i] = self.make_dict(src, config_dir, skip_check)
+            srcs[i] = self.make_dict(src, config_dir=config_dir, skip_check=skip_check)
 
         try:
             func = getattr(self, f'_make_dict_mode_{mode}')

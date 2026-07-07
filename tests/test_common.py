@@ -1235,6 +1235,166 @@ class TestStsMaker(unittest.TestCase):
         """Set up a sub temp directory for testing."""
         self.root = tempfile.mkdtemp(dir=tmpdir)
 
+    def test_make_basic(self):
+        file = os.path.join(self.root, 'dict.list')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (40000, 40000))
+
+        src1 = os.path.join(self.root, 'chars.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': file,
+                        'src': [src1],
+                    },
+                ],
+            }, fh)
+
+        maker = StsMaker()
+        with mock.patch.object(maker, 'make_dict', wraps=maker.make_dict) as mock_md:
+            maker.make(config_file)
+        mock_md.assert_not_called()
+
+        with mock.patch.object(maker, 'make_dict', wraps=maker.make_dict) as mock_md:
+            maker.make(config_file, skip_check=False)
+        mock_md.assert_not_called()
+
+        with mock.patch.object(maker, 'make_dict', wraps=maker.make_dict) as mock_md:
+            maker.make(config_file, skip_check=True)
+        mock_md.assert_any_call({
+            'file': file,
+            'src': [src1],
+            'mode': 'load',
+            'sort': False,
+            'auto_space': False,
+        }, config_dir=self.root, skip_check=True)
+
+    def test_make_required(self):
+        file = os.path.join(self.root, 'dict.list')
+        with open(file, 'w'):
+            pass
+        os.utime(file, (40000, 40000))
+
+        file2 = os.path.join(self.root, 'dict2.list')
+        with open(file2, 'w'):
+            pass
+        os.utime(file2, (30000, 30000))
+
+        src1 = os.path.join(self.root, 'chars.txt')
+        with open(src1, 'w'):
+            pass
+        os.utime(src1, (20000, 20000))
+
+        config_file = os.path.join(self.root, 'config.json')
+        with open(config_file, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'requires': [
+                    '_default.json',
+                ],
+                'dicts': [
+                    {
+                        'file': file,
+                        'src': [file2],
+                    },
+                ],
+            }, fh)
+
+        config_file2 = os.path.join(self.root, '_default.json')
+        with open(config_file2, 'w', encoding='UTF-8') as fh:
+            json.dump({
+                'dicts': [
+                    {
+                        'file': file2,
+                        'src': [src1],
+                    },
+                ],
+            }, fh)
+
+        maker = StsMaker()
+        with mock.patch.object(maker, 'make', wraps=maker.make) as mock_m, \
+             mock.patch.object(maker, 'make_dict', wraps=maker.make_dict) as mock_md:
+            maker.make(config_file)
+        mock_m.assert_has_calls([
+            mock.call(config_file),
+            mock.call('_default.json', base_dir=self.root, skip_check=False, skip_requires=False),
+        ])
+        mock_md.assert_not_called()
+
+        with mock.patch.object(maker, 'make', wraps=maker.make) as mock_m, \
+             mock.patch.object(maker, 'make_dict', wraps=maker.make_dict) as mock_md:
+            maker.make(config_file, skip_check=False)
+        mock_m.assert_has_calls([
+            mock.call(config_file, skip_check=False),
+            mock.call('_default.json', base_dir=self.root, skip_check=False, skip_requires=False),
+        ])
+        mock_md.assert_not_called()
+
+        with mock.patch.object(maker, 'make', wraps=maker.make) as mock_m, \
+             mock.patch.object(maker, 'make_dict', wraps=maker.make_dict) as mock_md:
+            maker.make(config_file, skip_check=True)
+        mock_m.assert_has_calls([
+            mock.call(config_file, skip_check=True),
+            mock.call('_default.json', base_dir=self.root, skip_check=True, skip_requires=False),
+        ])
+        mock_md.assert_has_calls([
+            mock.call({
+                'file': file2,
+                'src': [src1],
+                'mode': 'load',
+                'sort': False,
+                'auto_space': False,
+            }, config_dir=self.root, skip_check=True),
+            mock.call({
+                'file': src1,
+                'src': [],
+                'mode': 'load',
+                'sort': False,
+                'auto_space': False,
+            }, config_dir=self.root, skip_check=True),
+            mock.call({
+                'file': file,
+                'src': [file2],
+                'mode': 'load',
+                'sort': False,
+                'auto_space': False,
+            }, config_dir=self.root, skip_check=True),
+            mock.call({
+                'file': file2,
+                'src': [],
+                'mode': 'load',
+                'sort': False,
+                'auto_space': False,
+            }, config_dir=self.root, skip_check=True),
+        ])
+
+        with mock.patch.object(maker, 'make', wraps=maker.make) as mock_m, \
+             mock.patch.object(maker, 'make_dict', wraps=maker.make_dict) as mock_md:
+            maker.make(config_file, skip_check=True, skip_requires=True)
+        mock_m.assert_called_once_with(config_file, skip_check=True, skip_requires=True)
+        mock_md.assert_has_calls([
+            mock.call({
+                'file': file,
+                'src': [file2],
+                'mode': 'load',
+                'sort': False,
+                'auto_space': False,
+            }, config_dir=self.root, skip_check=True),
+            mock.call({
+                'file': file2,
+                'src': [],
+                'mode': 'load',
+                'sort': False,
+                'auto_space': False,
+            }, config_dir=self.root, skip_check=True),
+        ])
+
     def test_load_config_json(self):
         """Should load a file with .json extension as JSON"""
         config_file = os.path.join(self.root, 'config.json')
