@@ -2,7 +2,7 @@
 
 ## Config 配置檔
 
-配置檔為 JSON 或 YAML 檔案（副檔名須為 `.yaml` 或 `.yml`）。規格如下：
+配置檔為 JSON（副檔名須為 `.json`）或 YAML 檔案。規格如下：
 
 ```javascript
 /**
