@@ -2,6 +2,11 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.40.1] - 2026-07-09
+* Fixed an issue where `skip_check` was ignored by required dicts.
+* Added support for saving current conversion for the web converter.
+* Miscellaneous improvements to the internal code, test suite, and development tools.
+
 ## [0.40.0] - 2026-06-21
 * Fixed an issue where a dictionary entry with empty values is saved as converting to an empty string.
 * Improved the error messages during making from a config file.
