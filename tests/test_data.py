@@ -4,6 +4,7 @@ import os
 import unittest
 from contextlib import contextmanager, nullcontext
 
+import jsonschema
 import yaml
 
 from sts.common import StsConverter, StsMaker
@@ -23,6 +24,39 @@ def setUpModule():
 def tearDownModule():
     # unsuppress logging
     logging.disable(logging.NOTSET)
+
+
+class TestConfigs(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        scheme_file = os.path.join(StsMaker.scheme_dir, 'sts_config_schema.yaml')
+        with open(scheme_file, encoding='utf-8') as fh:
+            cls.schema = yaml.safe_load(fh)
+
+    def _validate_config_files(self, config_dir):
+        with os.scandir(config_dir) as it:
+            for entry in it:
+                if not entry.is_file:
+                    continue
+                if not os.path.splitext(entry)[1].lower() == '.yaml':
+                    continue
+
+                with open(entry.path, encoding='utf-8') as fh:
+                    config = yaml.safe_load(fh)
+                jsonschema.validate(config, self.schema)
+
+    def test_configs(self):
+        config_dir = StsMaker.config_dir
+        self._validate_config_files(config_dir)
+
+    def test_configs_external(self):
+        with os.scandir(os.path.join(StsMaker.data_dir, 'external')) as it:
+            for entry in it:
+                config_dir = os.path.join(entry, 'config')
+                if not os.path.isdir(config_dir):
+                    continue
+
+                self._validate_config_files(config_dir)
 
 
 @slow_test()
@@ -66,7 +100,7 @@ class TestMake(unittest.TestCase):
                 self._test_make_config_files(config_dir)
 
 
-class TestConfigs(unittest.TestCase):
+class TestConversions(unittest.TestCase):
     @contextmanager
     def sub_test_xfail(self, msg=_subtest_msg_sentinel, **params):
         orig_sub_test = self.subTest

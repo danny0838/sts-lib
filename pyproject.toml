@@ -46,6 +46,7 @@ sts = "sts.cli:main"
 [dependency-groups]
 dev = [
     "tox>=4.21.2",
+    "jsonschema>=4.23",
 ]
 lint = [
     "flake8>=6.1",
@@ -72,6 +73,7 @@ sts = [
     "data/config/*.yaml",
     "data/dictionary/*.txt",
     "data/scheme/*.txt",
+    "data/scheme/*.yaml",
 ]
 
 [tool.setuptools.dynamic.version]
@@ -110,6 +112,7 @@ min_version = "4.22"
 [tool.tox.env_run_base]
 description = "run unit tests"
 package = "editable"
+dependency_groups = ["dev"]
 pass_env = ["STS_RUN_SLOW_TESTS"]
 commands = [["python", "-m", "unittest", {replace = "posargs", extend = true}]]
 

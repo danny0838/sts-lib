@@ -1,0 +1,137 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://github.com/danny0838/sts-lib/blob/main/sts/data/scheme/sts_config_schema.yaml"
+title: ConfigScheme
+type: object
+required: ["dicts"]
+properties:
+  name:
+    type: string
+    description: >
+      Name/description of the config.
+
+  requires:
+    type: array
+    items:
+      type: string
+    description: >
+      Required configs, which are made before making from this config, as an
+      absolute path, or a path relative to the directory of this config file,
+      or the basename of a built-in config file (with or without extension
+      ".json", ".yaml", ".yml").
+
+  dicts:
+    type: array
+    items:
+      $ref: "#/$defs/srcDictScheme"
+    minItems: 1
+    description: >
+      Schemes of each dictionary file to be generated or loaded.
+
+$defs:
+  srcDictScheme:
+    title: SrcDictScheme
+    description: >
+      A dictScheme or string representing a dict.
+    oneOf:
+      - type: string
+        description: >
+          An absolute path, or a path relative to the directory of the config
+          file, or the basename of a built-in dictionary file, with a file
+          extension of .txt, .list, .json, .jlist, .yaml, or .yml.
+      - $ref: "#/$defs/dictScheme"
+
+  dictScheme:
+    title: DictScheme
+    type: object
+    anyOf:
+      - required: ["file"]
+      - required: ["src"]
+    properties:
+      file:
+        type: string
+        description: >
+          Path of the dictionary file to generate, as an absolute path, or a
+          path relative to the directory of this config file. It should be a
+          .tlist (compiled trie), .jlist (compiled table), or .list (plain text
+          table). An unknown file extension is treated as .list.
+
+      mode:
+        type: string
+        description: >
+          The mode to handle the loaded dicts.
+        default: "load"
+        anyOf:
+          - const: "load"
+            description: >
+              Simply merge the loaded keys and values.
+          - const: "swap"
+            description: >
+              Reverse the dict (i.e. use the values as keys and the keys as
+              values).
+          - const: "join"
+            description: >
+              Chain dicts (a conversion using a dict joining dict1 and dict2
+              works like a conversion using dict1 and then dict2, but takes
+              care of word segmentation).
+          - const: "expand"
+            description: >
+              Expand the placeholders (defined in the extra `placeholders`
+              property) in the first dict with the matching key and values in
+              other dicts.
+          - const: "filter"
+            description: >
+              Filter the output keys and values in the loaded dicts using extra
+              `method`, `include`, and `exclude` properties.
+
+      src:
+        type: array
+        items:
+          $ref: "#/$defs/srcDictScheme"
+        minItems: 1
+        description: >
+          The source dicts.
+
+      sort:
+        type: boolean
+        description: >
+          True to sort the keys of the output dictionary.
+
+      auto_space:
+        type: boolean
+        description: >
+          True to automatically add spaced version at non-Hanzi borders for the
+          output dictionary. (E.g., add "SQL 注入" => "SQL 隱碼攻擊" for
+          "SQL注入" => "SQL隱碼攻擊")
+
+      placeholders:
+        type: array
+        items:
+          type: string
+        description: >
+          Strings to be expanded using other dicts. (For "expand" mode)
+
+      method:
+        type: string
+        description: >
+          How to filter. (For "filter" mode)
+        default: "remove_key_values"
+        anyOf:
+          - const: "remove_keys"
+            description: >
+              Remove keys from the first dict if it appears in any other one.
+          - const: "remove_key_values"
+            description: >
+              Remove key-value pairs from the first dict if it appears in any
+              other one.
+
+      include:
+        type: string
+        description: >
+          A regex filter that discards non-matched conversion values. (For
+          "filter" mode)
+
+      exclude:
+        type: string
+        description: >
+          A regex filter that discards matched conversion values. (For "filter"
+          mode)

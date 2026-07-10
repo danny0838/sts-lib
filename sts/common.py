@@ -1040,6 +1040,7 @@ class StsMaker():
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     config_dir = os.path.join(data_dir, 'config')
     dictionary_dir = os.path.join(data_dir, 'dictionary')
+    scheme_dir = os.path.join(data_dir, 'scheme')
 
     def make(self, config_name, base_dir=None,
              skip_check=False, skip_requires=False):
