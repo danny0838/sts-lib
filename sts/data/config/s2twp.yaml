@@ -1,6 +1,4 @@
 name: Simplified Chinese to Traditional Chinese (Taiwan standard, with phrases)
-requires:
-- _default.yaml
 dicts:
 - file: ../dictionary/s2twp.tlist
   auto_space: true
