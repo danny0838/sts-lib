@@ -2,6 +2,10 @@
 * This project generally follows [semantic versioning](https://semver.org/). For a version `x.y.z`, `x` means a major (backward incompatible) change, `y` means a minor (backward compatible) change, and `z` means a patch (bug fix). Few versions may not strictly follow this rule due to historical reasons, though.
 * Versions before 1.0 are in initial development. APIs are not stable for these versions, even a `y` version can involve a breaking change, and only partial notable changes are summarized in this document. See full commit history in the source repository for details.
 
+## [0.41.0] - 2026-07-12
+* Introduced JSON schema for config schema documentation and validation testing.
+* Miscellaneous improvements to the internal code, test suite, development tools, and documentation.
+
 ## [0.40.1] - 2026-07-09
 * Fixed an issue where `skip_check` was ignored by required dicts.
 * Added support for saving current conversion for the web converter.
