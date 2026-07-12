@@ -73,7 +73,7 @@ jobs:
         run: pip install .
 
       - name: Run tests
-        run: python -m unittest
+        run: python -m unittest -v
 
       - name: Ensure all dependency can be installed
         if: matrix.pyver != '3.8'
