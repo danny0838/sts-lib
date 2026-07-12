@@ -41,9 +41,10 @@ class TestConfigs(unittest.TestCase):
                 if not os.path.splitext(entry)[1].lower() == '.yaml':
                     continue
 
-                with open(entry.path, encoding='utf-8') as fh:
-                    config = yaml.safe_load(fh)
-                jsonschema.validate(config, self.schema)
+                with self.subTest(config=entry.path):
+                    with open(entry.path, encoding='utf-8') as fh:
+                        config = yaml.safe_load(fh)
+                    jsonschema.validate(config, self.schema)
 
     def test_configs(self):
         config_dir = StsMaker.config_dir
