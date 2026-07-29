@@ -29,7 +29,7 @@ UNIHAN_TABLES = {
     'kSpoofingVariant': 'SpoofingVariant',
 }
 
-OPENCC_VER = '1.4.0'  # e.g. '1.3.1', 'main'
+OPENCC_VER = '1.4.1'  # e.g. '1.3.1', 'main'
 OPENCC_URL = f'https://github.com/nk2028/opencc-data/archive/{OPENCC_VER}.zip'
 OPENCC_DIR_MAP = {
     'data': 'dictionary',
